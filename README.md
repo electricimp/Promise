@@ -34,6 +34,10 @@ This function allows the developer to provide a success function and optionally 
 
 This function allows the developer to provide a failure function. The failure function should accept a single parameter, the error.
 
+### finally( *alwaysFunction* )
+
+This function allows the developer to provide a function that is executed once the promise is resolved or rejected, regardless of the success/failure. Accepts a single parameter – result or error.
+
 ## Example
 
 An example implementation of a promise is:
@@ -71,6 +75,11 @@ Widget().calculate(123)
         .fail(
             function(err) {
                 server.error("Failed: " + err)
+            }.bindenv(this)
+        )
+        .finally(
+            function(r) {
+                server.error("I'm called always")
             }.bindenv(this)
         )
 ```
