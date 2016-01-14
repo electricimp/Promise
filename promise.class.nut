@@ -60,15 +60,25 @@ class Promise {
             _reject(e);
         }
     }
- 
+    
+   /**
+    * Check if a value is a Promise and, if it is,
+    * return the `then` method of that promise.
+    *
+    * @param {Promise|*} value
+    * @return {function|null}
+    */
     function _getThen(value) {
         local t = typeof value;
-        if (value && (t == "object" || t == "function")) {
+    
+        if (value && (t == "instance") && ("then" in value)) {
             local then = value.then;
+    
             if (typeof then == "function") {
                 return then;
             }
         }
+        
         return null;
     }
     
