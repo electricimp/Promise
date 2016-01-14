@@ -139,5 +139,11 @@ class Promise {
         return then(null, onRejected);
     }
     
-    
+    /**
+     * Execute handler both on success and failure
+     * @param {function|null} always
+     */
+    function finally(always = null) {
+      return then(always, always);
+    }
 }
