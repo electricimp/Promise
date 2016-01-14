@@ -92,13 +92,13 @@ class Promise {
         local done = false;
         try {
             fn(
-                function (value) {
+                function (value = null /* allow resolving without argument */) {
                     if (done) return;
                     done = true;
                     onFulfilled(value)
                 }.bindenv(this), 
                 
-                function (reason) {
+                function (reason = null /* allow rejection without argument */) {
                     if (done) return;
                     done = true;
                     onRejected(reason)
