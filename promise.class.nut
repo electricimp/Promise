@@ -126,15 +126,24 @@ class Promise {
     
     // **** Public functions ****
 
+    /**
+     * Execute handler once the Promise is resolved/rejected
+     * @param {function|null} onFulfilled
+     * @param {function|null} onRejected
+     */
     function then(onFulfilled = null, onRejected = null) {
         // ensure we are always asynchronous
         imp.wakeup(0, function () {
             _handle({ onFulfilled=onFulfilled, onRejected=onRejected });
         }.bindenv(this));
-        
+
         return this;
     }
-    
+
+    /**
+     * Execute handler on failure
+     * @param {function|null} onRejected
+     */
     function fail(onRejected = null) {
         return then(null, onRejected);
     }
