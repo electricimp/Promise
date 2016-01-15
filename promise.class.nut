@@ -75,16 +75,18 @@ class Promise {
     * @return {function|null}
     */
     function _getThen(value) {
-        local t = typeof value;
-    
-        if (value && (t == "instance") && ("then" in value)) {
-            local then = value.then;
-    
-            if (typeof then == "function") {
-                return then;
-            }
+
+        if (
+            // detect that the value is some form of Promise
+            // by the fact it has .then() method
+            value
+            && (typeof value == "instance")
+            && ("then" in value)
+            && (typeof value.then == "function")
+          ) {
+            return value.then;
         }
-        
+
         return null;
     }
     
