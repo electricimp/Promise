@@ -79,8 +79,7 @@ class Promise {
         if (
             // detect that the value is some form of Promise
             // by the fact it has .then() method
-            value
-            && (typeof value == "instance")
+            (typeof value == "instance")
             && ("then" in value)
             && (typeof value.then == "function")
           ) {
