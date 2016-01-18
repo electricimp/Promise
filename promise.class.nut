@@ -1,14 +1,20 @@
-// Copyright (c) 2015 SMS Diagnostics Pty Ltd
-// This file is licensed under the MIT License
-// http://opensource.org/licenses/MIT
-//
-// Promise class for Squirrel (Electric Imp)
-// 
-// Initial version: 08-12-2015
-// Author: Aron Steg 
-//
+/**
+ * This file is licensed under the MIT License
+ * http://opensource.org/licenses/MIT
+ */
 
-/******************************************************************************/
+/**
+ * Promise class for Squirrel (Electric Imp)
+ * This file is licensed under the MIT License
+ *
+ * Initial version: 08-12-2015
+ *
+ * @see https://www.promisejs.org/implementing/
+ *
+ * @copyright (c) 2015 SMS Diagnostics Pty Ltd
+ * @author Aron Steg
+ * @author Mikhail Yurasov <mikhail@electricimp.com>
+ */
 class Promise {
 
     static version = [1, 0, 0];
@@ -60,15 +66,26 @@ class Promise {
             _reject(e);
         }
     }
- 
+    
+   /**
+    * Check if a value is a Promise and, if it is,
+    * return the `then` method of that promise.
+    *
+    * @param {Promise|*} value
+    * @return {function|null}
+    */
     function _getThen(value) {
-        local t = typeof value;
-        if (value && (t == "object" || t == "function")) {
-            local then = value.then;
-            if (typeof then == "function") {
-                return then;
-            }
+
+        if (
+            // detect that the value is some form of Promise
+            // by the fact it has .then() method
+            (typeof value == "instance")
+            && ("then" in value)
+            && (typeof value.then == "function")
+          ) {
+            return value.then;
         }
+
         return null;
     }
     
@@ -76,13 +93,13 @@ class Promise {
         local done = false;
         try {
             fn(
-                function (value) {
+                function (value = null /* allow resolving without argument */) {
                     if (done) return;
                     done = true;
                     onFulfilled(value)
                 }.bindenv(this), 
                 
-                function (reason) {
+                function (reason = null /* allow rejection without argument */) {
                     if (done) return;
                     done = true;
                     onRejected(reason)
@@ -110,18 +127,33 @@ class Promise {
     
     // **** Public functions ****
 
+    /**
+     * Execute handler once the Promise is resolved/rejected
+     * @param {function|null} onFulfilled
+     * @param {function|null} onRejected
+     */
     function then(onFulfilled = null, onRejected = null) {
         // ensure we are always asynchronous
         imp.wakeup(0, function () {
             _handle({ onFulfilled=onFulfilled, onRejected=onRejected });
         }.bindenv(this));
-        
+
         return this;
     }
-    
+
+    /**
+     * Execute handler on failure
+     * @param {function|null} onRejected
+     */
     function fail(onRejected = null) {
         return then(null, onRejected);
     }
     
-    
+    /**
+     * Execute handler both on success and failure
+     * @param {function|null} always
+     */
+    function finally(always = null) {
+      return then(always, always);
+    }
 }
