@@ -14,10 +14,11 @@
  * @copyright (c) 2015 SMS Diagnostics Pty Ltd
  * @author Aron Steg
  * @author Mikhail Yurasov <mikhail@electricimp.com>
+ * @version 1.1.0
  */
 class Promise {
 
-    static version = [1, 0, 0];
+    static version = [1, 1, 0];
 
     _state = null;
     _value = null;
