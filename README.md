@@ -79,7 +79,7 @@ Widget().calculate(123)
         )
         .finally(
             function(r) {
-                server.log("I'm called always")
+                server.log("I'm always called")
             }.bindenv(this)
         )
 ```
