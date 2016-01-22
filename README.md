@@ -88,3 +88,8 @@ Widget().calculate(123)
 # License
 
 The Promise class is licensed under the [MIT License](./LICENSE.txt).
+
+## Development
+
+This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
+Please make your pull requests to the __develop__ branch.
