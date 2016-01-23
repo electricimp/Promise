@@ -1,4 +1,4 @@
-#require "promise.class.nut:1.0.0"
+#require "promise.class.nut:1.1.0"
 
 // -----------------------------------------------------------------------------
 // This class exposed a single method fire() which waits a second and then randomly fails or succeeds.
