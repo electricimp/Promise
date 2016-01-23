@@ -22,19 +22,19 @@ You can view the library's source code on [GitHub](https://github.com/electricim
 
 ## Class Usage
 
-### Constructor: Promise( *actionFunction(fulfill, reject)* )
+### Constructor: Promise(*actionFunction*)
 
 The constructor should receive a single function, which will be executed to determine the final value and result. The actionFunction should receive two function parameters. Exactly one of these functions (`fulfill` or `reject`) should be executed at the completing of the actionFunction. If `fulfill` is executed then the success function will be called asynchronously; if `reject` is executed then the fail function will be called asynchronously.
 
-### then( *successFunction* [, *failFunction* ] )
+### then(*successFunction* [,*failFunction*])
 
 This function allows the developer to provide a success function and optionally a fail function. The success function should accept a single parameter, the result; the fail function should accept a single parameter, the error.
 
-### fail( *failFunction* )
+### fail(*failFunction*)
 
 This function allows the developer to provide a failure function. The failure function should accept a single parameter, the error.
 
-### finally( *alwaysFunction* )
+### finally(*alwaysFunction*)
 
 This function allows the developer to provide a function that is executed once the promise is resolved or rejected, regardless of the success/failure. Accepts a single parameter – result or error.
 
@@ -44,11 +44,11 @@ An example implementation of a promise is:
 
 ```squirrel
 class Widget {
-    
+
     function _longTask(data, callback) {
         // Some long asynchronous task which calls callback at the end
     }
-    
+
     function calculate(input) {
         return Promise(function (fulfill, reject) {
             _longTask(input, function (err, res) {
