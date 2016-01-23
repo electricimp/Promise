@@ -1,4 +1,4 @@
-// Promise class is supposed to be available at this point
+#require "promise.class.nut:1.1.0"
 
 /**
  * Example of resolving Promise after 1 second timeout
