@@ -77,4 +77,63 @@ class BasicTestCase extends ImpTestCase {
             p.then(err).fail(ok);
         }.bindenv(this));
     }
+
+    /**
+     * Test that finally() is called on rejection
+     */
+    function testFinallyCallOnRejection() {
+        return Promise(function(ok, err) {
+
+            local thenCalled = false;
+            local failCalled = false;
+
+            local p = ::Promise(function (resolve, reject) {
+                reject();
+            });
+
+            p
+                .then(function (v) { thenCalled = true; })
+                .fail(function (v) { failCalled = true; })
+                .finally(function (v) {
+                    try {
+                        this.assertEqual(false, thenCalled);
+                        this.assertEqual(true, failCalled);
+                        ok();
+                    } catch (e) {
+                        err(e);
+                    }
+                }.bindenv(this));
+
+
+        }.bindenv(this));
+    }
+
+    /**
+     * Test that finally() is called on resolution
+     */
+    function testFinallyCallOnResolution() {
+        return Promise(function(ok, err) {
+
+            local thenCalled = false;
+            local failCalled = false;
+
+            local p = ::Promise(function (resolve, reject) {
+                resolve();
+            });
+
+            p
+                .then(function (v) { thenCalled = true; })
+                .fail(function (v) { failCalled = true; })
+                .finally(function (v) {
+                    try {
+                        this.assertEqual(true, thenCalled);
+                        this.assertEqual(false, failCalled);
+                        ok();
+                    } catch (e) {
+                        err(e);
+                    }
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
 }
