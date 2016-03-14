@@ -1,1 +1,4 @@
 *.nut.bundled
+*-local
+*.local
+*.tmp
