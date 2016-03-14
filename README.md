@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Promise Class 1.1.0](#promise-class-110)
+  - [Class Usage](#class-usage)
+    - [Constructor: Promise(*actionFunction*)](#constructor-promiseactionfunction)
+    - [then(*successFunction* [,*failFunction*])](#thensuccessfunction-failfunction)
+    - [fail(*failFunction*)](#failfailfunction)
+    - [finally(*alwaysFunction*)](#finallyalwaysfunction)
+  - [Example](#example)
+  - [Testing](#testing)
+    - [TL;DR](#tldr)
+    - [Running Tests](#running-tests)
+  - [Development](#development)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 # Promise Class 1.1.0
 
@@ -84,12 +103,42 @@ Widget().calculate(123)
         )
 ```
 
+## Testing
 
-# License
+Repository contains [impUnit](https://github.com/electricimp/impUnit) tests and a configuration for [impTest](https://github.com/electricimp/impTest) tool.
 
-The Promise class is licensed under the [MIT License](./LICENSE.txt).
+### TL;DR
+
+```bash
+cp .imptest .imptest-local
+nano .imptest-local # edit device/model
+imptest test -c .imptest-local
+```
+
+### Running Tests
+
+Tests can be launched with:
+
+```bash
+imptest test
+```
+
+By default configuration for the testing is read from [.imptest](https://github.com/electricimp/impTest/blob/develop/docs/imptest-spec.md).
+
+To run test with your settings (for example while you are developing), create your copy of **.imptest** file and name it something like **.imptest.local**, then run tests with:
+
+ ```bash
+ imptest test -c .imptest.local
+ ```
+
+Tests will run with any imp.
+
 
 ## Development
 
 This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
 Please make your pull requests to the __develop__ branch.
+
+# License
+
+The Promise class is licensed under the [MIT License](./LICENSE.txt).
