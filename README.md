@@ -17,6 +17,9 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+<br />
+
+[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=develop)](https://travis-ci.org/electricimp/Promise)
 
 # Promise Class 1.1.0
 
