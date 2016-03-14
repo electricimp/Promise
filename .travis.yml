@@ -4,8 +4,7 @@ node_js:
   - '5.5'
 
 before_script:
-  - git clone --recursive -b develop https://github.com/electricimp/impTest.git
-  - (cd impTest && npm i)
+  - npm i -g imptest@latest
 
 script:
-  - impTest/src/cli/imptest.js test
+  - imptest test
