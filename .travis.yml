@@ -1,0 +1,11 @@
+language: node_js
+
+node_js:
+  - '5.5'
+
+before_script:
+  - git clone --recursive https://github.com/electricimp/impTest.git
+  - (cd impTest && npm i)
+
+script:
+  - impTest/src/cli/imptest.js test
