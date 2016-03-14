@@ -32,7 +32,7 @@ class BasicTestCase extends ImpTestCase {
     /**
      * Test rejection with throw+fail() handler
      */
-    function testCatchWithThenHandler2() {
+    function testCatchWithThenHandler1() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
                 throw "Error in Promise";
