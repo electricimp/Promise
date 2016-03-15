@@ -1,24 +1,15 @@
 /**
- * This file is licensed under the MIT License
- * http://opensource.org/licenses/MIT
- */
-
-/**
  * Promise class for Squirrel (Electric Imp)
- * This file is licensed under the MIT License
- *
- * Initial version: 08-12-2015
+ * Licensed under the MIT License
  *
  * @see https://www.promisejs.org/implementing/
- *
- * @copyright (c) 2015 SMS Diagnostics Pty Ltd
  * @author Aron Steg
  * @author Mikhail Yurasov <mikhail@electricimp.com>
- * @version 1.1.0
+ * @version 2.0.0-dev
  */
 class Promise {
 
-    static version = [1, 1, 0];
+    static version = [2, 0, 0, "dev"];
 
     _state = null;
     _value = null;
