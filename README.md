@@ -103,13 +103,13 @@ local p = Promise.loop(
 
 Returns _Promise_ that resolves when all promises in chain resolve or when the first one rejects.
 
-For example in the following code `p` rejects with value "2" in 2 seconds:
+For example in the following code `p` rejects with value "2" in 1.5 seconds:
 
 ```squirrel
 local promises = [
     Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
-    Promise(@(resolve, reject) imp.wakeup(1, @() reject(2))),
-    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(3)))
+    Promise(@(resolve, reject) imp.wakeup(1.5, @() reject(2))),
+    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
 ];
 
 local p = Promise.serial(promises);
