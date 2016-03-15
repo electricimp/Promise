@@ -23,7 +23,7 @@ class Promise {
     _state = null;
     _value = null;
     _handlers = null;
-    
+
     constructor(fn) {
 
         const PROMISE_STATE_PENDING = 0;
@@ -34,9 +34,9 @@ class Promise {
         _handlers = [];
         _doResolve(fn, _resolve, _reject);
     }
-    
+
     // **** Private functions ****
-    
+
     function _fulfill(result) {
         _state = PROMISE_STATE_FULFILLED;
         _value = result;
@@ -45,7 +45,7 @@ class Promise {
         }
         _handlers = null;
     }
-    
+
     function _reject(error) {
         _state = PROMISE_STATE_REJECTED;
         _value = error;
@@ -53,8 +53,8 @@ class Promise {
             _handle(handler);
         }
         _handlers = null;
-    }    
-    
+    }
+
     function _resolve(result) {
         try {
             local then = _getThen(result);
@@ -67,7 +67,7 @@ class Promise {
             _reject(e);
         }
     }
-    
+
    /**
     * Check if a value is a Promise and, if it is,
     * return the `then` method of that promise.
@@ -89,7 +89,7 @@ class Promise {
 
         return null;
     }
-    
+
     function _doResolve(fn, onFulfilled, onRejected) {
         local done = false;
         try {
@@ -98,8 +98,8 @@ class Promise {
                     if (done) return;
                     done = true;
                     onFulfilled(value)
-                }.bindenv(this), 
-                
+                }.bindenv(this),
+
                 function (reason = null /* allow rejection without argument */) {
                     if (done) return;
                     done = true;
@@ -125,7 +125,7 @@ class Promise {
             }
         }
     }
-    
+
     // **** Public functions ****
 
     /**
@@ -149,12 +149,61 @@ class Promise {
     function fail(onRejected = null) {
         return then(null, onRejected);
     }
-    
+
     /**
      * Execute handler both on success and failure
      * @param {function|null} always
      */
     function finally(always = null) {
       return then(always, always);
+    }
+
+    /**
+     * While loop with Promise's
+     * Stops on continueCallback() == false or first rejection of looped Promise
+     *
+     * @param {function:boolean} condition - if returns false, loop stops
+     * @param {function:Promise} next - function to get next promise in the loop
+     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop finishes
+     */
+    static function loop(condition, next) {
+        return (this)(function (resolve, reject) {
+
+            local doLoop;
+            local lastResolvedWith;
+
+            doLoop = function() {
+                if (condition()) {
+                    next().then(
+                        function (v) {
+                            lastResolvedWith = v;
+                            imp.wakeup(0, doLoop)
+                        },
+                        reject
+                    );
+                } else {
+                    resolve(lastResolvedWith);
+                }
+            }
+
+            imp.wakeup(0, doLoop);
+
+        }.bindenv(this));
+    }
+
+    /**
+     * Returns Promise that resolves when
+     * all promises in chain resolve:
+     * one after each other
+     *
+     * @param {Promise[]} promises - array of Promises
+     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
+     */
+    static function serial(promises) {
+        local i = 0;
+        return this.loop(
+            @() i < promises.len(),
+            @() promises[i++]
+        )
     }
 }

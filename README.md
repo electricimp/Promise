@@ -3,11 +3,13 @@
 
 
 - [Promise Class 1.1.0](#promise-class-110)
-  - [Class Usage](#class-usage)
-    - [Constructor: Promise(*actionFunction*)](#constructor-promiseactionfunction)
-    - [then(*successFunction* [,*failFunction*])](#thensuccessfunction-failfunction)
-    - [fail(*failFunction*)](#failfailfunction)
-    - [finally(*alwaysFunction*)](#finallyalwaysfunction)
+  - [Usage](#usage)
+    - [Promise()](#promise)
+    - [.then()](#then)
+    - [.fail()](#fail)
+    - [.finally()](#finally)
+    - [Promise.loop()](#promiseloop)
+    - [Promise.serial()](#promiseserial)
   - [Example](#example)
   - [Testing](#testing)
     - [TL;DR](#tldr)
@@ -26,15 +28,15 @@
 This Promise class is based on the PromiseJS definition at:
 https://www.promisejs.org/implementing/
 
-According to Wikipedia, "Futures and promises originated in functional programming and 
-related paradigms (such as logic programming) to decouple a value (a future) from how 
-it was computed (a promise), allowing the computation to be done more flexibly, notably 
+According to Wikipedia, "Futures and promises originated in functional programming and
+related paradigms (such as logic programming) to decouple a value (a future) from how
+it was computed (a promise), allowing the computation to be done more flexibly, notably
 by parallelizing it."
 
 This Promise class implements a subset of the generic Promise concept by
-providing two callback functions, then() and fail(). then() is executed when the 
+providing two callback functions, then() and fail(). then() is executed when the
 promise is successfully completed, fail() is executed when the promise is completed
-with any sort of detectible failure. Usually, an instantiated Promise object is 
+with any sort of detectible failure. Usually, an instantiated Promise object is
 returned from a class instead of offering direct callback functions. This uniform
 implementation makes the code clearer and easier to read.
 
@@ -42,23 +44,76 @@ implementation makes the code clearer and easier to read.
 
 You can view the library's source code on [GitHub](https://github.com/electricimp/Promise/tree/v1.1.0).
 
-## Class Usage
+## Usage
 
-### Constructor: Promise(*actionFunction*)
+### Promise()
+
+`Promise(actionFunction)`
 
 The constructor should receive a single function, which will be executed to determine the final value and result. The actionFunction should receive two function parameters. Exactly one of these functions (`fulfill` or `reject`) should be executed at the completing of the actionFunction. If `fulfill` is executed then the success function will be called asynchronously; if `reject` is executed then the fail function will be called asynchronously.
 
-### then(*successFunction* [,*failFunction*])
+### .then()
+
+`.then(successFunction [,failFunction])`
 
 This function allows the developer to provide a success function and optionally a fail function. The success function should accept a single parameter, the result; the fail function should accept a single parameter, the error.
 
-### fail(*failFunction*)
+### .fail()
+
+`.fail(failFunction)`
 
 This function allows the developer to provide a failure function. The failure function should accept a single parameter, the error.
 
-### finally(*alwaysFunction*)
+### .finally()
+
+`.finally(alwaysFunction)`
 
 This function allows the developer to provide a function that is executed once the promise is resolved or rejected, regardless of the success/failure. Accepts a single parameter – result or error.
+
+### Promise.loop()
+
+`Promise.loop(compareFunction, nextFunction)`
+
+A way to perform while loops with asynchronous processes.
+
+Stops on `compareFunction() == false` or first rejection of looped _Promise_'s.
+
+Returns _Promise_ that is resolved/rejected with the last value that come from looped _Promise_ when loop finishes.
+
+For example in the following code `p` resolves with value "counter is 3" in 9 seconds.
+
+```squirrel
+local i = 0;
+local p = Promise.loop(
+    @() i++ < 3,
+    function () {
+        return Promise(function (resolve, reject) {
+            imp.wakeup(3, function() {
+                resolve("counter is " + i);
+            });
+        });
+    }
+);
+```
+
+
+### Promise.serial()
+
+`Promise.serial(promises)`
+
+Returns _Promise_ that resolves when all promises in chain resolve or when the first one rejects.
+
+For example in the following code `p` rejects with value "2" in 2 seconds:
+
+```squirrel
+local promises = [
+    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
+    Promise(@(resolve, reject) imp.wakeup(1, @() reject(2))),
+    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(3)))
+];
+
+local p = Promise.serial(promises);
+```
 
 ## Example
 
