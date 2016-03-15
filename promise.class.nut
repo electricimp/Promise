@@ -157,4 +157,37 @@ class Promise {
     function finally(always = null) {
       return then(always, always);
     }
+
+    /**
+     * While loop with Promise's
+     * Stops on continueCallback() == false or first rejection of looped Promise
+     *
+     * @param {function:boolean} condition - if returns false, loop stops
+     * @param {function:Promise} next -
+     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop stops
+     */
+    static function loop(condition, next) {
+        return (this)(function (resolve, reject) {
+
+            local doLoop;
+            local lastResolvedWith;
+
+            doLoop = function() {
+                if (condition()) {
+                    next().then(
+                        function (v) {
+                            lastResolvedWith = v;
+                            imp.wakeup(0, doLoop)
+                        },
+                        reject
+                    );
+                } else {
+                    resolve(lastResolvedWith);
+                }
+            }
+
+            imp.wakeup(0, doLoop);
+
+        }.bindenv(this));
+    }
 }
