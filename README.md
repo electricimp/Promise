@@ -72,13 +72,17 @@ This function allows the developer to provide a function that is executed once t
 
 ### Promise.loop()
 
-`Promise.loop(compareFunction, nextFunction)`
+`Promise.loop(continueFunction, nextFunction)`
 
 A way to perform while loops with asynchronous processes.
 
-Stops on `compareFunction() == false` or first rejection of looped _Promise_'s.
+Parameters:
+- `continueFunction` – function that returns `true` to continue loop or `false` to stop
+- `nextFunction` – function that returns next _Promise_ in the loop
 
-Returns _Promise_ that is resolved/rejected with the last value that come from looped _Promise_ when loop finishes.
+Stops on `continueFunction() == false` or first rejection of looped _Promise_'s.
+
+Returns _Promise_ that is resolved/rejected with the last value that comes from looped _Promise_ when loop finishes.
 
 For example in the following code `p` resolves with value "counter is 3" in 9 seconds.
 
@@ -99,9 +103,12 @@ local p = Promise.loop(
 
 ### Promise.serial()
 
-`Promise.serial(promises)`
+`Promise.serial(series)`
 
 Returns _Promise_ that resolves when all promises in chain resolve or when the first one rejects.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
 
 For example in the following code `p` rejects with value "2" in 1.5 seconds:
 
