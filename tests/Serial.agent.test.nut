@@ -62,7 +62,38 @@ class SerialTestCase extends ImpTestCase {
 
                 .fail(function (v) {
                     try {
-                        // .all() should reject with value of the rejected promise
+                        // .serial() should reject with value of the rejected promise
+                        this.assertEqual(2, v);
+                        ok();
+                    } catch (e) {
+                        err(e);
+                    }
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
+
+    /**
+     * Test .serial() with array of functions
+     */
+    function testSerialWithFunctions() {
+        return Promise(function(ok, err) {
+
+            local promises = [
+                @() ::Promise(function (resolve, reject) { resolve(1) }),
+                @() ::Promise(function (resolve, reject) { reject(2) }),
+                ::Promise(function (resolve, reject) { resolve(3) })
+            ];
+
+            ::Promise.serial(promises)
+
+                .then(function (v) {
+                    err(".then() should not be called on serial Promise rejection")
+                })
+
+                .fail(function (v) {
+                    try {
+                        // .serial() should reject with value of the rejected promise
                         this.assertEqual(2, v);
                         ok();
                     } catch (e) {
