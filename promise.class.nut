@@ -9,7 +9,7 @@
  */
 class Promise {
 
-    static version = [2, 0, 0, "dev"];
+    static version = [2, 0, 0, "dev1"];
 
     _state = null;
     _value = null;
