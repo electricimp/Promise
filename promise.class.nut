@@ -187,14 +187,18 @@ class Promise {
      * all promises in chain resolve:
      * one after each other
      *
-     * @param {Promise[]} promises - array of Promises
+     * @param {{Promise|function}[]} promises - array of Promises/functions that return Promises
      * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
      */
     static function serial(promises) {
         local i = 0;
         return this.loop(
             @() i < promises.len(),
-            @() promises[i++]
+            function () {
+                return "function" == type(promises[i])
+                    ? promises[i++]()
+                    : promises[i++];
+            }
         )
     }
 }
