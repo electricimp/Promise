@@ -4,6 +4,9 @@
  * while class being tested can be accessed from global scope as "::Promise".
  */
 
+/**
+ * Test case for Promise.loop()
+ */
 class LoopTestCase extends ImpTestCase {
     /**
      * Check return type
@@ -15,6 +18,21 @@ class LoopTestCase extends ImpTestCase {
         );
 
         this.assertTrue(p instanceof ::Promise);
+    }
+
+    /**
+     * Check immediate stop
+     */
+    function testImmediateStop() {
+        return Promise(function(ok, err) {
+            local p = ::Promise.loop(
+                @() false,
+                function () {
+                    throw "next() shold not be called"
+                }.bindenv(this)
+            );
+            p.then(ok, err);
+        }.bindenv(this));
     }
 
     /**
