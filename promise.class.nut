@@ -163,8 +163,8 @@ class Promise {
      * Stops on continueCallback() == false or first rejection of looped Promise
      *
      * @param {function:boolean} condition - if returns false, loop stops
-     * @param {function:Promise} next -
-     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop stops
+     * @param {function:Promise} next - function to get next promise in the loop
+     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop finishes
      */
     static function loop(condition, next) {
         return (this)(function (resolve, reject) {
@@ -192,7 +192,7 @@ class Promise {
     }
 
     /**
-     * Returns Primise that resolves when
+     * Returns Promise that resolves when
      * all promises in chain resolve:
      * one after each other
      *
