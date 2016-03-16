@@ -161,9 +161,9 @@ For example in the following code `p` rejects with value "1" in 1 second:
 local promises = [
     // rejects first as the other one with 1s timeout
     // starts later from inside .first()
-    ::Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
-    @() ::Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
-    @() ::Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
+    Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
+    @() Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
+    @() Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
 ];
 
 local p = Promise.parallel(series);
