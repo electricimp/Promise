@@ -5,11 +5,11 @@
  * @see https://www.promisejs.org/implementing/
  * @author Aron Steg
  * @author Mikhail Yurasov <mikhail@electricimp.com>
- * @version 2.0.0-dev
+ * @version 2.0.0-rc1
  */
 class Promise {
 
-    static version = [2, 0, 0, "dev1"];
+    static version = [2, 0, 0, "rc1"];
 
     _state = null;
     _value = null;
