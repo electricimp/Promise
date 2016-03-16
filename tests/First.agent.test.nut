@@ -56,4 +56,35 @@ class FirstTestCase extends ImpTestCase {
 
         }.bindenv(this));
     }
+
+    /**
+     * Test .first() with rejection
+     */
+    function testFirstWithRejection() {
+        return Promise(function(ok, err) {
+
+            local promises = [
+                // rejects first as the other one with "1" value
+                // starts later from inside .first()
+                ::Promise(function (resolve, reject) { imp.wakeup(0, @() reject(1)) }),
+                @() ::Promise(function (resolve, reject) { imp.wakeup(0.5, @() resolve(2)) }),
+                @() ::Promise(function (resolve, reject) { imp.wakeup(0, @() reject(3)) }),
+            ];
+
+            ::Promise.first(promises)
+
+                .then(@(v) err(".then() should not be called on .first Promise rejection"))
+
+                .fail(function (v) {
+                    try {
+                        // .first() should reject with value of the first rejected promise
+                        this.assertEqual(1, v);
+                        ok();
+                    } catch (e) {
+                        err(e);
+                    }
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
 }
