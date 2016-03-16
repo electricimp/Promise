@@ -201,4 +201,40 @@ class Promise {
             }
         )
     }
+
+    /**
+     * Execute Promises in parallel and resove when they are all done.
+     * Returns Promise that resolves with last paralleled Prmomise value
+     * or rejects with first rejected paralleled Promise value.
+     *
+     * @param {{Primise|functiuon}[]} promises
+     * @returns {Promise}
+     */
+    static function parallel(promises) {
+        return (this)(function (resolve, reject) {
+            local resolved = 0;
+
+            local checkDone = function(v = null) {
+                if (resolved == promises.len()) {
+                    resolve(v);
+                    return true;
+                }
+            }
+
+            if (!checkDone()) {
+                for (local i = 0; i < promises.len(); i++) {
+                    (
+                        "function" == type(promises[i])
+                            ? promises[i]()
+                            : promises[i]
+                    )
+                    .then(function (v) {
+                        resolved++;
+                        checkDone(v);
+                    }, reject);
+                }
+            }
+
+        }.bindenv(this));
+    }
 }
