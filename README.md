@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [Promise Class 2.0.0-dev1](#promise-class-200-dev1)
+- [Promise Class 2.0.0-rc1](#promise-class-200-rc1)
   - [Usage](#usage)
     - [Promise()](#promise)
     - [.then()](#then)
@@ -10,6 +10,8 @@
     - [.finally()](#finally)
     - [Promise.loop()](#promiseloop)
     - [Promise.serial()](#promiseserial)
+    - [Promise.parallel()](#promiseparallel)
+    - [Promise.first()](#promisefirst)
   - [Example](#example)
   - [Testing](#testing)
     - [TL;DR](#tldr)
@@ -23,7 +25,7 @@
 
 [![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=develop)](https://travis-ci.org/electricimp/Promise)
 
-# Promise Class 2.0.0-dev1
+# Promise Class 2.0.0-rc1
 
 This Promise class is based on the PromiseJS definition at:
 https://www.promisejs.org/implementing/
@@ -40,9 +42,9 @@ with any sort of detectible failure. Usually, an instantiated Promise object is
 returned from a class instead of offering direct callback functions. This uniform
 implementation makes the code clearer and easier to read.
 
-**To add this library to your project, add `#require "promise.class.nut:2.0.0-dev1"` to the top of your device code.**
+**To add this library to your project, add `#require "promise.class.nut:2.0.0-rc1"` to the top of your device code.**
 
-You can view the library's source code on [GitHub](https://github.com/electricimp/Promise/tree/v2.0.0-dev1).
+You can view the library's source code on [GitHub](https://github.com/electricimp/Promise/tree/v2.0.0-rc1).
 
 ## Usage
 
@@ -72,13 +74,17 @@ This function allows the developer to provide a function that is executed once t
 
 ### Promise.loop()
 
-`Promise.loop(compareFunction, nextFunction)`
+`Promise.loop(continueFunction, nextFunction)`
 
 A way to perform while loops with asynchronous processes.
 
-Stops on `compareFunction() == false` or first rejection of looped _Promise_'s.
+Parameters:
+- `continueFunction` – function that returns `true` to continue loop or `false` to stop
+- `nextFunction` – function that returns next _Promise_ in the loop
 
-Returns _Promise_ that is resolved/rejected with the last value that come from looped _Promise_ when loop finishes.
+Stops on `continueFunction() == false` or first rejection of looped _Promise_'s.
+
+Returns _Promise_ that is resolved/rejected with the last value that comes from looped _Promise_ when loop finishes.
 
 For example in the following code `p` resolves with value "counter is 3" in 9 seconds.
 
@@ -96,23 +102,71 @@ local p = Promise.loop(
 );
 ```
 
-
 ### Promise.serial()
 
-`Promise.serial(promises)`
+`Promise.serial(series)`
 
 Returns _Promise_ that resolves when all promises in chain resolve or when the first one rejects.
 
-For example in the following code `p` rejects with value "2" in 2 seconds:
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` rejects with value "2" in 2.5 seconds:
+
+```squirrel
+local series = [
+    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
+    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() reject(2))),
+    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+];
+
+local p = Promise.serial(series);
+```
+
+### Promise.parallel()
+
+`Promise.parallel(series)`
+
+Execute Promises in parallel and resolve when they are all done.
+Returns Promise that resolves with last paralleled Promise value or rejects with first rejected paralleled Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` resolves with value "2" in 1.5 seconds:
+
+```squirrel
+local series = [
+    @() Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
+    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() resolve(2))),
+    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+];
+
+local p = Promise.parallel(series);
+```
+
+### Promise.first()
+
+`Promise.first(series)`
+
+Execute Promises in parallel and resolve when the first is done.
+Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` rejects with value "1" in 1 second:
 
 ```squirrel
 local promises = [
-    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
-    Promise(@(resolve, reject) imp.wakeup(1, @() reject(2))),
-    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(3)))
+    // rejects first as the other one with 1s timeout
+    // starts later from inside .first()
+    ::Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
+    @() ::Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
+    @() ::Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
 ];
 
-local p = Promise.serial(promises);
+local p = Promise.parallel(series);
 ```
 
 ## Example
