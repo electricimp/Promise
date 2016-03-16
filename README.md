@@ -100,7 +100,6 @@ local p = Promise.loop(
 );
 ```
 
-
 ### Promise.serial()
 
 `Promise.serial(series)`
@@ -110,16 +109,38 @@ Returns _Promise_ that resolves when all promises in chain resolve or when the f
 Parameters:
 - `series` – array of _Promises_/functions that return promises.
 
-For example in the following code `p` rejects with value "2" in 1.5 seconds:
+For example in the following code `p` rejects with value "2" in 2.5 seconds:
 
 ```squirrel
-local promises = [
+local series = [
     Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
-    Promise(@(resolve, reject) imp.wakeup(1.5, @() reject(2))),
+    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() reject(2))),
     Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
 ];
 
-local p = Promise.serial(promises);
+local p = Promise.serial(series);
+```
+
+### Promise.parallel()
+
+`Promise.parallel(series)`
+
+Execute Promises in parallel and resolve when they are all done.
+Returns Promise that resolves with last paralleled Promise value or rejects with first rejected paralleled Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` resolves with value "2" in 1.5 seconds:
+
+```squirrel
+local series = [
+    @() Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
+    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() resolve(2))),
+    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+];
+
+local p = Promise.parallel(series);
 ```
 
 ## Example

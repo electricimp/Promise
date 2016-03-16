@@ -203,8 +203,8 @@ class Promise {
     }
 
     /**
-     * Execute Promises in parallel and resove when they are all done.
-     * Returns Promise that resolves with last paralleled Prmomise value
+     * Execute Promises in parallel and resolve when they are all done.
+     * Returns Promise that resolves with last paralleled Promise value
      * or rejects with first rejected paralleled Promise value.
      *
      * @param {{Primise|functiuon}[]} promises
