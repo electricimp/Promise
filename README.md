@@ -23,7 +23,7 @@
 
 <br />
 
-[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=develop)](https://travis-ci.org/electricimp/Promise)
+[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
 
 # Promise Class 2.0.0-rc1
 
