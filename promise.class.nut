@@ -203,19 +203,18 @@ class Promise {
     }
 
     /**
-     * Execute Promises in parallel and resolve when they are all done.
-     * Returns Promise that resolves with last paralleled Promise value
-     * or rejects with first rejected paralleled Promise value.
+     * Execute Promises in parallel.
      *
      * @param {{Primise|functiuon}[]} promises
+     * @param {wait} wait - wait for all promises to finish?
      * @returns {Promise}
      */
-    static function parallel(promises) {
+    static function _parallel(promises, wait) {
         return (this)(function (resolve, reject) {
             local resolved = 0;
 
             local checkDone = function(v = null) {
-                if (resolved == promises.len()) {
+                if ((!wait && resolved == 1) || (wait && resolved == promises.len())) {
                     resolve(v);
                     return true;
                 }
@@ -236,5 +235,29 @@ class Promise {
             }
 
         }.bindenv(this));
+    }
+
+    /**
+     * Execute Promises in parallel and resolve when they are all done.
+     * Returns Promise that resolves with last paralleled Promise value
+     * or rejects with first rejected paralleled Promise value.
+     *
+     * @param {{Primise|functiuon}[]} promises
+     * @returns {Promise}
+     */
+    static function parallel(promises) {
+        return this._parallel(promises, true);
+    }
+
+    /**
+     * Execute Promises in parallel and resolve when the first is done.
+     * Returns Promise that resolves/rejects with the first
+     * resolved/rejected Promise value.
+     *
+     * @param {{Primise|functiuon}[]} promises
+     * @returns {Promise}
+     */
+    static function first(promises) {
+        return this._parallel(promises, false);
     }
 }
