@@ -250,7 +250,7 @@ class Promise {
     }
 
     /**
-     * Execute Promises in parallel and resolve when the fisrt is done.
+     * Execute Promises in parallel and resolve when the first is done.
      * Returns Promise that resolves/rejects with the first
      * resolved/rejected Promise value.
      *

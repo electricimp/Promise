@@ -36,7 +36,7 @@ class FirstTestCase extends ImpTestCase {
         return Promise(function(ok, err) {
 
             local promises = [
-                // resolves first as the other one with "1" value
+                // resolves first as the other one with 0s timeout value
                 // starts later from inside .first()
                 ::Promise(function (resolve, reject) { imp.wakeup(0, @() resolve(1)) }),
                 @() ::Promise(function (resolve, reject) { imp.wakeup(0.5, @() resolve(2)) }),
@@ -64,7 +64,7 @@ class FirstTestCase extends ImpTestCase {
         return Promise(function(ok, err) {
 
             local promises = [
-                // rejects first as the other one with "1" value
+                // rejects first as the other one with 0s timeout value
                 // starts later from inside .first()
                 ::Promise(function (resolve, reject) { imp.wakeup(0, @() reject(1)) }),
                 @() ::Promise(function (resolve, reject) { imp.wakeup(0.5, @() resolve(2)) }),

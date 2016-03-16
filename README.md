@@ -10,6 +10,8 @@
     - [.finally()](#finally)
     - [Promise.loop()](#promiseloop)
     - [Promise.serial()](#promiseserial)
+    - [Promise.parallel()](#promiseparallel)
+    - [Promise.first()](#promisefirst)
   - [Example](#example)
   - [Testing](#testing)
     - [TL;DR](#tldr)
@@ -138,6 +140,30 @@ local series = [
     @() Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
     @() Promise(@(resolve, reject) imp.wakeup(1.5, @() resolve(2))),
     Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+];
+
+local p = Promise.parallel(series);
+```
+
+### Promise.first()
+
+`Promise.first(series)`
+
+Execute Promises in parallel and resolve when the first is done.
+Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` rejects with value "1" in 1 second:
+
+```squirrel
+local promises = [
+    // rejects first as the other one with 1s timeout
+    // starts later from inside .first()
+    ::Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
+    @() ::Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
+    @() ::Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
 ];
 
 local p = Promise.parallel(series);
