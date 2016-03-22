@@ -19,7 +19,7 @@ class PromisesFromThenTestCase extends ImpTestCase {
 
             p
                 .then(@(v) ::Promise(function (resolve, reject) {
-                    imp.wakeup(0.5, ok); // should called after before next .then() in correct implementation
+                    imp.wakeup(0.5, ok); // should called before next .then() in correct implementation
                 }))
                 .then(@(v) err("When .then() returns a Promise, next .then()-s should not be called before it resolves"));
 
