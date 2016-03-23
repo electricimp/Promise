@@ -99,4 +99,34 @@ class LoopTestCase extends ImpTestCase {
 
         }.bindenv(this));
     }
+
+    /**
+     * Test .finally() order with loops
+     */
+    function testLoopFinallyOrder() {
+        return Promise(function(ok, err) {
+
+            local i = 0;
+
+            local loopPromise = ::Promise.loop(
+                @() i++ < 1,
+                function () {
+                    return ::Promise(function (resolve, reject) {
+                        imp.wakeup(0.5, function() {
+                            resolve();
+                            ok(); // if it's called, successive err() calls are ignored
+                        })
+                    });
+                }
+            );
+
+            loopPromise
+                .then(function (v) {
+                }.bindenv(this))
+                .finally(function (v) {
+                    err("Finally shoul be called after .loop() resolves");
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
 }
