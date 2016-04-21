@@ -185,6 +185,22 @@ class Promise {
       return this;
     }
 
+   /**
+    * Add handler that is executed on resolve/reject/cancel
+    * @param {function(value)} handler
+    * @return {this}
+    */
+    function always(handler) {
+        this._handlers.push({
+            "resolve": handler,
+            "reject": handler,
+            "cancel": handler
+        });
+
+        this._callHandlers();
+        return this;
+    }
+
     /**
      * Cancel a promise
      * - No .then/.fail/.finally handlers will be called
