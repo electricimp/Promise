@@ -12,6 +12,7 @@ class Promise {
     static STATE_PENDING = 0;
     static STATE_RESOLVED = 1;
     static STATE_REJECTED = 2;
+    static STATE_CANCELLED = 3;
 
     _state = null;
     _value = null;
@@ -119,7 +120,7 @@ class Promise {
     function then(onResolve, onReject = null) {
         this._handlers.push({
             "resolve": onResolve
-        })
+        });
 
         if (onReject) {
             this._handlers.push({
@@ -147,17 +148,43 @@ class Promise {
 
    /**
     * Add handler that is executed both on resolve and rejection
-    * @param {function} always
+    * @param {function(value)} handler
     * @return {this}
     */
-    function finally(always) {
+    function finally(handler) {
         this._handlers.push({
-            "resolve": always,
-            "reject": always
+            "resolve": handler,
+            "reject": handler
         });
 
         this._callHandlers();
         return this;
+    }
+
+   /**
+    * Add handlers on cancellation
+    * @param {function()} onCancel
+    * @return {this}
+    */
+    function cancelled(onCancel) {
+      this._handlers.push({
+        "cancel": onCancel
+      });
+
+      this._callHandlers();
+      return this;
+    }
+
+    /**
+     * Cancel a promise
+     * - No .then/.fail/.finally handlers will be called
+     * - .cancelled handler will be called
+     */
+    function cancel() {
+        if (this.STATE_PENDING == this._state) {
+            this._state = this.STATE_CANCELLED;
+            this._callHandlers();
+        }
     }
 
     /**
