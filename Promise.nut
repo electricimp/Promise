@@ -19,7 +19,6 @@ class Promise {
     /* @var {{resole, reject}[]} _handlers */
     _handlers = null;
 
-
     /**
     * @param {function(resolve, reject)} action - action function
     */
@@ -159,5 +158,117 @@ class Promise {
 
         this._callHandlers();
         return this;
+    }
+
+    /**
+     * While loop with Promise's
+     * Stops on continueCallback() == false or first rejection of looped Promise
+     *
+     * @param {function:boolean} condition - if returns false, loop stops
+     * @param {function:Promise} next - function to get next promise in the loop
+     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop finishes
+     */
+    static function loop(condition, next) {
+        return (this)(function (resolve, reject) {
+
+            local doLoop;
+            local lastResolvedWith;
+
+            doLoop = function() {
+                if (condition()) {
+                    next().then(
+                        function (v) {
+                            lastResolvedWith = v;
+                            imp.wakeup(0, doLoop)
+                        },
+                        reject
+                    );
+                } else {
+                    resolve(lastResolvedWith);
+                }
+            }
+
+            imp.wakeup(0, doLoop);
+
+        }.bindenv(this));
+    }
+
+    /**
+     * Returns Promise that resolves when
+     * all promises in chain resolve:
+     * one after each other
+     *
+     * @param {{Promise|function}[]} promises - array of Promises/functions that return Promises
+     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
+     */
+    static function serial(promises) {
+        local i = 0;
+        return this.loop(
+            @() i < promises.len(),
+            function () {
+                return "function" == type(promises[i])
+                    ? promises[i++]()
+                    : promises[i++];
+            }
+        )
+    }
+
+    /**
+     * Execute Promises in parallel.
+     *
+     * @param {{Primise|functiuon}[]} promises
+     * @param {wait} wait - wait for all promises to finish?
+     * @returns {Promise}
+     */
+    static function _parallel(promises, wait) {
+        return (this)(function (resolve, reject) {
+            local resolved = 0;
+
+            local checkDone = function(v = null) {
+                if ((!wait && resolved == 1) || (wait && resolved == promises.len())) {
+                    resolve(v);
+                    return true;
+                }
+            }
+
+            if (!checkDone()) {
+                for (local i = 0; i < promises.len(); i++) {
+                    (
+                        "function" == type(promises[i])
+                            ? promises[i]()
+                            : promises[i]
+                    )
+                    .then(function (v) {
+                        resolved++;
+                        checkDone(v);
+                    }, reject);
+                }
+            }
+
+        }.bindenv(this));
+    }
+
+    /**
+     * Execute Promises in parallel and resolve when they are all done.
+     * Returns Promise that resolves with last paralleled Promise value
+     * or rejects with first rejected paralleled Promise value.
+     *
+     * @param {{Primise|functiuon}[]} promises
+     * @returns {Promise}
+     */
+    static function parallel(promises) {
+        return this._parallel(promises, true);
+    }
+
+    /**
+     * Execute Promises in parallel and resolve when the first is done.
+     * Returns Promise that resolves/rejects with the first
+     * resolved/rejected Promise value.
+     *
+     * @param {{Primise|functiuon}[]} promises
+     * @returns {Promise}
+     */
+    static function first(promises) {
+        return this._parallel(promises, false);
     }
 }
