@@ -27,17 +27,23 @@ class Promise {
         }
     }
 
+    /**
+     * Execute chain of handlers
+     */
     function _handle() {
-        // execute chain of handlers
-        foreach (handler in this._handlers) {
-            if (this._state == this.STATE_RESOLVED && "resolve" in handler) {
-                imp.wakeup(0, function() { handler.resolve(this._value) }.bindenv(this));
-            } else if (this._state == this.STATE_REJECTED && "reject" in handler) {
-                imp.wakeup(0, function() { handler.reject(this._value) }.bindenv(this));
+        if (this.STATE_PENDING != this._state) {
+            foreach (handler in this._handlers) {
+                (/* create closure and bind handler to it */ function (handler) {
+                    if (this._state == this.STATE_RESOLVED && "resolve" in handler) {
+                        imp.wakeup(0, function() { handler.resolve(this._value) }.bindenv(this));
+                    } else if (this._state == this.STATE_REJECTED && "reject" in handler) {
+                        imp.wakeup(0, function() { handler.reject(this._value) }.bindenv(this));
+                    }
+                })(handler);
             }
-        }
 
-        this._handlers = [];
+            this._handlers = [];
+        }
     }
 
     /**
@@ -47,9 +53,8 @@ class Promise {
         if (this.STATE_PENDING == this._state) {
             this._state = this.STATE_RESOLVED;
             this._value = value;
+            this._handle();
         }
-
-        this._handle();
     }
 
     /**
@@ -59,9 +64,10 @@ class Promise {
         if (this.STATE_PENDING == this._state) {
             this._state = this.STATE_REJECTED;
             this._value = reason;
+            this._handle();
         }
+    }
 
-        this._handle();
     }
 
     //
@@ -78,7 +84,6 @@ class Promise {
         }
 
         this._handle();
-
         return this;
     }
 
@@ -88,7 +93,6 @@ class Promise {
         });
 
         this._handle();
-
         return this;
     }
 
@@ -99,17 +103,6 @@ class Promise {
         });
 
         this._handle();
-
         return this;
     }
 }
-
-/*local p = Promise(function(ok, err) {
-    err(123);
-});
-
-p.then(function (value) {
-    ::print(value + " // ok")
-}, function (reason) {
-    ::print(reason + " // err")
-})*/
