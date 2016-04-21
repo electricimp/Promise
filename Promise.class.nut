@@ -1,8 +1,8 @@
 /**
  * Promises for Electric Imp/Squirrel
  *
- * @author Aron Steg <aron@electricimp.com>
  * @author Mikhail Yurasov <mikhail@electricimp.com>
+ * @author Aron Steg <aron@electricimp.com>
  *
  * @version 2.0.0
  */
