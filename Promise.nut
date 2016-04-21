@@ -17,13 +17,15 @@ class Promise {
     _value = null;
 
     /* @var {{resole, reject}[]} _handlers */
-    _handlers = [];
+    _handlers = null;
+
 
     /**
     * @param {function(resolve, reject)} action - action function
     */
     constructor(action) {
         this._state = this.STATE_PENDING;
+        this._handlers = [];
 
         try {
             action(
@@ -43,9 +45,13 @@ class Promise {
             foreach (handler in this._handlers) {
                 (/* create closure and bind handler to it */ function (handler) {
                     if (this._state == this.STATE_RESOLVED && "resolve" in handler && "function" == type(handler.resolve)) {
-                        imp.wakeup(0, function() { handler.resolve(this._value) }.bindenv(this));
+                        imp.wakeup(0, function() {
+                            handler.resolve(this._value);
+                        }.bindenv(this));
                     } else if (this._state == this.STATE_REJECTED && "reject" in handler && "function" == type(handler.reject)) {
-                        imp.wakeup(0, function() { handler.reject(this._value) }.bindenv(this));
+                        imp.wakeup(0, function() {
+                            handler.reject(this._value);
+                        }.bindenv(this));
                     }
                 })(handler);
             }
