@@ -59,7 +59,7 @@ class Promise {
                     } else if (this._state == this.STATE_CANCELLED) {
                         if ("cancel" in handler && "function" == type(handler.cancel)) {
                             imp.wakeup(0, function() {
-                                handler.cancel();
+                                handler.cancel(this._value);
                             }.bindenv(this));
                         }
                     }
@@ -189,10 +189,12 @@ class Promise {
      * Cancel a promise
      * - No .then/.fail/.finally handlers will be called
      * - .cancelled handler will be called
+     * @param {*} reason - value that will be passed to .cancelled handler
      */
-    function cancel() {
+    function cancel(reason) {
         if (this.STATE_PENDING == this._state) {
             this._state = this.STATE_CANCELLED;
+            this._value = reason;
             this._callHandlers();
         }
     }
