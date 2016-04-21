@@ -3,7 +3,7 @@
 
 
 - [Promise 2.0.0](#promise-200)
-  - [Usage](#usage)
+  - [Reference](#reference)
     - [Promise()](#promise)
     - [.then()](#then)
     - [.fail()](#fail)
@@ -38,7 +38,7 @@ related paradigms (such as logic programming) to decouple a value (a future) fro
 it was computed (a promise), allowing the computation to be done more flexibly, notably
 by parallelizing it."_
 
-## Usage
+## Reference
 
 ### Promise()
 
