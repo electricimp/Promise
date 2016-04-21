@@ -191,7 +191,7 @@ class Promise {
      * - .cancelled handler will be called
      * @param {*} reason - value that will be passed to .cancelled handler
      */
-    function cancel(reason) {
+    function cancel(reason = null) {
         if (this.STATE_PENDING == this._state) {
             this._state = this.STATE_CANCELLED;
             this._value = reason;
