@@ -87,7 +87,7 @@ Add handler on cancellation.
 Cancels a Promise. 
 
 - No `.then`/`.fail`/`.finally` handlers will be called
-- `.cancelled` handler will be called
+- `.cancelled` handlers will be called
 
 Example:
 
