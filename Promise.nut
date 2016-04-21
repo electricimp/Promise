@@ -34,9 +34,9 @@ class Promise {
         if (this.STATE_PENDING != this._state) {
             foreach (handler in this._handlers) {
                 (/* create closure and bind handler to it */ function (handler) {
-                    if (this._state == this.STATE_RESOLVED && "resolve" in handler) {
+                    if (this._state == this.STATE_RESOLVED && "resolve" in handler && "function" == type(handler.resolve)) {
                         imp.wakeup(0, function() { handler.resolve(this._value) }.bindenv(this));
-                    } else if (this._state == this.STATE_REJECTED && "reject" in handler) {
+                    } else if (this._state == this.STATE_REJECTED && "reject" in handler && "function" == type(handler.reject)) {
                         imp.wakeup(0, function() { handler.reject(this._value) }.bindenv(this));
                     }
                 })(handler);
@@ -97,8 +97,12 @@ class Promise {
         return false
     }
 
-    //
-
+   /**
+    * Add handlers on resolve/rejection
+    * @param {function} onResolve
+    * @param {function|null} onReject
+    * @return {this}
+    */
     function then(onResolve, onReject = null) {
         this._handlers.push({
             "resolve": onResolve
@@ -114,6 +118,11 @@ class Promise {
         return this;
     }
 
+   /**
+    * Add handler on rejection
+    * @param {function} onReject
+    * @return {this}
+    */
     function fail(onReject) {
         this._handlers.push({
             "reject": onReject
@@ -123,6 +132,11 @@ class Promise {
         return this;
     }
 
+   /**
+    * Add handler that is executed both on resolve and rejection
+    * @param {function} always
+    * @return {this}
+    */
     function finally(always) {
         this._handlers.push({
             "resolve": always,
