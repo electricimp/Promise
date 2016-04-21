@@ -1,0 +1,14 @@
+{
+    "modelId": "OB5-O5idLyE1" /* Vimp.3 */,
+    "devices": [
+        "4353450000000003" /* EI.Test.Vimp.3 @ Promise lib */
+    ],
+    "agentFile": "Promise.class.nut",
+    "deviceFile": false,
+    "stopOnFailure": false,
+    "timeout": 3,
+    "tests": [
+        "*.test.nut",
+        "tests/**/*.test.nut"
+    ]
+}

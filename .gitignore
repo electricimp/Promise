@@ -1,0 +1,5 @@
+*.nut.bundled
+*-local
+*.local
+*.tmp
+_private/
