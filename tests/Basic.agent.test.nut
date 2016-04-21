@@ -30,6 +30,38 @@ class BasicTestCase extends ImpTestCase {
     }
 
     /**
+     * Test delayed resolving
+     */
+    function testDelayedResoving() {
+        return Promise(function(ok, err) {
+            local p = ::Promise(function (resolve, reject) {
+                imp.wakeup(0.1, function () {
+                    resolve();
+                }.bindenv(this));
+            });
+
+            p.then(ok);
+
+        }.bindenv(this));
+    }
+
+    /**
+     * Test delayed rejection
+     */
+    function testDelayedRejection() {
+        return Promise(function(ok, err) {
+            local p = ::Promise(function (resolve, reject) {
+                imp.wakeup(0.1, function () {
+                    reject();
+                }.bindenv(this));
+            });
+
+            p.fail(ok);
+
+        }.bindenv(this));
+    }
+
+    /**
      * Test rejection with throw+fail() handler
      */
     function testCatchWithThenHandler1() {
