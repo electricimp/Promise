@@ -42,7 +42,7 @@ with any sort of detectible failure. Usually, an instantiated Promise object is
 returned from a class instead of offering direct callback functions. This uniform
 implementation makes the code clearer and easier to read.
 
-**To add this library to your project, add `#require "promise.class.nut:2.0.0-rc1"` to the top of your device code.**
+**To add this library to your project, add `#require "Promise.class.nut:2.0.0-rc1"` to the top of your device code.**
 
 You can view the library's source code on [GitHub](https://github.com/electricimp/Promise/tree/v2.0.0-rc1).
 

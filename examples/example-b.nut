@@ -1,4 +1,4 @@
-#require "promise.class.nut:1.1.0"
+#require "Promise.class.nut:1.1.0"
 
 /**
  * Example of resolving Promise after 1 second timeout
