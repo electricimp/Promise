@@ -30,7 +30,7 @@ class Promise {
     /**
      * Execute chain of handlers
      */
-    function _handle() {
+    function _callHandlers() {
         if (this.STATE_PENDING != this._state) {
             foreach (handler in this._handlers) {
                 (/* create closure and bind handler to it */ function (handler) {
@@ -62,7 +62,7 @@ class Promise {
             } else {
                 this._state = this.STATE_RESOLVED;
                 this._value = value;
-                this._handle();
+                this._callHandlers();
             }
         }
     }
@@ -74,7 +74,7 @@ class Promise {
         if (this.STATE_PENDING == this._state) {
             this._state = this.STATE_REJECTED;
             this._value = reason;
-            this._handle();
+            this._callHandlers();
         }
     }
 
@@ -114,7 +114,7 @@ class Promise {
             });
         }
 
-        this._handle();
+        this._callHandlers();
         return this;
     }
 
@@ -128,7 +128,7 @@ class Promise {
             "reject": onReject
         });
 
-        this._handle();
+        this._callHandlers();
         return this;
     }
 
@@ -143,7 +143,7 @@ class Promise {
             "reject": always
         });
 
-        this._handle();
+        this._callHandlers();
         return this;
     }
 }
