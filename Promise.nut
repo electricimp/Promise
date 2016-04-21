@@ -51,9 +51,19 @@ class Promise {
      */
     function _resolve(value = null) {
         if (this.STATE_PENDING == this._state) {
-            this._state = this.STATE_RESOLVED;
-            this._value = value;
-            this._handle();
+            // if promise is resolved with another promise
+            // let it resolve/reject this one,
+            // otherwise resolve immideately
+            if (this._isPromise(value)) {
+                value.then(
+                    this._resolve.bindenv(this),
+                    this._reject.bindenv(this)
+                );
+            } else {
+                this._state = this.STATE_RESOLVED;
+                this._value = value;
+                this._handle();
+            }
         }
     }
 
