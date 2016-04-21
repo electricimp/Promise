@@ -68,6 +68,23 @@ class Promise {
         }
     }
 
+   /**
+    * Check if a value is a Promise.
+    * @param {Promise|*} value
+    * @return {boolean}
+    */
+    function _isPromise(value) {
+        if (
+            // detect that the value is some form of Promise
+            // by the fact it has .then() method
+            (typeof value == "instance")
+            && ("then" in value)
+            && (typeof value.then == "function")
+          ) {
+            return true
+        }
+
+        return false
     }
 
     //
