@@ -12,6 +12,7 @@ class Promise {
     static STATE_PENDING = 0;
     static STATE_RESOLVED = 1;
     static STATE_REJECTED = 2;
+    static STATE_CANCELLED = 3;
 
     _state = null;
     _value = null;
@@ -43,14 +44,24 @@ class Promise {
         if (this.STATE_PENDING != this._state) {
             foreach (handler in this._handlers) {
                 (/* create closure and bind handler to it */ function (handler) {
-                    if (this._state == this.STATE_RESOLVED && "resolve" in handler && "function" == type(handler.resolve)) {
-                        imp.wakeup(0, function() {
-                            handler.resolve(this._value);
-                        }.bindenv(this));
-                    } else if (this._state == this.STATE_REJECTED && "reject" in handler && "function" == type(handler.reject)) {
-                        imp.wakeup(0, function() {
-                            handler.reject(this._value);
-                        }.bindenv(this));
+                    if (this._state == this.STATE_RESOLVED) {
+                        if ("resolve" in handler && "function" == type(handler.resolve)) {
+                            imp.wakeup(0, function() {
+                                handler.resolve(this._value);
+                            }.bindenv(this));
+                        }
+                    } else if (this._state == this.STATE_REJECTED) {
+                        if ("reject" in handler && "function" == type(handler.reject)) {
+                            imp.wakeup(0, function() {
+                                handler.reject(this._value);
+                            }.bindenv(this));
+                        }
+                    } else if (this._state == this.STATE_CANCELLED) {
+                        if ("cancel" in handler && "function" == type(handler.cancel)) {
+                            imp.wakeup(0, function() {
+                                handler.cancel(this._value);
+                            }.bindenv(this));
+                        }
                     }
                 })(handler);
             }
@@ -119,7 +130,7 @@ class Promise {
     function then(onResolve, onReject = null) {
         this._handlers.push({
             "resolve": onResolve
-        })
+        });
 
         if (onReject) {
             this._handlers.push({
@@ -147,17 +158,61 @@ class Promise {
 
    /**
     * Add handler that is executed both on resolve and rejection
-    * @param {function} always
+    * @param {function(value)} handler
     * @return {this}
     */
-    function finally(always) {
+    function finally(handler) {
         this._handlers.push({
-            "resolve": always,
-            "reject": always
+            "resolve": handler,
+            "reject": handler
         });
 
         this._callHandlers();
         return this;
+    }
+
+   /**
+    * Add handlers on cancellation
+    * @param {function()} onCancel
+    * @return {this}
+    */
+    function cancelled(onCancel) {
+      this._handlers.push({
+        "cancel": onCancel
+      });
+
+      this._callHandlers();
+      return this;
+    }
+
+   /**
+    * Add handler that is executed on resolve/reject/cancel
+    * @param {function(value)} handler
+    * @return {this}
+    */
+    function always(handler) {
+        this._handlers.push({
+            "resolve": handler,
+            "reject": handler,
+            "cancel": handler
+        });
+
+        this._callHandlers();
+        return this;
+    }
+
+    /**
+     * Cancel a promise
+     * - No .then/.fail/.finally handlers will be called
+     * - .cancelled handler will be called
+     * @param {*} reason - value that will be passed to .cancelled handler
+     */
+    function cancel(reason = null) {
+        if (this.STATE_PENDING == this._state) {
+            this._state = this.STATE_CANCELLED;
+            this._value = reason;
+            this._callHandlers();
+        }
     }
 
     /**
