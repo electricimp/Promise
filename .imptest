@@ -1,9 +1,9 @@
 {
-    "modelId": "BYqvwKEI-VsP" /* April/EnvTail.E */,
+    "modelId": "OB5-O5idLyE1" /* Vimp.3 */,
     "devices": [
-        "2370797838a609ee" /* EI.Test.E @ Promise lib */
+        "4353450000000003" /* EI.Test.Vimp.3 @ Promise lib */
     ],
-    "agentFile": "promise.class.nut",
+    "agentFile": "Promise.class.nut",
     "deviceFile": false,
     "stopOnFailure": false,
     "timeout": 3,
