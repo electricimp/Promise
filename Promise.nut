@@ -1,5 +1,13 @@
-
+/**
+ * Promises for Squirrel (Electric Imp)
+ *
+ * @author Aron Steg
+ * @author Mikhail Yurasov <mikhail@electricimp.com>
+ *
+  @version 2.0.0
+ */
 class Promise {
+    static version = [2, 0, 0];
 
     static STATE_PENDING = 0;
     static STATE_RESOLVED = 1;
