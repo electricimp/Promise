@@ -1,11 +1,11 @@
-#require "promise.class.nut:1.1.0"
+#require "Promise.class.nut:1.1.0"
 
 // -----------------------------------------------------------------------------
 // This class exposed a single method fire() which waits a second and then randomly fails or succeeds.
 // It returns a Promise which will fire then() or fail() at the conclusion of execution.
 //
 class RandomFailure {
-    
+
     function fire() {
         return Promise(function (fulfill, reject){
             imp.wakeup(1, function () {
@@ -17,7 +17,7 @@ class RandomFailure {
             }.bindenv(this));
         }.bindenv(this));
     }
-    
+
 }
 
 

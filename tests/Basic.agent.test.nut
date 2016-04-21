@@ -30,6 +30,38 @@ class BasicTestCase extends ImpTestCase {
     }
 
     /**
+     * Test delayed resolving
+     */
+    function testDelayedResoving() {
+        return Promise(function(ok, err) {
+            local p = ::Promise(function (resolve, reject) {
+                imp.wakeup(0.1, function () {
+                    resolve();
+                }.bindenv(this));
+            });
+
+            p.then(ok);
+
+        }.bindenv(this));
+    }
+
+    /**
+     * Test delayed rejection
+     */
+    function testDelayedRejection() {
+        return Promise(function(ok, err) {
+            local p = ::Promise(function (resolve, reject) {
+                imp.wakeup(0.1, function () {
+                    reject();
+                }.bindenv(this));
+            });
+
+            p.fail(ok);
+
+        }.bindenv(this));
+    }
+
+    /**
      * Test rejection with throw+fail() handler
      */
     function testCatchWithThenHandler1() {
@@ -133,6 +165,54 @@ class BasicTestCase extends ImpTestCase {
                         err(e);
                     }
                 }.bindenv(this));
+
+        }.bindenv(this));
+    }
+
+    /**
+     * This test appeared due to Squirrel's not creating
+     * new instances of variables defined in a class
+     * outdide the constructor on new instance creation,
+     * which is a bit weird
+     *
+     *  eg:
+     *
+     * class C  {
+     *   _var = [];
+     *
+     *   function add(val) {
+     *     this._var.push(val);
+     *   }
+     * }
+     *
+     * local c1 = C();
+     * local c2 = C();
+     * c2.add(1);
+     *
+     * print(c1._var) // == [1]
+     *
+     */
+    function testHandlerInstances() {
+        return Promise(function(ok, err) {
+            local p1 = ::Promise(function (resolve, reject) {
+            });
+
+            p1.then(function (v) {
+                err("p1 handlers should not be called");
+            });
+
+            local p2 = ::Promise(function (resolve, reject) {
+                imp.wakeup(0.5, function() {
+                    resolve();
+                });
+            });
+
+            p2.then(function (v) {
+            });
+
+            p2.then(function (v) {
+                ok();
+            });
 
         }.bindenv(this));
     }
