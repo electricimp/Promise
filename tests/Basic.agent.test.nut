@@ -170,6 +170,38 @@ class BasicTestCase extends ImpTestCase {
     }
 
     /**
+     * Test that always() is called on resolution
+     */
+    function testAlwaysCallOnResolution() {
+        return Promise(function(ok, err) {
+            local p = ::Promise(function (resolve, reject) {resolve();});
+            p.always(ok);
+        }.bindenv(this));
+    }
+
+    /**
+     * Test that always() is called on rejection
+     */
+    function testAlwaysCallOnResolution() {
+        return Promise(function(ok, err) {
+            local p = ::Promise(function (resolve, reject) {reject();});
+            p.always(ok);
+        }.bindenv(this));
+    }
+
+    /**
+     * Test that always() is called on cancellation
+     */
+    function testAlwaysCallOnResolution() {
+        return Promise(function(ok, err) {
+            local p = ::Promise(function (resolve, reject) {this.cancel("abc");});
+            p.always(function (v) {
+                "abc" == v ? ok() : err();
+            });
+        }.bindenv(this));
+    }
+
+    /**
      * This test appeared due to Squirrel's not creating
      * new instances of variables defined in a class
      * outdide the constructor on new instance creation,
