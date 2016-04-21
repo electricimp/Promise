@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [Promise 2.0.0](#promise-200)
+- [Promise](#promise)
   - [Reference](#reference)
     - [Promise()](#promise)
     - [.then()](#then)
@@ -29,7 +29,7 @@
 
 [![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
 
-# Promise 2.0.0
+# Promise
 
 Implementation of _Promises_ for Electric Imp/Squirrel.
 
