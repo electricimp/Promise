@@ -3,7 +3,7 @@
     "devices": [
         "2370797838a609ee" /* EI.Test.E @ Promise lib */
     ],
-    "agentFile": "Promise.nut",
+    "agentFile": "Promise.class.nut",
     "deviceFile": false,
     "stopOnFailure": false,
     "timeout": 3,
