@@ -16,11 +16,11 @@
     - [Promise.serial()](#promiseserial)
     - [Promise.parallel()](#promiseparallel)
     - [Promise.first()](#promisefirst)
-  - [Example](#example)
   - [Testing](#testing)
     - [TL;DR](#tldr)
     - [Running Tests](#running-tests)
   - [Development](#development)
+  - [Examples](#examples)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -227,52 +227,6 @@ local promises = [
 local p = Promise.parallel(series);
 ```
 
-## Example
-
-An example implementation of a promise is:
-
-```squirrel
-class Widget {
-
-    function _longTask(data, callback) {
-        // Some long asynchronous task which calls callback at the end
-    }
-
-    function calculate(input) {
-        return Promise(function (fulfill, reject) {
-            _longTask(input, function (err, res) {
-                if (err) {
-                    reject(err);
-                } else {
-                    fulfill(res);
-                }
-            }.bindenv(this));
-        }.bindenv(this));
-    }
-}
-```
-
-An example execute of this class and promise is:
-
-```squirrel
-Widget().calculate(123)
-        .then(
-            function(res) {
-                server.log("Success: " + res)
-            }.bindenv(this)
-        )
-        .fail(
-            function(err) {
-                server.error("Failed: " + err)
-            }.bindenv(this)
-        )
-        .finally(
-            function(r) {
-                server.log("I'm always called")
-            }.bindenv(this)
-        )
-```
-
 ## Testing
 
 Repository contains [impUnit](https://github.com/electricimp/impUnit) tests and a configuration for [impTest](https://github.com/electricimp/impTest) tool.
@@ -303,11 +257,16 @@ To run test with your settings (for example while you are developing), create yo
 
 Tests will run with any imp.
 
-
 ## Development
 
 This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
 Please make your pull requests to the __develop__ branch.
+
+## Examples
+
+- [example a](./examples/example-a.nut)
+- [example b](./examples/example-b.nut)
+
 
 # License
 
