@@ -120,13 +120,23 @@ class BasicTestCase extends ImpTestCase {
             local failCalled = false;
 
             local p = ::Promise(function (resolve, reject) {
+                // info("action (rejection)")
                 reject();
-            });
+            }.bindenv(this));
 
             p
-                .then(function (v) { thenCalled = true; })
-                .fail(function (v) { failCalled = true; })
+                .then(function (v) {
+                    // info("then1")
+                    thenCalled = true;
+                }.bindenv(this))
+
+                .fail(function (v) {
+                    // info("fail1")
+                    failCalled = true;
+                }.bindenv(this))
+
                 .finally(function (v) {
+                    // info("finally1")
                     try {
                         this.assertEqual(false, thenCalled);
                         this.assertEqual(true, failCalled);
