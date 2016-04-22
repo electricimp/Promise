@@ -44,33 +44,26 @@ class Promise {
      * Execute chain of handlers
      */
     function _callHandlers() {
-        if (this.STATE_PENDING != this._state) {
-            foreach (handler in this._handlers) {
-                (/* create closure and bind handler to it */ function (handler) {
+        imp.wakeup(0, function() {
+            if (this.STATE_PENDING != this._state) {
+                while (this._handlers.len()) {
+                    local handler = this._handlers.remove(0);
                     if (this._state == this.STATE_RESOLVED) {
                         if ("resolve" in handler && "function" == type(handler.resolve)) {
-                            imp.wakeup(0, function() {
-                                handler.resolve(this._value);
-                            }.bindenv(this));
+                            local r = handler.resolve(this._value);
                         }
                     } else if (this._state == this.STATE_REJECTED) {
                         if ("reject" in handler && "function" == type(handler.reject)) {
-                            imp.wakeup(0, function() {
-                                handler.reject(this._value);
-                            }.bindenv(this));
+                            handler.reject(this._value);
                         }
                     } else if (this._state == this.STATE_CANCELLED) {
                         if ("cancel" in handler && "function" == type(handler.cancel)) {
-                            imp.wakeup(0, function() {
-                                handler.cancel(this._value);
-                            }.bindenv(this));
+                            handler.cancel(this._value);
                         }
                     }
-                })(handler);
+                }
             }
-
-            this._handlers = [];
-        }
+        }.bindenv(this))
     }
 
     /**
