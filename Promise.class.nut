@@ -7,6 +7,7 @@
  * @version 2.0.0
  */
 class Promise {
+
     static version = [2, 0, 0];
 
     static STATE_PENDING = 0;
@@ -27,14 +28,16 @@ class Promise {
         this._state = this.STATE_PENDING;
         this._handlers = [];
 
-        try {
-            action(
-                this._resolve.bindenv(this)
-                this._reject.bindenv(this)
-            );
-        } catch (e) {
-            this._reject(e);
-        }
+        imp.wakeup(0, function() {
+            try {
+                action(
+                    this._resolve.bindenv(this)
+                    this._reject.bindenv(this)
+                );
+            } catch (e) {
+                this._reject(e);
+            }
+        }.bindenv(this));
     }
 
     /**
