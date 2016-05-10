@@ -14,15 +14,16 @@ class ThenAfterFailTestCase extends ImpTestCase {
             local thenCalled = false;
             local failCalled = false;
             local thenAfterFailedCalled = false;
+            local value = -123;
 
             local p = ::Promise(function (resolve, reject) {
-                reject();
+                reject(123);
             });
 
             p
-                .then(function (v) { thenCalled = true; }) // should NOT be called
-                .fail(function (v) { failCalled = true; }) // should be called
-                .then(function (v) { thenAfterFailedCalled = true; }) // should be called
+                .then(function (v) { thenCalled = true; }.bindenv(this)) // should NOT be called
+                .fail(function (v) { failCalled = true; value = v; }.bindenv(this)) // should be called
+                .then(function (v) { thenAfterFailedCalled = true; value = v; }.bindenv(this)) // should be called
 
             imp.wakeup(0, function() {
                 try {
@@ -30,6 +31,8 @@ class ThenAfterFailTestCase extends ImpTestCase {
                     this.assertEqual(true, failCalled);
                     this.assertEqual(true, thenAfterFailedCalled,
                         ".then() expected to be called after .fail() on rejection");
+                    this.assertEqual(null, value);
+                    ok();
                 } catch (e) {
                     err(e);
                 }
