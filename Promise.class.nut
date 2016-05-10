@@ -52,9 +52,10 @@ class Promise {
                         }
                     } else if (this._state == this.STATE_REJECTED) {
                         if ("reject" in handler && "function" == type(handler.reject)) {
-                            imp.wakeup(0, function() {
-                                handler.reject(this._value);
-                            }.bindenv(this));
+
+                            imp.wakeup(0, (function (value) /* tie current value as it will be reset */ {
+                                return function() { handler.reject(value); }.bindenv(this)
+                            }.bindenv(this))(this._value));
 
                             // after .fail() handler is called,
                             // error is resolved, and success
