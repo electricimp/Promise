@@ -55,6 +55,12 @@ class Promise {
                             imp.wakeup(0, function() {
                                 handler.reject(this._value);
                             }.bindenv(this));
+
+                            // after .fail() handler is called,
+                            // error is resolved, and success
+                            // handlers should be called
+                            this._value = null;
+                            this._state = this.STATE_RESOLVED;
                         }
                     } else if (this._state == this.STATE_CANCELLED) {
                         if ("cancel" in handler && "function" == type(handler.cancel)) {
