@@ -2,83 +2,147 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [Promise Class 1.1.0](#promise-class-110)
-  - [Usage](#usage)
+- [Promise](#promise)
+  - [Reference](#reference)
     - [Promise()](#promise)
     - [.then()](#then)
     - [.fail()](#fail)
     - [.finally()](#finally)
+    - [.always()](#always)
+    - [.cancelled()](#cancelled)
+    - [.cancel()](#cancel)
+      - [Cancellation vs. Rejection](#cancellation-vs-rejection)
     - [Promise.loop()](#promiseloop)
     - [Promise.serial()](#promiseserial)
-  - [Example](#example)
+    - [Promise.parallel()](#promiseparallel)
+    - [Promise.first()](#promisefirst)
   - [Testing](#testing)
     - [TL;DR](#tldr)
     - [Running Tests](#running-tests)
   - [Development](#development)
+  - [Examples](#examples)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 <br />
 
-[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=develop)](https://travis-ci.org/electricimp/Promise)
+[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
 
-# Promise Class 1.1.0
+# Promise
 
-This Promise class is based on the PromiseJS definition at:
-https://www.promisejs.org/implementing/
+Implementation of _Promises_ for Electric Imp/Squirrel.
 
-According to Wikipedia, "Futures and promises originated in functional programming and
+_According to Wikipedia, "Futures and promises originated in functional programming and
 related paradigms (such as logic programming) to decouple a value (a future) from how
 it was computed (a promise), allowing the computation to be done more flexibly, notably
-by parallelizing it."
+by parallelizing it."_
 
-This Promise class implements a subset of the generic Promise concept by
-providing two callback functions, then() and fail(). then() is executed when the
-promise is successfully completed, fail() is executed when the promise is completed
-with any sort of detectible failure. Usually, an instantiated Promise object is
-returned from a class instead of offering direct callback functions. This uniform
-implementation makes the code clearer and easier to read.
-
-**To add this library to your project, add `#require "promise.class.nut:1.1.0"` to the top of your device code.**
-
-You can view the library's source code on [GitHub](https://github.com/electricimp/Promise/tree/v1.1.0).
-
-## Usage
+## Reference
 
 ### Promise()
 
-`Promise(actionFunction)`
+`Promise(action)`
 
-The constructor should receive a single function, which will be executed to determine the final value and result. The actionFunction should receive two function parameters. Exactly one of these functions (`fulfill` or `reject`) should be executed at the completing of the actionFunction. If `fulfill` is executed then the success function will be called asynchronously; if `reject` is executed then the fail function will be called asynchronously.
+The constructor should receive an _action function_, which will be executed to determine the final value and result.
+This function provides two parameters: 
 
+- `function resolve([value])` – calling `resolve` sets Promise state as resolved and calls success handlers (passed as first argument of `.then()`)
+- `function reject([reason]` - calling  `reject` sets Promise state as rejected and calls `.fail()` handlers
+ 
 ### .then()
 
-`.then(successFunction [,failFunction])`
+`.then(onResolve [,onReject])`
 
-This function allows the developer to provide a success function and optionally a fail function. The success function should accept a single parameter, the result; the fail function should accept a single parameter, the error.
+Add handlers on resolve/rejection.
 
 ### .fail()
 
-`.fail(failFunction)`
+`.fail(onReject)`
 
-This function allows the developer to provide a failure function. The failure function should accept a single parameter, the error.
+Adds handler for rejection.
 
 ### .finally()
 
-`.finally(alwaysFunction)`
+`.finally(handler)`
 
-This function allows the developer to provide a function that is executed once the promise is resolved or rejected, regardless of the success/failure. Accepts a single parameter – result or error.
+Adds handler that is executed both on resolve and rejection.
+
+### .always()
+
+`.always(handler)`
+
+Adds handler that is executed on resolve/rejection/cancellation.
+
+### .cancelled()
+
+`.cancelled(onCancell)`
+
+Add handler on cancellation.
+
+### .cancel()
+
+`.cancel(reason)`
+
+Cancels a Promise. 
+
+- No `.then`/`.fail`/`.finally` handlers will be called
+- `.cancelled` handlers will be called
+
+Example:
+
+Cancel some process after 10s:
+
+```squirrel
+local p = Promise(function (resolve, reject) {
+    someProcess.on("done", resolve);
+    someProcess.start();
+    this.cancelled(function (reason) {
+        someProcess.stop();
+    });
+});
+
+p
+    .then(function (value) {
+        // ok handler
+    })
+    .fail(function (reason) {
+        // err handler
+    });
+
+imp.wakeup(10, function() { p.cancel("Timed out") });
+```
+
+#### Cancellation vs. Rejection
+
+It is important to understand the difference beween the rejection and cancellation.
+ 
+Rejection:
+
+- Can not be _implicitly_ triggered from outside of _action function_
+- Signifies a process that calculates the Promise values encountered a error
+- Occurs on exception in the action function
+- Executes rejection and `.finally` handlers
+
+Cancellation:
+
+- Can be triggered externally (from outside of _action function_)
+- Signifies that the Promise value is no longer required
+- Excutes only `.cancelled` handlers
 
 ### Promise.loop()
 
-`Promise.loop(compareFunction, nextFunction)`
+`Promise.loop(continueFunction, nextFunction)`
 
 A way to perform while loops with asynchronous processes.
 
-Stops on `compareFunction() == false` or first rejection of looped _Promise_'s.
+Parameters:
+- `continueFunction` – function that returns `true` to continue loop or `false` to stop
+- `nextFunction` – function that returns next _Promise_ in the loop
 
-Returns _Promise_ that is resolved/rejected with the last value that come from looped _Promise_ when loop finishes.
+Stops on `continueFunction() == false` or first rejection of looped _Promise_'s.
+
+Returns _Promise_ that is resolved/rejected with the last value that comes from looped _Promise_ when loop finishes.
 
 For example in the following code `p` resolves with value "counter is 3" in 9 seconds.
 
@@ -96,69 +160,71 @@ local p = Promise.loop(
 );
 ```
 
-
 ### Promise.serial()
 
-`Promise.serial(promises)`
+`Promise.serial(series)`
 
 Returns _Promise_ that resolves when all promises in chain resolve or when the first one rejects.
 
-For example in the following code `p` rejects with value "2" in 2 seconds:
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` rejects with value "2" in 2.5 seconds:
+
+```squirrel
+local series = [
+    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
+    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() reject(2))),
+    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+];
+
+local p = Promise.serial(series);
+```
+
+### Promise.parallel()
+
+`Promise.parallel(series)`
+
+Execute Promises in parallel and resolve when they are all done.
+Returns Promise that resolves with last paralleled Promise value or rejects with first rejected paralleled Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` resolves with value "2" in 1.5 seconds:
+
+```squirrel
+local series = [
+    @() Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
+    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() resolve(2))),
+    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+];
+
+local p = Promise.parallel(series);
+```
+
+### Promise.first()
+
+`Promise.first(series)`
+
+Execute Promises in parallel and resolve when the first is done.
+Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` rejects with value "1" in 1 second:
 
 ```squirrel
 local promises = [
-    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
-    Promise(@(resolve, reject) imp.wakeup(1, @() reject(2))),
-    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(3)))
+    // rejects first as the other one with 1s timeout
+    // starts later from inside .first()
+    Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
+    @() Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
+    @() Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
 ];
 
-local p = Promise.serial(promises);
-```
-
-## Example
-
-An example implementation of a promise is:
-
-```squirrel
-class Widget {
-
-    function _longTask(data, callback) {
-        // Some long asynchronous task which calls callback at the end
-    }
-
-    function calculate(input) {
-        return Promise(function (fulfill, reject) {
-            _longTask(input, function (err, res) {
-                if (err) {
-                    reject(err);
-                } else {
-                    fulfill(res);
-                }
-            }.bindenv(this));
-        }.bindenv(this));
-    }
-}
-```
-
-An example execute of this class and promise is:
-
-```squirrel
-Widget().calculate(123)
-        .then(
-            function(res) {
-                server.log("Success: " + res)
-            }.bindenv(this)
-        )
-        .fail(
-            function(err) {
-                server.error("Failed: " + err)
-            }.bindenv(this)
-        )
-        .finally(
-            function(r) {
-                server.log("I'm always called")
-            }.bindenv(this)
-        )
+local p = Promise.parallel(series);
 ```
 
 ## Testing
@@ -191,11 +257,16 @@ To run test with your settings (for example while you are developing), create yo
 
 Tests will run with any imp.
 
-
 ## Development
 
 This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
 Please make your pull requests to the __develop__ branch.
+
+## Examples
+
+- [example a](./examples/example-a.nut)
+- [example b](./examples/example-b.nut)
+
 
 # License
 

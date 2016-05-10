@@ -4,7 +4,7 @@
  * while class being tested can be accessed from global scope as "::Promise".
  */
 
-class ResolveWithPromises extends ImpTestCase {
+class ResolveWithPromisesTestCase extends ImpTestCase {
     /**
      * Test resolution of Promise with another Promise
      */
