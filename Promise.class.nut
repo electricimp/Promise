@@ -3,21 +3,20 @@
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @author Aron Steg <aron@electricimp.com>
- *
- * @version 2.0.0
+ * @author Jaye Heffernan <jaye@mysticpants.com>
+ * @version 3.0.0
  */
 class Promise {
-    static version = [2, 0, 0];
+    static version = [3, 0, 0];
 
     static STATE_PENDING = 0;
     static STATE_RESOLVED = 1;
     static STATE_REJECTED = 2;
-    static STATE_CANCELLED = 3;
 
     _state = null;
     _value = null;
 
-    /* @var {{resole, reject}[]} _handlers */
+    /* @var {{resolve, reject}[]} _handlers */
     _handlers = null;
 
     /**
@@ -44,31 +43,24 @@ class Promise {
         if (this.STATE_PENDING != this._state) {
             foreach (handler in this._handlers) {
                 (/* create closure and bind handler to it */ function (handler) {
+                // TODO: remove some duplication between these states with a
+                // (with a closure?)
                     if (this._state == this.STATE_RESOLVED) {
-                        if ("resolve" in handler && "function" == type(handler.resolve)) {
-                            imp.wakeup(0, function() {
-                                handler.resolve(this._value);
-                            }.bindenv(this));
-                        }
+                        imp.wakeup(0, function() {
+                            try {
+                                handler.resolve(handler.onResolve(this._value));
+                            } catch (err) {
+                                handler.reject(err);
+                            }
+                        }.bindenv(this));
                     } else if (this._state == this.STATE_REJECTED) {
-                        if ("reject" in handler && "function" == type(handler.reject)) {
-
-                            imp.wakeup(0, (function (value) /* tie current value as it will be reset */ {
-                                return function() { handler.reject(value); }.bindenv(this)
-                            }.bindenv(this))(this._value));
-
-                            // after .fail() handler is called,
-                            // error is resolved, and success
-                            // handlers should be called
-                            this._value = null;
-                            this._state = this.STATE_RESOLVED;
-                        }
-                    } else if (this._state == this.STATE_CANCELLED) {
-                        if ("cancel" in handler && "function" == type(handler.cancel)) {
-                            imp.wakeup(0, function() {
-                                handler.cancel(this._value);
-                            }.bindenv(this));
-                        }
+                        imp.wakeup(0, function() {
+                            try {
+                                handler.resolve(handler.onReject(this._value));
+                            } catch (err) {
+                                handler.reject(err);
+                            }
+                        }.bindenv(this));
                     }
                 })(handler);
             }
@@ -130,23 +122,26 @@ class Promise {
 
    /**
     * Add handlers on resolve/rejection
-    * @param {function} onResolve
+    * @param {function|null} onResolve
     * @param {function|null} onReject
     * @return {this}
     */
-    function then(onResolve, onReject = null) {
-        this._handlers.push({
-            "resolve": onResolve
+    function then(onResolve = null, onReject = null) {
+        onResolve = (onResolve != null) ? onResolve : Promise._onResolve;
+        onReject  = (onReject  != null) ? onReject  : Promise._onReject;
+        local self = this;
+        local result = Promise(function(resolve, reject) {
+            self._handlers.push({
+                "resolve": resolve.bindenv(this),
+                "onResolve": onResolve,//.bindenv(self) // Not sure if these bindenvs are needed
+                "reject": reject.bindenv(this),
+                "onReject": onReject//.bindenv(self),
+            })
         });
 
-        if (onReject) {
-            this._handlers.push({
-                "reject": onReject
-            });
-        }
-
         this._callHandlers();
-        return this;
+
+        return result;
     }
 
    /**
@@ -155,12 +150,7 @@ class Promise {
     * @return {this}
     */
     function fail(onReject) {
-        this._handlers.push({
-            "reject": onReject
-        });
-
-        this._callHandlers();
-        return this;
+        return this.then(null, onReject);
     }
 
    /**
@@ -169,59 +159,23 @@ class Promise {
     * @return {this}
     */
     function finally(handler) {
-        this._handlers.push({
-            "resolve": handler,
-            "reject": handler
-        });
-
-        this._callHandlers();
-        return this;
+        return this.then(handler, handler);
     }
-
-   /**
-    * Add handlers on cancellation
-    * @param {function()} onCancel
-    * @return {this}
-    */
-    function cancelled(onCancel) {
-      this._handlers.push({
-        "cancel": onCancel
-      });
-
-      this._callHandlers();
-      return this;
-    }
-
-   /**
-    * Add handler that is executed on resolve/reject/cancel
-    * @param {function(value)} handler
-    * @return {this}
-    */
-    function always(handler) {
-        this._handlers.push({
-            "resolve": handler,
-            "reject": handler,
-            "cancel": handler
-        });
-
-        this._callHandlers();
-        return this;
-    }
-
+    
     /**
-     * Cancel a promise
-     * - No .then/.fail/.finally handlers will be called
-     * - .cancelled handler will be called
-     * @param {*} reason - value that will be passed to .cancelled handler
+     * The default `onResolve` handler (the identity function)
      */
-    function cancel(reason = null) {
-        if (this.STATE_PENDING == this._state) {
-            this._state = this.STATE_CANCELLED;
-            this._value = reason;
-            this._callHandlers();
-        }
+    static function _onResolve(value) {
+        return value;
     }
-
+    
+    /**
+     * The default rejection handler, just throws to the next handler
+     */
+    static function _onReject(error) {
+        throw error;
+    }
+    
     /**
      * While loop with Promise's
      * Stops on continueCallback() == false or first rejection of looped Promise
@@ -231,7 +185,7 @@ class Promise {
      * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop finishes
      */
     static function loop(condition, next) {
-        return (this)(function (resolve, reject) {
+        return Promise(function (resolve, reject) {
 
             local doLoop;
             local lastResolvedWith;
@@ -274,63 +228,94 @@ class Promise {
             }
         )
     }
-
+    
     /**
-     * Execute Promises in parallel.
+     * Returns Promise that resolves when all promises in the list resolve
      *
-     * @param {{Primise|functiuon}[]} promises
-     * @param {wait} wait - wait for all promises to finish?
-     * @returns {Promise}
+     * @param {{Promise}[]} promises - array of Promises
+     * @param {boolean} wait - whether to wait for all promises to resolve, or
+     * just the first
+     * @return {Promise} Promise that is resolved with the list of values that
+     * `promises` resolved to (in order) OR with the value of the first promise
+     * that resolves
      */
     static function _parallel(promises, wait) {
-        return (this)(function (resolve, reject) {
-            local resolved = 0;
-
-            local checkDone = function(v = null) {
-                if ((!wait && resolved == 1) || (wait && resolved == promises.len())) {
-                    resolve(v);
-                    return true;
+        return Promise(function(resolve, reject) {
+            local resolved = 0; // promises resolved
+            local len = promises.len(); // promises given
+            local result = array(len); // results array (for if we're waiting for all to resolve)
+            
+            // resolve one promise with a value
+            local resolveOne = function(index, value) {
+                if (!wait) {
+                    // early return if we're not waiting for all to resolve
+                    return resolve(value);
                 }
-            }
-
-            if (!checkDone()) {
-                for (local i = 0; i < promises.len(); i++) {
-                    (
-                        "function" == type(promises[i])
-                            ? promises[i]()
-                            : promises[i]
-                    )
-                    .then(function (v) {
-                        resolved++;
-                        checkDone(v);
-                    }, reject);
+                result[index] = value;
+                resolved += 1;
+                if (resolved == len) {
+                    resolve(result)
                 }
-            }
+            };
+            
+            foreach (index, promise in promises) {
+                (function(index) {
+                    promise.then(function(value) {
+                        resolveOne(index, value);
+                    }.bindenv(this), reject);
+                }.bindenv(this))(index);
 
-        }.bindenv(this));
+            }
+            
+        }.bindenv(this))
+
     }
-
+    
     /**
-     * Execute Promises in parallel and resolve when they are all done.
-     * Returns Promise that resolves with last paralleled Promise value
-     * or rejects with first rejected paralleled Promise value.
+     * Returns Promise that resolves to an array containing the results of each
+     * given promise (or rejects with the first rejected)
      *
-     * @param {{Primise|functiuon}[]} promises
-     * @returns {Promise}
+     * @param {{Promise}[]} promises - array of Promises
+     * @return {Promise} Promise that is resolved with the list of values that
+     * `promises` resolved to (in order)
      */
-    static function parallel(promises) {
+    static function all(promises) {
         return this._parallel(promises, true);
     }
-
+    
     /**
-     * Execute Promises in parallel and resolve when the first is done.
-     * Returns Promise that resolves/rejects with the first
-     * resolved/rejected Promise value.
+     * Returns Promise that resolves to the first value that any of the given
+     * promises resolve to
      *
-     * @param {{Primise|functiuon}[]} promises
-     * @returns {Promise}
+     * @param {{Promise}[]} promises - array of Promises
+     * @return {Promise} Promise that is resolved with the to the value of the
+     * first of `promises` to resolve (or rejects with the first to reject)
      */
-    static function first(promises) {
+    static function race(promises) {
         return this._parallel(promises, false);
+    }
+    
+    /**
+     * Returns promise that immediately resolves to the given value
+     *
+     * @param {*} value - value to resolve to
+     * @return {Promise} - a Promise that immediately resolves to `value`
+     */
+    static function resolve(value) {
+        return Promise(function(resolve, reject) {
+            resolve(value);
+        })
+    }
+    
+    /**
+     * Returns promise that immediately rejects with the given value
+     *
+     * @param {*} value - value to resolve to
+     * @return {Promise} - a Promise that immediately rejects with `value`
+     */
+    static function reject(value) {
+        return Promise(function(resolve, reject) {
+            reject(value);
+        })
     }
 }
