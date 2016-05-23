@@ -1,12 +1,13 @@
 {
-    "modelId": "OB5-O5idLyE1" /* Vimp.3 */,
+    "apiKey": "0fa32bf14947c09a71bd4099ae21a377",
+    "modelId": "zAeDr1qM6iLW" /* promise */,
     "devices": [
-        "4353450000000003" /* EI.Test.Vimp.3 @ Promise lib */
+        "2315a3068fb7bdee" /* 2315a3068fb7bdee */
     ],
     "agentFile": "Promise.class.nut",
     "deviceFile": false,
     "stopOnFailure": false,
-    "timeout": 3,
+    "timeout": 30,
     "tests": [
         "*.test.nut",
         "tests/**/*.test.nut"

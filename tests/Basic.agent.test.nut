@@ -170,34 +170,22 @@ class BasicTestCase extends ImpTestCase {
     }
 
     /**
-     * Test that always() is called on resolution
+     * Test that finally() is called on resolution
      */
-    function testAlwaysCallOnResolution() {
+    function testFinallyCallOnResolution() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {resolve();});
-            p.always(ok);
+            p.finally(ok);
         }.bindenv(this));
     }
 
     /**
-     * Test that always() is called on rejection
+     * Test that finally() is called on rejection
      */
-    function testAlwaysCallOnResolution() {
+    function testFinallyCallOnResolution() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {reject();});
-            p.always(ok);
-        }.bindenv(this));
-    }
-
-    /**
-     * Test that always() is called on cancellation
-     */
-    function testAlwaysCallOnResolution() {
-        return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {this.cancel("abc");});
-            p.always(function (v) {
-                "abc" == v ? ok() : err();
-            });
+            p.finally(ok);
         }.bindenv(this));
     }
 
