@@ -127,8 +127,8 @@ class Promise {
     * @return {this}
     */
     function then(onResolve = null, onReject = null) {
-        onResolve = (onResolve != null) ? onResolve : Promise._onResolve;
-        onReject  = (onReject  != null) ? onReject  : Promise._onReject;
+        onResolve = (typeof onResolve == "function") ? onResolve : Promise._onResolve;
+        onReject  = (typeof onReject  == "function") ? onReject  : Promise._onReject;
         local self = this;
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
