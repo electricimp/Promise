@@ -10,7 +10,7 @@ class Promise {
     static version = [3, 0, 0];
 
     static STATE_PENDING = 0;
-    static STATE_RESOLVED = 1;
+    static STATE_FULFILLED = 1;
     static STATE_REJECTED = 2;
 
     _state = null;
@@ -45,7 +45,7 @@ class Promise {
                 (/* create closure and bind handler to it */ function (handler) {
                 // TODO: remove some duplication between these states with a
                 // (with a closure?)
-                    if (this._state == this.STATE_RESOLVED) {
+                    if (this._state == this.STATE_FULFILLED) {
                         imp.wakeup(0, function() {
                             try {
                                 handler.resolve(handler.onFulfilled(this._value));
@@ -83,7 +83,7 @@ class Promise {
                     this._reject.bindenv(this)
                 );
             } else {
-                this._state = this.STATE_RESOLVED;
+                this._state = this.STATE_FULFILLED;
                 this._value = value;
                 this._callHandlers();
             }
