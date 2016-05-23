@@ -48,7 +48,7 @@ class Promise {
                     if (this._state == this.STATE_RESOLVED) {
                         imp.wakeup(0, function() {
                             try {
-                                handler.resolve(handler.onResolve(this._value));
+                                handler.resolve(handler.onFulfilled(this._value));
                             } catch (err) {
                                 handler.reject(err);
                             }
@@ -56,7 +56,7 @@ class Promise {
                     } else if (this._state == this.STATE_REJECTED) {
                         imp.wakeup(0, function() {
                             try {
-                                handler.resolve(handler.onReject(this._value));
+                                handler.resolve(handler.onRejected(this._value));
                             } catch (err) {
                                 handler.reject(err);
                             }
@@ -122,20 +122,20 @@ class Promise {
 
    /**
     * Add handlers on resolve/rejection
-    * @param {function|null} onResolve
-    * @param {function|null} onReject
+    * @param {function|null} onFulfilled
+    * @param {function|null} onRejected
     * @return {this}
     */
-    function then(onResolve = null, onReject = null) {
-        onResolve = (typeof onResolve == "function") ? onResolve : Promise._onResolve;
-        onReject  = (typeof onReject  == "function") ? onReject  : Promise._onReject;
+    function then(onFulfilled = null, onRejected = null) {
+        onFulfilled = (typeof onFulfilled == "function") ? onFulfilled : Promise._onFulfilled;
+        onRejected  = (typeof onRejected  == "function") ? onRejected  : Promise._onRejected;
         local self = this;
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
                 "resolve": resolve.bindenv(this),
-                "onResolve": onResolve,//.bindenv(self) // Not sure if these bindenvs are needed
+                "onFulfilled": onFulfilled,//.bindenv(self) // Not sure if these bindenvs are needed
                 "reject": reject.bindenv(this),
-                "onReject": onReject//.bindenv(self),
+                "onRejected": onRejected//.bindenv(self),
             })
         });
 
@@ -146,11 +146,11 @@ class Promise {
 
    /**
     * Add handler on rejection
-    * @param {function} onReject
+    * @param {function} onRejected
     * @return {this}
     */
-    function fail(onReject) {
-        return this.then(null, onReject);
+    function fail(onRejected) {
+        return this.then(null, onRejected);
     }
 
    /**
@@ -163,16 +163,16 @@ class Promise {
     }
     
     /**
-     * The default `onResolve` handler (the identity function)
+     * The default `onFulfilled` handler (the identity function)
      */
-    static function _onResolve(value) {
+    static function _onFulfilled(value) {
         return value;
     }
     
     /**
      * The default rejection handler, just throws to the next handler
      */
-    static function _onReject(error) {
+    static function _onRejected(error) {
         throw error;
     }
     
