@@ -13,9 +13,9 @@ class BasicTestCase extends ImpTestCase {
 
             local p = ::Promise(function (resolve, reject) {
                 resolve();
-            }.bindenv(this));
+            });
 
-            p.then(function(res) {isResolved = true;}.bindenv(this));
+            p.then(function(res) {isResolved = true;});
 
             // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
             this.assertEqual(false, isResolved);
@@ -23,7 +23,7 @@ class BasicTestCase extends ImpTestCase {
             // now it should be resolved
             imp.wakeup(0, function() {
                 isResolved ? ok() : err("Promise is expected to be resolved");
-            }.bindenv(this));
+            });
 
         }.bindenv(this));
     }
@@ -59,4 +59,19 @@ class BasicTestCase extends ImpTestCase {
 
         }.bindenv(this));
     }
+
+    /**
+     * Test resolving with nested promises
+     */
+    function testNestedResolve() {
+        return Promise(function(ok, err) {
+            local res = ::Promise.resolve.bindenv(::Promise);
+            res(res(res("value")))
+                .then(function(value) {
+                    this.assertEqual(value, "value");
+                    ok();
+                }.bindenv(this)).fail(err);
+        }.bindenv(this));
+    }
+
 }
