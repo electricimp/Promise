@@ -244,6 +244,8 @@ class Promise {
             local resolved = 0; // promises resolved
             local len = promises.len(); // promises given
             local result = array(len); // results array (for if we're waiting for all to resolve)
+            // early return/resolve for case when `promises` is empty
+            if (!len) return resolve(result);
             
             // resolve one promise with a value
             local resolveOne = function(index, value) {
