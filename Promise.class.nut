@@ -259,6 +259,7 @@ class Promise {
             };
             
             foreach (index, promise in promises) {
+                promise = (typeof promise == "function") ? promise() : promise;
                 (function(index) {
                     promise.then(function(value) {
                         resolveOne(index, value);
