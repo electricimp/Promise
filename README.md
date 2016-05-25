@@ -66,13 +66,13 @@ Adds handler for rejection.
 
 Adds handler that is executed both on resolve and rejection.
 
-### Promise.resolve(value)
+### Promise.resolve()
 
 Returns Promise that immediately resolves to a given value.
 
 `Promise.resolve(value)`
 
-### Promise.reject(reason)
+### Promise.reject()
 
 Returns Promise that immediately rejects with a given reason.
 
