@@ -8,10 +8,12 @@
     - [.then()](#then)
     - [.fail()](#fail)
     - [.finally()](#finally)
+    - [Promise.resolve()](#promiseresolve)
+    - [Promise.reject()](#promisereject)
+    - [Promise.all()](#promiseall)
+    - [Promise.race()](#promisefirst)
     - [Promise.loop()](#promiseloop)
     - [Promise.serial()](#promiseserial)
-    - [Promise.all()](#promiseparallel)
-    - [Promise.race()](#promisefirst)
   - [Testing](#testing)
     - [TL;DR](#tldr)
     - [Running Tests](#running-tests)
@@ -64,6 +66,64 @@ Adds handler for rejection.
 
 Adds handler that is executed both on resolve and rejection.
 
+### Promise.resolve(value)
+
+Returns Promise that immediately resolves to a given value.
+
+`Promise.resolve(value)`
+
+### Promise.reject(reason)
+
+Returns Promise that immediately rejects with a given reason.
+
+`Promise.reject(reason)`
+
+### Promise.all()
+
+`Promise.all(series)`
+
+Execute Promises in parallel and resolve when they are all done.
+Returns Promise that resolves with an array of the resolved Promise value or rejects with first rejected paralleled Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` resolves with value `[1, 2, 3]` in 1.5 seconds:
+
+```squirrel
+local series = [
+    @() Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
+    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() resolve(2))),
+    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+];
+
+local p = Promise.all(series);
+```
+
+### Promise.race()
+
+`Promise.race(series)`
+
+Execute Promises in parallel and resolve when the first is done.
+Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
+
+Parameters:
+- `series` – array of _Promises_/functions that return promises.
+
+For example in the following code `p` rejects with value "1" in 1 second:
+
+```squirrel
+local promises = [
+    // rejects first as the other one with 1s timeout
+    // starts later from inside .race()
+    Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
+    @() Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
+    @() Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
+];
+
+local p = Promise.race(series);
+```
+
 ### Promise.loop()
 
 `Promise.loop(continueFunction, nextFunction)`
@@ -113,52 +173,6 @@ local series = [
 ];
 
 local p = Promise.serial(series);
-```
-
-### Promise.all()
-
-`Promise.all(series)`
-
-Execute Promises in parallel and resolve when they are all done.
-Returns Promise that resolves with an array of the resolved Promise value or rejects with first rejected paralleled Promise value.
-
-Parameters:
-- `series` – array of _Promises_/functions that return promises.
-
-For example in the following code `p` resolves with value `[1, 2, 3]` in 1.5 seconds:
-
-```squirrel
-local series = [
-    @() Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
-    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() resolve(2))),
-    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
-];
-
-local p = Promise.all(series);
-```
-
-### Promise.race()
-
-`Promise.race(series)`
-
-Execute Promises in parallel and resolve when the first is done.
-Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
-
-Parameters:
-- `series` – array of _Promises_/functions that return promises.
-
-For example in the following code `p` rejects with value "1" in 1 second:
-
-```squirrel
-local promises = [
-    // rejects first as the other one with 1s timeout
-    // starts later from inside .race()
-    Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
-    @() Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
-    @() Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
-];
-
-local p = Promise.race(series);
 ```
 
 ## Testing
