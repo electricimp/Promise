@@ -74,9 +74,8 @@ class Promise {
      */
     function _resolve(value = null) {
         if (this.STATE_PENDING == this._state) {
-            // if promise is resolved with another promise
-            // let it resolve/reject this one,
-            // otherwise resolve immideately
+            // If promise is resolved with another promise let it resolve/reject
+            // this one, otherwise resolve immediately
             if (this._isPromise(value)) {
                 value.then(
                     this._resolve.bindenv(this),
@@ -127,15 +126,17 @@ class Promise {
     * @return {this}
     */
     function then(onFulfilled = null, onRejected = null) {
+        // If either handler is left null, set it to our default handlers
         onFulfilled = (typeof onFulfilled == "function") ? onFulfilled : Promise._onFulfilled;
         onRejected  = (typeof onRejected  == "function") ? onRejected  : Promise._onRejected;
+
         local self = this;
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
                 "resolve": resolve.bindenv(this),
-                "onFulfilled": onFulfilled,//.bindenv(self) // Not sure if these bindenvs are needed
+                "onFulfilled": onFulfilled,
                 "reject": reject.bindenv(this),
-                "onRejected": onRejected//.bindenv(self),
+                "onRejected": onRejected
             })
         });
 
@@ -232,7 +233,8 @@ class Promise {
     /**
      * Returns Promise that resolves when all promises in the list resolve
      *
-     * @param {{Promise}[]} promises - array of Promises
+     * @param {{Promise}[]} promises - array of Promises (or functions that
+     * return promises)
      * @param {boolean} wait - whether to wait for all promises to resolve, or
      * just the first
      * @return {Promise} Promise that is resolved with the list of values that
@@ -241,8 +243,8 @@ class Promise {
      */
     static function _parallel(promises, wait) {
         return Promise(function(resolve, reject) {
-            local resolved = 0; // promises resolved
-            local len = promises.len(); // promises given
+            local resolved = 0; // number of promises resolved
+            local len = promises.len(); // number of promises given
             local result = array(len); // results array (for if we're waiting for all to resolve)
             // early return/resolve for case when `promises` is empty
             if (!len) return resolve(result);
@@ -278,7 +280,8 @@ class Promise {
      * Returns Promise that resolves to an array containing the results of each
      * given promise (or rejects with the first rejected)
      *
-     * @param {{Promise}[]} promises - array of Promises
+     * @param {{Promise}[]} promises - array of Promises (or functions which
+     * return promises)
      * @return {Promise} Promise that is resolved with the list of values that
      * `promises` resolved to (in order)
      */
@@ -290,7 +293,8 @@ class Promise {
      * Returns Promise that resolves to the first value that any of the given
      * promises resolve to
      *
-     * @param {{Promise}[]} promises - array of Promises
+     * @param {{Promise}[]} promises - array of Promises (or functions which
+     * return promises)
      * @return {Promise} Promise that is resolved with the to the value of the
      * first of `promises` to resolve (or rejects with the first to reject)
      */
