@@ -8,14 +8,10 @@
     - [.then()](#then)
     - [.fail()](#fail)
     - [.finally()](#finally)
-    - [.always()](#always)
-    - [.cancelled()](#cancelled)
-    - [.cancel()](#cancel)
-      - [Cancellation vs. Rejection](#cancellation-vs-rejection)
     - [Promise.loop()](#promiseloop)
     - [Promise.serial()](#promiseserial)
-    - [Promise.parallel()](#promiseparallel)
-    - [Promise.first()](#promisefirst)
+    - [Promise.all()](#promiseparallel)
+    - [Promise.race()](#promisefirst)
   - [Testing](#testing)
     - [TL;DR](#tldr)
     - [Running Tests](#running-tests)
@@ -44,7 +40,7 @@ by parallelizing it."_
 
 `Promise(action)`
 
-The constructor should receive an _action function_, which will be executed to determine the final value and result.
+The constructor should receive an _executor function_, which will be executed to determine the final value and result.
 This function provides two parameters: 
 
 - `function resolve([value])` – calling `resolve` sets Promise state as resolved and calls success handlers (passed as first argument of `.then()`)
@@ -52,13 +48,13 @@ This function provides two parameters:
  
 ### .then()
 
-`.then(onResolve [,onReject])`
+`.then(onFulfilled [,onRejected])`
 
 Add handlers on resolve/rejection.
 
 ### .fail()
 
-`.fail(onReject)`
+`.fail(onRejected)`
 
 Adds handler for rejection.
 
@@ -67,68 +63,6 @@ Adds handler for rejection.
 `.finally(handler)`
 
 Adds handler that is executed both on resolve and rejection.
-
-### .always()
-
-`.always(handler)`
-
-Adds handler that is executed on resolve/rejection/cancellation.
-
-### .cancelled()
-
-`.cancelled(onCancell)`
-
-Add handler on cancellation.
-
-### .cancel()
-
-`.cancel(reason)`
-
-Cancels a Promise. 
-
-- No `.then`/`.fail`/`.finally` handlers will be called
-- `.cancelled` handlers will be called
-
-Example:
-
-Cancel some process after 10s:
-
-```squirrel
-local p = Promise(function (resolve, reject) {
-    someProcess.on("done", resolve);
-    someProcess.start();
-    this.cancelled(function (reason) {
-        someProcess.stop();
-    });
-});
-
-p
-    .then(function (value) {
-        // ok handler
-    })
-    .fail(function (reason) {
-        // err handler
-    });
-
-imp.wakeup(10, function() { p.cancel("Timed out") });
-```
-
-#### Cancellation vs. Rejection
-
-It is important to understand the difference beween the rejection and cancellation.
- 
-Rejection:
-
-- Can not be _implicitly_ triggered from outside of _action function_
-- Signifies a process that calculates the Promise values encountered a error
-- Occurs on exception in the action function
-- Executes rejection and `.finally` handlers
-
-Cancellation:
-
-- Can be triggered externally (from outside of _action function_)
-- Signifies that the Promise value is no longer required
-- Excutes only `.cancelled` handlers
 
 ### Promise.loop()
 
@@ -181,17 +115,17 @@ local series = [
 local p = Promise.serial(series);
 ```
 
-### Promise.parallel()
+### Promise.all()
 
-`Promise.parallel(series)`
+`Promise.all(series)`
 
 Execute Promises in parallel and resolve when they are all done.
-Returns Promise that resolves with last paralleled Promise value or rejects with first rejected paralleled Promise value.
+Returns Promise that resolves with an array of the resolved Promise value or rejects with first rejected paralleled Promise value.
 
 Parameters:
 - `series` – array of _Promises_/functions that return promises.
 
-For example in the following code `p` resolves with value "2" in 1.5 seconds:
+For example in the following code `p` resolves with value `[1, 2, 3]` in 1.5 seconds:
 
 ```squirrel
 local series = [
@@ -200,12 +134,12 @@ local series = [
     Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
 ];
 
-local p = Promise.parallel(series);
+local p = Promise.all(series);
 ```
 
-### Promise.first()
+### Promise.race()
 
-`Promise.first(series)`
+`Promise.race(series)`
 
 Execute Promises in parallel and resolve when the first is done.
 Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
@@ -218,13 +152,13 @@ For example in the following code `p` rejects with value "1" in 1 second:
 ```squirrel
 local promises = [
     // rejects first as the other one with 1s timeout
-    // starts later from inside .first()
+    // starts later from inside .race()
     Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
     @() Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
     @() Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
 ];
 
-local p = Promise.parallel(series);
+local p = Promise.race(series);
 ```
 
 ## Testing
