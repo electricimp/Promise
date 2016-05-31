@@ -1,4 +1,4 @@
-#require "Promise.class.nut:2.0.0"
+#require "Promise.class.nut:3.0.0"
 
 /**
  * Example of resolving Promise after 1 second timeout
@@ -36,6 +36,7 @@ b().then(/* ok callback */ function(e) {
   server.log("b: resolved with \"" + e + "\"")
 }, /* error callback */function(e) {
   server.log("b: failed with \"" + e + "\" (handler #1)")
+  throw e;
 })
 .fail(function(e) {
   server.log("b: failed with \"" + e + "\" (handler #2)")
