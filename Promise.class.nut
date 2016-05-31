@@ -173,8 +173,8 @@ class Promise {
     /**
      * The default rejection handler, just throws to the next handler
      */
-    static function _onRejected(error) {
-        throw error;
+    static function _onRejected(reason) {
+        throw reason;
     }
     
     /**
@@ -239,7 +239,7 @@ class Promise {
      * just the first
      * @return {Promise} Promise that is resolved with the list of values that
      * `promises` resolved to (in order) OR with the value of the first promise
-     * that resolves
+     * that resolves (depending on `wait`)
      */
     static function _parallel(promises, wait) {
         return Promise(function(resolve, reject) {
@@ -283,7 +283,8 @@ class Promise {
      * @param {{Promise}[]} promises - array of Promises (or functions which
      * return promises)
      * @return {Promise} Promise that is resolved with the list of values that
-     * `promises` resolved to (in order)
+     * `promises` resolved to (in order) or rejects with the reason of the first
+     * of `promises` to reject
      */
     static function all(promises) {
         return this._parallel(promises, true);
@@ -315,14 +316,14 @@ class Promise {
     }
     
     /**
-     * Returns promise that immediately rejects with the given value
+     * Returns promise that immediately rejects with the given reason
      *
      * @param {*} value - value to resolve to
-     * @return {Promise} - a Promise that immediately rejects with `value`
+     * @return {Promise} - a Promise that immediately rejects with `reason`
      */
-    static function reject(value) {
+    static function reject(reason) {
         return Promise(function(resolve, reject) {
-            reject(value);
+            reject(reason);
         })
     }
 }
