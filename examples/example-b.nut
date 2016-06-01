@@ -26,10 +26,10 @@ function b() {
 }
 
 a().then(function(e) {
-    server.log("b: resolved with \"" + e + "\"")
+    server.log("a: resolved with \"" + e + "\"")
 })
 .fail(function(e) {
-    server.log("b: failed with \"" + e + "\"")
+    server.log("a: failed with \"" + e + "\"")
 });
 
 b().then(/* ok callback */ function(e) {
