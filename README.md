@@ -1,32 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-
-- [Promise](#promise)
-  - [Further Information](#further-information)
-  - [Reference](#reference)
-    - [Promise()](#promise)
-    - [.fail()](#fail)
-    - [.finally()](#finally)
-    - [Promise.resolve()](#promiseresolve)
-    - [Promise.reject()](#promisereject)
-    - [Promise.all()](#promiseall)
-    - [Promise.race()](#promiserace)
-    - [Promise.loop()](#promiseloop)
-    - [Promise.serial()](#promiseserial)
-  - [Testing](#testing)
-    - [TL;DR](#tldr)
-    - [Running Tests](#running-tests)
-  - [Development](#development)
-  - [Examples](#examples)
-- [License](#license)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-<br />
-
-[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
-
 # Promise
 
 Implementation of _Promises_ for Electric Imp/Squirrel.
@@ -36,8 +7,6 @@ related paradigms (such as logic programming) to decouple a value (a future) fro
 it was computed (a promise), allowing the computation to be done more flexibly, notably
 by parallelizing it."_
 
-## Further Information
-
 For more information on the concept of promises, see the following references
 for Javascript:
 
@@ -45,25 +14,25 @@ for Javascript:
 - [Javascript Promises: There and back again](http://www.html5rocks.com/en/tutorials/es6/promises/)
 - [Promise - Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
-## Reference
+**To add this library to your project, add** `#require "promise.class.nut:3.0.0"` **to the top of your code.
 
-### Promise()
+[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
 
-`Promise(action)`
+## Class Usage
 
-The constructor should receive an _executor function_, which will be executed to determine the final value and result.
-This function provides two parameters: 
+### Constructor: Promise( *actionFunction(resolve, reject)* )
+
+The constructor should receive a single function, which will be executed to determine the final value and result. The *actionFunction* requires two function parameters, *resolve* and *reject*.  Exactaly one of these functions should be executed at the completeing of the *actionFunction*.
 
 - `function resolve([value])` – calling `resolve` sets Promise state as resolved and calls success handlers (passed as first argument of `.then()`)
 - `function reject([reason]` - calling  `reject` sets Promise state as rejected and calls `.fail()` handlers
- 
-### .then()
 
-`.then(onFulfilled [,onRejected])`
+## Class Methods
 
-Add handlers on resolve/rejection.  Returns a promise that will resolve with any
-value returned by whichever of `onFulfilled` or `onRejected` runs, or reject
-with any reason/error thrown by the handler.
+### .then(*[onFulfilled, onRejected]*)
+
+The *.then()* method allows the developer to provide an *onFulfilled* function and/or an *onRejected* function.  Default handlers will be used if no parameters are passed in.  **Note:** to pass in an *onRejected* function only, you must pass in `null` as the first parameter and the *onRejected* function as the second parameter.
+This method returns a *Promise* to allow for method chaining.
 
 ```squirrel
 myPromise
@@ -74,15 +43,7 @@ myPromise
     });
 ```
 
-Promises which reject with reasons will have their `onRejected` handlers called
-with that reason .  Promises which resolve with values will have their
-`onFulfilled` handler called with that value.  Calls to `.then` return promises,
-so a handler function (either `onFulfilled` or `onRejected) registered in
-`.then` which returns a value will pass this value on to the next `onFulfilled`
-handler in the chain, and any exceptions throw by a handler will be passed on
-tthe o the next available 'onRejected' handler.  In this way errors can be
-"caught" and handled or thrown again, much like with `try` and `catch`.  The
-following example if for demonstration only and is overly verbose.
+Promises which reject with reasons will have their `onRejected` handlers called with that reason .  Promises which resolve with values will have their `onFulfilled` handler called with that value.  Calls to `.then` return promises, so a handler function (either `onFulfilled` or `onRejected) registered in `.then` which returns a value will pass this value on to the next `onFulfilled` handler in the chain, and any exceptions throw by a handler will be passed on to the next available 'onRejected' handler.  In this way errors can be "caught" and handled or thrown again, much like with `try` and `catch`.  The following example if for demonstration only and is overly verbose.
 
 ```squirrel
 // name is a variable that _should_ contain a string, but may not
@@ -108,25 +69,19 @@ Promise.resolve(name)
     });
 ```
 
-Passing null as a handler corresponds to the default behaviour of passing any
-values through to the next available `onFulfilled` handler, or throwing
-exceptions throwing to the next available `onRejected` handler.
+Passing null as a handler corresponds to the default behaviour of passing any values through to the next available `onFulfilled` handler, or throwing exceptions throwing to the next available `onRejected` handler.
 
-__NB__ that just as if no `onFulfilled` handlers are registered the last value
-returned will be ignored, if no `onRejected` handlers are registered any
-exceptions that occur within a promise executor or handler function will __NOT__
-be caught and will be silently ignored.  Thus it is prudent to always add the
+__NB__ that just as if no `onFulfilled` handlers are registered the last value returned will be ignored, if no `onRejected` handlers are registered any
+exceptions that occur within a promise executor or handler function will __NOT__ be caught and will be silently ignored.  Thus it is prudent to always add the
 following line at then end of your promise chains:
 
 ```squirrel
 .fail(server.error.bindenv(server));
 ```
 
-### .fail()
+### .fail(*onRejected*)
 
-`.fail(onRejected)`
-
-Adds handler for rejection.  Equivalent to `.then(null, onRejected)`.
+The *.fail()* method allows the developer to provide an *onRejection* function.  Equivalent to `.then(null, onRejected)`.
 
 ```squirrel
 myPromise
@@ -136,12 +91,9 @@ myPromise
     });
 ```
 
-### .finally()
+### .finally(*alwaysFunction*)
 
-`.finally(handler)`
-
-Adds handler that is executed both on resolve and rejection (i.e. when the
-promise is _settled_).  Equivalent to `.then(handler, handler)`.
+The *.finally()* method allows the developer to provide a function that is executed both on resolve and rejection (i.e. when the promise is *settled*).  Equivalent to `.then(alwaysFunction, alwaysFunction)`.  The *alwaysFunction* accepts one prameter - result or error.
 
 ```squirrel
 myPromise
@@ -150,9 +102,7 @@ myPromise
     });
 ```
 
-### Promise.resolve()
-
-`Promise.resolve(value)`
+### Promise.resolve(*value*)
 
 Returns Promise that immediately resolves to a given value.
 
@@ -163,9 +113,7 @@ Promise.resolve(value)
     });
 ```
 
-### Promise.reject()
-
-`Promise.reject(reason)`
+### Promise.reject(*reason*)
 
 Returns Promise that immediately rejects with a given reason.
 
@@ -176,12 +124,9 @@ Promise.reject(reason)
     });
 ```
 
-### Promise.all()
+### Promise.all(*series*)
 
-`Promise.all(series)`
-
-Execute Promises in parallel and resolve when they are all done.  Returns
-Promise that resolves with an array of the resolved Promise value or rejects
+Execute Promises in parallel and resolve when they are all done.  Returns Promise that resolves with an array of the resolved Promise value or rejects
 with first rejected paralleled Promise value.
 
 Parameters:
@@ -204,12 +149,9 @@ p
     });
 ```
 
-### Promise.race()
+### Promise.race(*series*)
 
-`Promise.race(series)`
-
-Execute Promises in parallel and resolve when the first is done.
-Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
+Execute Promises in parallel and resolve when the first is done. Returns Promise that resolves/rejects with the first resolved/rejected Promise value.
 
 Parameters:
 - `series` – array of _Promises_/functions that return promises.
@@ -235,9 +177,7 @@ p
     });
 ```
 
-### Promise.loop()
-
-`Promise.loop(continueFunction, nextFunction)`
+### Promise.loop(*continueFunction, nextFunction*)
 
 A way to perform while loops with asynchronous processes.
 
@@ -265,9 +205,7 @@ local p = Promise.loop(
 );
 ```
 
-### Promise.serial()
-
-`Promise.serial(series)`
+### Promise.serial(*series*)
 
 Returns _Promise_ that resolves when all promises in chain resolve or when the first one rejects.
 
@@ -315,11 +253,6 @@ To run test with your settings (for example while you are developing), create yo
  ```
 
 Tests will run with any imp.
-
-## Development
-
-This repository uses [git-flow](http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/).
-Please make your pull requests to the __develop__ branch.
 
 ## Examples
 
