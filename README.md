@@ -167,7 +167,7 @@ local promises = [
     @() Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
 ];
 
-local p = Promise.race(series);
+local p = Promise.race(promises);
 
 p
     .then(function(value) {
