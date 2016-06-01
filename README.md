@@ -3,15 +3,15 @@
 
 
 - [Promise](#promise)
+  - [Further Information](#further-information)
   - [Reference](#reference)
     - [Promise()](#promise)
-    - [.then()](#then)
     - [.fail()](#fail)
     - [.finally()](#finally)
     - [Promise.resolve()](#promiseresolve)
     - [Promise.reject()](#promisereject)
     - [Promise.all()](#promiseall)
-    - [Promise.race()](#promisefirst)
+    - [Promise.race()](#promiserace)
     - [Promise.loop()](#promiseloop)
     - [Promise.serial()](#promiseserial)
   - [Testing](#testing)
@@ -36,6 +36,15 @@ related paradigms (such as logic programming) to decouple a value (a future) fro
 it was computed (a promise), allowing the computation to be done more flexibly, notably
 by parallelizing it."_
 
+## Further Information
+
+For more information on the concept of promises, see the following references
+for Javascript:
+
+- [Promises/A+](https://promisesaplus.com/)
+- [Javascript Promises: There and back again](http://www.html5rocks.com/en/tutorials/es6/promises/)
+- [Promise - Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+
 ## Reference
 
 ### Promise()
@@ -52,38 +61,128 @@ This function provides two parameters:
 
 `.then(onFulfilled [,onRejected])`
 
-Add handlers on resolve/rejection.
+Add handlers on resolve/rejection.  Returns a promise that will resolve with any
+value returned by whichever of `onFulfilled` or `onRejected` runs, or reject
+with any reason/error thrown by the handler.
+
+```squirrel
+myPromise
+    .then(function(value) {
+        server.log("myPromise resolved with value: " + value);
+    }, function(reason) {
+        server.log("myPromise rejected for reason: " + reason);
+    });
+```
+
+Promises which reject with reasons will have their `onRejected` handlers called
+with that reason .  Promises which resolve with values will have their
+`onFulfilled` handler called with that value.  Calls to `.then` return promises,
+so a handler function (either `onFulfilled` or `onRejected) registered in
+`.then` which returns a value will pass this value on to the next `onFulfilled`
+handler in the chain, and any exceptions throw by a handler will be passed on
+tthe o the next available 'onRejected' handler.  In this way errors can be
+"caught" and handled or thrown again, much like with `try` and `catch`.  The
+following example if for demonstration only and is overly verbose.
+
+```squirrel
+// name is a variable that _should_ contain a string, but may not
+
+Promise.resolve(name)
+
+    .then(function(name) {
+        if (typeof name != "string") {
+            throw "invalid name";
+        } else {
+            // name is valid, just pass it through
+            return name;
+        }
+    }, null)
+
+    .then(null, function(reason) {
+        // I run with reason == "invalid name"
+        return "Bob" // handle invalid name by providing a default
+    })
+
+    .then(function(name) {
+        // I have a valid name
+    });
+```
+
+Passing null as a handler corresponds to the default behaviour of passing any
+values through to the next available `onFulfilled` handler, or throwing
+exceptions throwing to the next available `onRejected` handler.
+
+__NB__ that just as if no `onFulfilled` handlers are registered the last value
+returned will be ignored, if no `onRejected` handlers are registered any
+exceptions that occur within a promise executor or handler function will __NOT__
+be caught and will be silently ignored.  Thus it is prudent to always add the
+following line at then end of your promise chains:
+
+```squirrel
+.fail(server.error.bindenv(server));
+```
 
 ### .fail()
 
 `.fail(onRejected)`
 
-Adds handler for rejection.
+Adds handler for rejection.  Equivalent to `.then(null, onRejected)`.
+
+```squirrel
+myPromise
+    .then(successHandler)
+    .fail(function(reason) {
+        server.log("myPromise rejected for reason OR successHandler through exception: " + reason);
+    });
+```
 
 ### .finally()
 
 `.finally(handler)`
 
-Adds handler that is executed both on resolve and rejection.
+Adds handler that is executed both on resolve and rejection (i.e. when the
+promise is _settled_).  Equivalent to `.then(handler, handler)`.
+
+```squirrel
+myPromise
+    .finally(function(valueOrReason) {
+        server.log("myPromise resolved or rejected with value or reason: " +  valueOrReason);
+    });
+```
 
 ### Promise.resolve()
 
+`Promise.resolve(value)`
+
 Returns Promise that immediately resolves to a given value.
 
-`Promise.resolve(value)`
+```squirrel
+Promise.resolve(value)
+    .then(function(value) {
+        // Operate on value
+    });
+```
 
 ### Promise.reject()
 
+`Promise.reject(reason)`
+
 Returns Promise that immediately rejects with a given reason.
 
-`Promise.reject(reason)`
+```squirrel
+Promise.reject(reason)
+    .fail(function(reason) {
+        // Operate on reason
+    });
+```
 
 ### Promise.all()
 
 `Promise.all(series)`
 
-Execute Promises in parallel and resolve when they are all done.
-Returns Promise that resolves with an array of the resolved Promise value or rejects with first rejected paralleled Promise value.
+Execute Promises in parallel and resolve when they are all done.  Returns
+Promise that resolves with an array of the resolved Promise value or rejects
+with first rejected paralleled Promise value.
 
 Parameters:
 - `series` – array of _Promises_/functions that return promises.
@@ -98,6 +197,11 @@ local series = [
 ];
 
 local p = Promise.all(series);
+
+p
+    .then(function(values) {
+        // values == [1, 2, 3]
+    });
 ```
 
 ### Promise.race()
@@ -122,6 +226,13 @@ local promises = [
 ];
 
 local p = Promise.race(series);
+
+p
+    .then(function(value) {
+        // Not run
+    }, function(reason) {
+        // reason == 1
+    });
 ```
 
 ### Promise.loop()
@@ -214,6 +325,7 @@ Please make your pull requests to the __develop__ branch.
 
 - [example a](./examples/example-a.nut)
 - [example b](./examples/example-b.nut)
+- [example c](./examples/example-c.nut)
 
 
 # License
