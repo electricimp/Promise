@@ -41,31 +41,27 @@ class Promise {
      */
     function _callHandlers() {
         if (this.STATE_PENDING != this._state) {
-            foreach (handler in this._handlers) {
-                (/* create closure and bind handler to it */ function (handler) {
-                // TODO: remove some duplication between these states with a
-                // (with a closure?)
-                    if (this._state == this.STATE_FULFILLED) {
-                        imp.wakeup(0, function() {
+            imp.wakeup(0, function() {
+                foreach (handler in this._handlers) {
+                    (/* create closure and bind handler to it */ function (handler) {
+                        if (this._state == this.STATE_FULFILLED) {
                             try {
                                 handler.resolve(handler.onFulfilled(this._value));
                             } catch (err) {
                                 handler.reject(err);
                             }
-                        }.bindenv(this));
-                    } else if (this._state == this.STATE_REJECTED) {
-                        imp.wakeup(0, function() {
+                        } else if (this._state == this.STATE_REJECTED) {
                             try {
                                 handler.resolve(handler.onRejected(this._value));
                             } catch (err) {
                                 handler.reject(err);
                             }
-                        }.bindenv(this));
-                    }
-                })(handler);
-            }
+                        }
+                    })(handler);
+                }
 
-            this._handlers = [];
+                this._handlers = [];
+            }.bindenv(this));
         }
     }
 
