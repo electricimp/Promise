@@ -2,7 +2,7 @@
 
 Implementation of promises for Electric Imp/Squirrel.
 
-According to Wikipedia, "Futures and promises originated in functional programming and related paradigms (such as logic programming) to decouple a value (a future) from how it was computed (a promise), allowing the computation to be done more flexibly, notably by parallelizing it."
+According to Wikipedia: “Futures and promises originated in functional programming and related paradigms (such as logic programming) to decouple a value (a future) from how it was computed (a promise), allowing the computation to be done more flexibly, notably by parallelizing it.”
 
 For more information on the concept of promises, see the following references for Javascript:
 
