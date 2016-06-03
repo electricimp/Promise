@@ -1,6 +1,6 @@
 # Promise
 
-Implementation of promises for Electric Imp/Squirrel.
+The library provides an implementation of promises for Electric Imp/Squirrel.
 
 According to Wikipedia: “Futures and promises originated in functional programming and related paradigms (such as logic programming) to decouple a value (a future) from how it was computed (a promise), allowing the computation to be done more flexibly, notably by parallelizing it.”
 
