@@ -23,7 +23,7 @@ The constructor should receive a single function, which will be executed to dete
 - `function resolve([value])` &mdash; calling *resolve()* sets Promise state as resolved and calls success handlers (passed as first argument of *.then()*)
 - `function reject([reason])` &mdash; calling *reject()* sets Promise state as rejected and calls *.fail()* handlers
 
-## Class Methods
+## Instance Methods
 
 ### then(*[onFulfilled, onRejected]*)
 
@@ -96,6 +96,8 @@ myPromise
         server.log("myPromise resolved or rejected with value or reason: " +  valueOrReason);
     });
 ```
+
+## Class Methods
 
 ### Promise.resolve(*value*)
 
