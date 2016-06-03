@@ -10,7 +10,7 @@ For more information on the concept of promises, see the following references fo
 - [JavaScript Promises: There and back again](http://www.html5rocks.com/en/tutorials/es6/promises/)
 - [Promise - Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
-**To add this library to your project, add** `#require "promise.class.nut:3.0.0"` **to the top of your code.
+**To add this library to your project, add** `#require "promise.class.nut:3.0.0"` **to the top of your agent and/or device code.**
 
 [![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
 
