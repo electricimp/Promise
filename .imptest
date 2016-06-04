@@ -3,7 +3,7 @@
     "devices": [
         "4353450000000003" /* EI.Test.Vimp.3 @ Promise lib */
     ],
-    "agentFile": "Promise.class.nut",
+    "agentFile": "promise.class.nut",
     "deviceFile": false,
     "stopOnFailure": false,
     "timeout": 30,
