@@ -158,21 +158,21 @@ class Promise {
     function finally(handler) {
         return this.then(handler, handler);
     }
-    
+
     /**
      * The default `onFulfilled` handler (the identity function)
      */
     static function _onFulfilled(value) {
         return value;
     }
-    
+
     /**
      * The default rejection handler, just throws to the next handler
      */
     static function _onRejected(reason) {
         throw reason;
     }
-    
+
     /**
      * While loop with Promise's
      * Stops on continueCallback() == false or first rejection of looped Promise
@@ -225,7 +225,7 @@ class Promise {
             }
         )
     }
-    
+
     /**
      * Returns Promise that resolves when all promises in the list resolve
      *
@@ -244,7 +244,7 @@ class Promise {
             local result = array(len); // results array (for if we're waiting for all to resolve)
             // early return/resolve for case when `promises` is empty
             if (!len) return resolve(result);
-            
+
             // resolve one promise with a value
             local resolveOne = function(index, value) {
                 if (!wait) {
@@ -257,7 +257,7 @@ class Promise {
                     resolve(result)
                 }
             };
-            
+
             foreach (index, promise in promises) {
                 promise = (typeof promise == "function") ? promise() : promise;
                 (function(index) {
@@ -267,11 +267,11 @@ class Promise {
                 }.bindenv(this))(index);
 
             }
-            
+
         }.bindenv(this))
 
     }
-    
+
     /**
      * Returns Promise that resolves to an array containing the results of each
      * given promise (or rejects with the first rejected)
@@ -285,7 +285,7 @@ class Promise {
     static function all(promises) {
         return this._parallel(promises, true);
     }
-    
+
     /**
      * Returns Promise that resolves to the first value that any of the given
      * promises resolve to
@@ -298,7 +298,7 @@ class Promise {
     static function race(promises) {
         return this._parallel(promises, false);
     }
-    
+
     /**
      * Returns promise that immediately resolves to the given value
      *
@@ -310,7 +310,7 @@ class Promise {
             resolve(value);
         })
     }
-    
+
     /**
      * Returns promise that immediately rejects with the given reason
      *
