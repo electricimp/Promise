@@ -4,26 +4,26 @@
  */
 
 /**
- * Test case for Promise.parallel()
+ * Test case for Promise.all()
  */
-class ParallelTestCase extends ImpTestCase {
+class AllTestCase extends ImpTestCase {
     /**
      * Check return type
      */
     function testReturnType() {
-        local p = ::Promise.parallel([]);
+        local p = ::Promise.all([]);
         this.assertTrue(p instanceof ::Promise);
     }
 
     /**
-     * Test .parallel() with empty array
+     * Test .all() with empty array
      */
     function testEmptyPromisesArray() {
         return Promise(function(ok, err) {
-            local p = ::Promise.parallel([]);
+            local p = ::Promise.all([]);
             p.then(function (v) {
                 try {
-                    this.assertEqual(null, v);
+                    this.assertDeepEqual([], v);
                     ok();
                 } catch (e) {
                     err(e);
@@ -33,9 +33,9 @@ class ParallelTestCase extends ImpTestCase {
     }
 
     /**
-     * Test .parallel() with all Promises in the chain resolving
+     * Test .all() with all Promises in the chain resolving
      */
-    function testParallelWithAllResolving() {
+    function testAllWithAllResolving() {
         return Promise(function(ok, err) {
 
             local promises = [
@@ -44,12 +44,14 @@ class ParallelTestCase extends ImpTestCase {
                 ::Promise(function (resolve, reject) { resolve(3) })
             ];
 
-            ::Promise.parallel(promises)
+            ::Promise.all(promises)
                 .then(function (v) {
                     try {
-                        // .parallel() should resolve with value of the last value
+                        // .all() should resolve with array of all values
                         // if all Promise's are resolving
-                        this.assertEqual(3, v);
+                        this.assertEqual(1, v[0]);
+                        this.assertEqual(2, v[1]);
+                        this.assertEqual(3, v[2]);
                         ok();
                     } catch (e) {
                         err(e);
@@ -60,25 +62,25 @@ class ParallelTestCase extends ImpTestCase {
     }
 
     /**
-     * Test .parallel() with all Promises in the chain resolving
+     * Test .all() with some Promises in the chain rejecting
      */
-    function testParallelWithRejection() {
+    function testAllWithRejection() {
         return Promise(function(ok, err) {
             local promises = [
                 ::Promise(function (resolve, reject) { resolve(1) }),
-                @() ::Promise(function (resolve, reject) { reject(2) }), // rejects first as .fail() handlers are added in order of appearance
+                @() ::Promise(function (resolve, reject) { reject(2) }),
                 ::Promise(function (resolve, reject) { reject(3) })
             ];
 
-            ::Promise.parallel(promises)
+            ::Promise.all(promises)
                 .then(function (v) {
-                    err(".then() should not be called on parallel Promise rejection")
+                    err(".then() should not be called on all Promise rejection")
                 })
 
                 .fail(function (v) {
                     try {
-                        // .parallel() should reject with value of the fisrt rejected promise
-                        this.assertEqual(2, v);
+                        /*this.assertEqual(2, v);*/
+                        this.assert(v == 2 || v == 3);
                         ok();
                     } catch (e) {
                         err(e);

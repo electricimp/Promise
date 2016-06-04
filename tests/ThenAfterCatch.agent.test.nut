@@ -24,19 +24,18 @@ class ThenAfterFailTestCase extends ImpTestCase {
                 .then(function (v) { thenCalled = true; }.bindenv(this)) // should NOT be called
                 .fail(function (v) { failCalled = true; value = v; }.bindenv(this)) // should be called
                 .then(function (v) { thenAfterFailedCalled = true; value = v; }.bindenv(this)) // should be called
-
-            imp.wakeup(0, function() {
-                try {
-                    this.assertEqual(false, thenCalled);
-                    this.assertEqual(true, failCalled);
-                    this.assertEqual(true, thenAfterFailedCalled,
-                        ".then() expected to be called after .fail() on rejection");
-                    this.assertEqual(null, value);
-                    ok();
-                } catch (e) {
-                    err(e);
-                }
-            }.bindenv(this))
+                .finally(function(v) {
+                    try {
+                        this.assertEqual(false, thenCalled);
+                        this.assertEqual(true, failCalled);
+                        this.assertEqual(true, thenAfterFailedCalled,
+                            ".then() expected to be called after .fail() on rejection");
+                        this.assertEqual(null, value);
+                        ok();
+                    } catch (e) {
+                        err(e);
+                    }
+                }.bindenv(this));
 
         }.bindenv(this));
     }

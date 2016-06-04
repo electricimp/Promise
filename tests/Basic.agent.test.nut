@@ -1,4 +1,3 @@
-
 /**
  * "Promise" symbol is injected dependency from ImpUnit_Promise module,
  * while class being tested can be accessed from global scope as "::Promise".
@@ -8,7 +7,7 @@ class BasicTestCase extends ImpTestCase {
     /**
      * Test basic resolving
      */
-    function testBasicResoving() {
+    function testBasicResolving() {
         return Promise(function(ok, err) {
             local isResolved = false;
 
@@ -32,7 +31,7 @@ class BasicTestCase extends ImpTestCase {
     /**
      * Test delayed resolving
      */
-    function testDelayedResoving() {
+    function testDelayedResolving() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
                 imp.wakeup(0.1, function () {
@@ -62,190 +61,17 @@ class BasicTestCase extends ImpTestCase {
     }
 
     /**
-     * Test rejection with throw+fail() handler
+     * Test resolving with nested promises
      */
-    function testCatchWithThenHandler1() {
+    function testNestedResolve() {
         return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {
-                throw "Error in Promise";
-            });
-
-            p.then(err, @(res) ok());
+            local res = ::Promise.resolve.bindenv(::Promise);
+            res(res(res("value")))
+                .then(function(value) {
+                    this.assertEqual(value, "value");
+                    ok();
+                }.bindenv(this)).fail(err);
         }.bindenv(this));
     }
 
-    /**
-     * Test rejection with reject()+fail() handler
-     */
-    function testCatchWithThenHandler2() {
-        return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {
-                reject();
-            });
-            p.then(err, ok);
-        }.bindenv(this));
-    }
-
-    /**
-     * Test rejection with throw+fail() handler
-     */
-    function testCatchWithFailHandler1() {
-        return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {
-                throw "Error in Promise";
-            });
-            p.then(err).fail(@(res) ok());
-        }.bindenv(this));
-    }
-
-    /**
-     * Test rejection with reject()+fail() handler
-     */
-    function testCatchWithFailHandler2() {
-        return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {
-                reject();
-            });
-            p.then(err).fail(ok);
-        }.bindenv(this));
-    }
-
-    /**
-     * Test that finally() is called on rejection
-     */
-    function testFinallyCallOnRejection() {
-        return Promise(function(ok, err) {
-
-            local thenCalled = false;
-            local failCalled = false;
-
-            local p = ::Promise(function (resolve, reject) {
-                reject();
-            });
-
-            p
-                .then(function (v) { thenCalled = true; })
-                .fail(function (v) { failCalled = true; })
-                .finally(function (v) {
-                    try {
-                        this.assertEqual(false, thenCalled);
-                        this.assertEqual(true, failCalled);
-                        ok();
-                    } catch (e) {
-                        err(e);
-                    }
-                }.bindenv(this));
-
-
-        }.bindenv(this));
-    }
-
-    /**
-     * Test that finally() is called on resolution
-     */
-    function testFinallyCallOnResolution() {
-        return Promise(function(ok, err) {
-
-            local thenCalled = false;
-            local failCalled = false;
-
-            local p = ::Promise(function (resolve, reject) {
-                resolve();
-            });
-
-            p
-                .then(function (v) { thenCalled = true; })
-                .fail(function (v) { failCalled = true; })
-                .finally(function (v) {
-                    try {
-                        this.assertEqual(true, thenCalled);
-                        this.assertEqual(false, failCalled);
-                        ok();
-                    } catch (e) {
-                        err(e);
-                    }
-                }.bindenv(this));
-
-        }.bindenv(this));
-    }
-
-    /**
-     * Test that always() is called on resolution
-     */
-    function testAlwaysCallOnResolution() {
-        return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {resolve();});
-            p.always(ok);
-        }.bindenv(this));
-    }
-
-    /**
-     * Test that always() is called on rejection
-     */
-    function testAlwaysCallOnResolution() {
-        return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {reject();});
-            p.always(ok);
-        }.bindenv(this));
-    }
-
-    /**
-     * Test that always() is called on cancellation
-     */
-    function testAlwaysCallOnResolution() {
-        return Promise(function(ok, err) {
-            local p = ::Promise(function (resolve, reject) {this.cancel("abc");});
-            p.always(function (v) {
-                "abc" == v ? ok() : err();
-            });
-        }.bindenv(this));
-    }
-
-    /**
-     * This test appeared due to Squirrel's not creating
-     * new instances of variables defined in a class
-     * outdide the constructor on new instance creation,
-     * which is a bit weird
-     *
-     *  eg:
-     *
-     * class C  {
-     *   _var = [];
-     *
-     *   function add(val) {
-     *     this._var.push(val);
-     *   }
-     * }
-     *
-     * local c1 = C();
-     * local c2 = C();
-     * c2.add(1);
-     *
-     * print(c1._var) // == [1]
-     *
-     */
-    function testHandlerInstances() {
-        return Promise(function(ok, err) {
-            local p1 = ::Promise(function (resolve, reject) {
-            });
-
-            p1.then(function (v) {
-                err("p1 handlers should not be called");
-            });
-
-            local p2 = ::Promise(function (resolve, reject) {
-                imp.wakeup(0.5, function() {
-                    resolve();
-                });
-            });
-
-            p2.then(function (v) {
-            });
-
-            p2.then(function (v) {
-                ok();
-            });
-
-        }.bindenv(this));
-    }
 }
