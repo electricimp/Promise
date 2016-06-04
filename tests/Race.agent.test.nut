@@ -4,49 +4,49 @@
  */
 
 /**
- * Test case for Promise.first()
+ * Test case for Promise.race()
  */
-class FirstTestCase extends ImpTestCase {
+class RaceTestCase extends ImpTestCase {
     /**
      * Check return type
      */
     function testReturnType() {
-        local p = ::Promise.first([]);
+        local p = ::Promise.race([]);
         this.assertTrue(p instanceof ::Promise);
     }
 
 
     /**
-     * Test .first() with empty array
+     * Test .race() with empty array
      */
     function testEmptyPromisesArray() {
         return Promise(function(ok, err) {
-            local p = ::Promise.first([]);
+            local p = ::Promise.race([]);
             p
-                .then(@() err("When empty array is passed to .first(), returned promise should not resolve"))
-                .fail(@() err("When empty array is passed to .first(), returned promise should not reject"));
+                .then(@() err("When empty array is passed to .race(), returned promise should not resolve"))
+                .fail(@() err("When empty array is passed to .race(), returned promise should not reject"));
             imp.wakeup(0, ok);
         }.bindenv(this));
     }
 
     /**
-     * Test .first() with all Promises in the chain resolving
+     * Test .race() with all Promises in the chain resolving
      */
-    function testFirstWithAllResolving() {
+    function testRaceWithAllResolving() {
         return Promise(function(ok, err) {
 
             local promises = [
-                // resolves first as the other one with 0s timeout value
-                // starts later from inside .first()
+                // resolves race as the other one with 0s timeout value
+                // starts later from inside .race()
                 ::Promise(function (resolve, reject) { imp.wakeup(0, @() resolve(1)) }),
                 @() ::Promise(function (resolve, reject) { imp.wakeup(0.5, @() resolve(2)) }),
                 @() ::Promise(function (resolve, reject) { imp.wakeup(0, @() resolve(3)) }),
             ];
 
-            ::Promise.first(promises)
+            ::Promise.race(promises)
                 .then(function (v) {
                     try {
-                        // .first() should resolve with value of the first resolved promise
+                        // .race() should resolve with value of the first resolved promise
                         this.assertEqual(1, v);
                         ok();
                     } catch (e) {
@@ -58,26 +58,26 @@ class FirstTestCase extends ImpTestCase {
     }
 
     /**
-     * Test .first() with rejection
+     * Test .race() with rejection
      */
-    function testFirstWithRejection() {
+    function testRaceWithRejection() {
         return Promise(function(ok, err) {
 
             local promises = [
                 // rejects first as the other one with 0s timeout value
-                // starts later from inside .first()
+                // starts later from inside .race()
                 ::Promise(function (resolve, reject) { imp.wakeup(0, @() reject(1)) }),
                 @() ::Promise(function (resolve, reject) { imp.wakeup(0.5, @() resolve(2)) }),
                 @() ::Promise(function (resolve, reject) { imp.wakeup(0, @() reject(3)) }),
             ];
 
-            ::Promise.first(promises)
+            ::Promise.race(promises)
 
-                .then(@(v) err(".then() should not be called on .first Promise rejection"))
+                .then(@(v) err(".then() should not be called on .race Promise rejection"))
 
                 .fail(function (v) {
                     try {
-                        // .first() should reject with value of the first rejected promise
+                        // .race() should reject with value of the first rejected promise
                         this.assertEqual(1, v);
                         ok();
                     } catch (e) {

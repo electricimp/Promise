@@ -6,7 +6,7 @@
     "agentFile": "Promise.class.nut",
     "deviceFile": false,
     "stopOnFailure": false,
-    "timeout": 3,
+    "timeout": 30,
     "tests": [
         "*.test.nut",
         "tests/**/*.test.nut"
