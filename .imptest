@@ -1,8 +1,7 @@
 {
-    "apiKey": "0fa32bf14947c09a71bd4099ae21a377",
-    "modelId": "zAeDr1qM6iLW" /* promise */,
+    "modelId": "OB5-O5idLyE1" /* Vimp.3 */,
     "devices": [
-        "2315a3068fb7bdee" /* 2315a3068fb7bdee */
+        "4353450000000003" /* EI.Test.Vimp.3 @ Promise lib */
     ],
     "agentFile": "Promise.class.nut",
     "deviceFile": false,
