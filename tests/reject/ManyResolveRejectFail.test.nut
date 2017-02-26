@@ -3,7 +3,8 @@
  * while class being tested can be accessed from global scope as "::Promise".
  */
 
-class ResolveManyCalls extends ImpTestCase {
+// Case reject - fail(func)
+class ManyResolveRejectFail extends ImpTestCase {
     middleOfRand = 1.0 * RAND_MAX / 2;
 
     values = [true, false, 0, 1, -1, "", "tmp", 0.001, 0.0, -0.001
@@ -28,11 +29,15 @@ class ResolveManyCalls extends ImpTestCase {
         foreach (value in values) {
             promises.append(
                 Promise(function(ok, err) {
-                    // 0 - test is passed
-                    // 1 - resolved value is wrong
-                    // 2 - is not resolved
-                    // 3 - fail or then(...,func) is called
-                    local isResolved = 2;
+                    // 1 - resolve handler is called
+                    // 2 - value is wrong in resolve handler
+                    // 4 - reject handler is called
+                    // 8 - value is wrong in reject handler
+                    // 16 - fail handler is called
+                    // 32 - value is wrong in fail handler
+                    // 64 - finally handler is called
+                    // 128 - value is wrong in finally handler
+                    local iState = 0;
                     local strChain = "";
 
                     local cb = function (resolve, reject) { // many resolve/reject call
@@ -49,44 +54,44 @@ class ResolveManyCalls extends ImpTestCase {
                     }.bindenv(this));
 
                     local p = ::Promise(function (resolve, reject) {
-                        if (isDelyed) { // delayed resolving
+                        if (isDelyed) { // delayed rejecting
                             imp.wakeup(0.1, function () {
-                                resolve(value);
+                                reject(value);
                                 cb(resolve, reject); // many resolve/reject call
                             }.bindenv(this));
-                        } else { // basic resolving
-                            resolve(value);
+                        } else { // basic rejecting
+                            reject(value);
                             cb(resolve, reject); // many resolve/reject call
                         }
                     }.bindenv(this));
-                    p.then(function(res) { 
-                        this.assertDeepEqual(value, res, "Promise is resolved with wrong value, value=" + value + ", strChain=" + strChain);
-                        //TODO 
-                        isResolved = 0;
-                        /*if (value == res) {
-                            isResolved = 0;
-                        } else {
-                            isResolved = 1;
-                        }*/
-                    }.bindenv(this), function(res) { 
-                        isResolved = 3;
-                    }).fail(function(res) { 
-                        isResolved = 3;
-                    }.bindenv(this));
+                    p.fail(function(res) { 
+                        assertDeepEqual(value, res, "Fail handler - wrong value, value=" + res);
+                        iState &= 16; // 16 - fail handler is called
+                        //TODO
+                        if (value != res) {
+                            iState &= 32; // 32 - value is wrong in fail handler
+                        }
+                    }.bindenv(this);
 
                     // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
-                    this.assertEqual(2, isResolved, "The Promise should not be resolved strict after the promise declaration, value=" + value + ", strChain=" + strChain);
+                    assertEqual(0, iState, "The Promise should not be rejected strict after the promise declaration");
 
                     // now it should be resolved
                     imp.wakeup(isDelyed ? 0.2 : 0, function() {
-                        if (isResolved == 0) {
-                            ok();
-                        } else if (isResolved = 1) {
-                            err("Promise is resolved with wrong value, value=" + value + ", strChain=" + strChain);
-                        } else if (isResolved = 3) {
-                            err("Fail or then(.., func) is called, value=" + value + ", strChain=" + strChain);
+                        // 1 - resolve handler is called
+                        // 2 - value is wrong in resolve handler
+                        // 4 - reject handler is called
+                        // 8 - value is wrong in reject handler
+                        // 16 - fail handler is called
+                        // 32 - value is wrong in fail handler
+                        // 64 - finally handler is called
+                        // 128 - value is wrong in finally handler
+                        assertTrue(iState & 16, "fail handler is not called");
+                        assertTrue(iState & 32, "value is wrong in fail handler");
+                        if (iState & 0X30) { // 0011 0000 = 0X30
+                            err("Failed value=" + value + ", strChain=" + strChain + ", iState=" + iState);
                         } else {
-                            err("Promise is expected to be resolved, value=" + value + ", strChain=" + strChain);
+                            ok();
                         }
                     }.bindenv(this));
                 })
@@ -96,17 +101,16 @@ class ResolveManyCalls extends ImpTestCase {
     }
 
     /**
-     * Test resolving with many resolve/reject call
+     * Test rejection with many resolve/reject call
      */
-    function testBasicResolving() {
+    function testBasicRejection() {
         return Promise.all(_manyResolvingRejecting(false));
     }
 
     /**
-     * Test delayed resolving with many resolve/reject call
+     * Test delayed rejection with many resolve/reject call
      */
-    function testDelayedResolving() {
+    function testDelayedRejection() {
         return Promise.all(_manyResolvingRejecting(true));
     }
-
 }
