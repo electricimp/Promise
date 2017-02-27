@@ -9,7 +9,6 @@ class ManyResolveRejectFin extends ImpTestCase {
 
     values = [true, false, 0, 1, -1, "", "tmp", 0.001, 0.0, -0.001
         , regexp(@"(\d+) ([a-zA-Z]+)(\p)")
-        , regexp2(@"(\d+) ([a-zA-Z]+)(\p)")
         , null, blob(4), array(5), {
             firstKey = "Max Normal", 
             secondKey = 42, 
@@ -66,12 +65,12 @@ class ManyResolveRejectFin extends ImpTestCase {
                     }.bindenv(this));
                     p.finally(function(res) {
                         assertDeepEqual(value, res, "Finally handler - wrong value, value=" + res);
-                        iState &= 64; // 64 - finally handler is called
+                        iState = iState & 64; // 64 - finally handler is called
                         //TODO
                         if (value != res) {
-                            iState &= 128; // 128 - value is wrong in finally handler
+                            iState = iState & 128; // 128 - value is wrong in finally handler
                         }
-                    }.bindenv(this)));
+                    }.bindenv(this));
 
                     // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
                     assertEqual(0, iState, "The Promise should not be resolved strict after the promise declaration");
@@ -94,7 +93,7 @@ class ManyResolveRejectFin extends ImpTestCase {
                             ok();
                         }
                     }.bindenv(this));
-                })
+                }.bindenv(this))
             );
         }
         return promises;

@@ -9,7 +9,6 @@ class ManyResolveRejectThen_2 extends ImpTestCase {
 
     values = [true, false, 0, 1, -1, "", "tmp", 0.001, 0.0, -0.001
         , regexp(@"(\d+) ([a-zA-Z]+)(\p)")
-        , regexp2(@"(\d+) ([a-zA-Z]+)(\p)")
         , null, blob(4), array(5), {
             firstKey = "Max Normal", 
             secondKey = 42, 
@@ -66,27 +65,27 @@ class ManyResolveRejectThen_2 extends ImpTestCase {
                     }.bindenv(this));
                     p.then(function(res) { 
                         assertDeepEqual(value, res, "Resolve handler - wrong value, value=" + res);
-                        iState &= 1; // 1 - resolve handler is called
+                        iState = iState & 1; // 1 - resolve handler is called
                         //TODO
                         if (value != res) {
-                            iState &= 2; // 2 - value is wrong in resolve handler
+                            iState = iState & 2; // 2 - value is wrong in resolve handler
                         }
                     }.bindenv(this), function(res) { 
                         assertDeepEqual(value, res, "Reject handler - wrong value, value=" + res);
-                        iState &= 4; // 4 - reject handler is called
+                        iState = iState & 4; // 4 - reject handler is called
                         //TODO
                         if (value != res) {
-                            iState &= 8; // 8 - value is wrong in reject handler
+                            iState = iState & 8; // 8 - value is wrong in reject handler
                         }
                     }.bindenv(this));
                     p.fail(function(res) { 
                         assertDeepEqual(value, res, "Fail handler - wrong value, value=" + res);
-                        iState &= 16; // 16 - fail handler is called
+                        iState = iState & 16; // 16 - fail handler is called
                         //TODO
                         if (value != res) {
-                            iState &= 32; // 32 - value is wrong in fail handler
+                            iState = iState & 32; // 32 - value is wrong in fail handler
                         }
-                    }.bindenv(this);
+                    }.bindenv(this));
 
                     // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
                     assertEqual(0, iState, "The Promise should not be resolved strict after the promise declaration");
@@ -111,7 +110,7 @@ class ManyResolveRejectThen_2 extends ImpTestCase {
                             ok();
                         }
                     }.bindenv(this));
-                })
+                }.bindenv(this))
             );
         }
         return promises;
