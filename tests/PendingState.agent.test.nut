@@ -141,7 +141,7 @@ class PendingState extends ImpTestCase {
     function testLoopThen() {
         return Promise(function(ok, err) {
             local isResolved = false;
-            ::Promise.loop(true, @() ::Promise(function (resolve, reject) { })).then(function(res) { 
+            ::Promise.loop(@() true, @() ::Promise(function (resolve, reject) { })).then(function(res) { 
                     isResolved = true;
                 }.bindenv(this), function(res) { 
                     isResolved = true;
@@ -159,7 +159,7 @@ class PendingState extends ImpTestCase {
     function testLoopFinally() {
         return Promise(function(ok, err) {
             local isResolved = false;
-            ::Promise.loop(true, @() ::Promise(function (resolve, reject) { })).finally(function(res) { 
+            ::Promise.loop(@() true, @() ::Promise(function (resolve, reject) { })).finally(function(res) { 
                     isResolved = true;
                 }.bindenv(this));
             // wait and verify pending state
