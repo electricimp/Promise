@@ -1,7 +1,9 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2017 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
+
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
 // Case resolve - then(func, func) + fail(func) + finally()
 class DifferentValues extends ImpTestCase {
@@ -13,16 +15,14 @@ class DifferentValues extends ImpTestCase {
         }
     }
 
-    /**
-    * Perform a deep comparison of two values
-    * @param {*} value1
-    * @param {*} value2
-    * @param {string} message
-    * @param {boolean} isForwardPass - on forward pass value1 is treated "expected", value2 as "actual" and vice-versa on backward pass
-    * @param {string} path - current slot path
-    * @param {int} level - current depth level
-    * @private
-    */
+    // Perform a deep comparison of two values
+    // @param {*} value1
+    // @param {*} value2
+    // @param {string} message
+    // @param {boolean} isForwardPass - on forward pass value1 is treated "expected", value2 as "actual" and vice-versa on backward pass
+    // @param {string} path - current slot path
+    // @param {int} level - current depth level
+    // @private
     function _assertDeepEqualImpl(value1, value2, message, isForwardPass, path = "", level = 0) {
         local result = true;
         local cleanPath = @(p) p.len() == 0 ? p : p.slice(1);
@@ -56,13 +56,11 @@ class DifferentValues extends ImpTestCase {
         return result;
     }
 
-    /**
-    * Perform a deep comparison of two values
-    * Useful for comparing arrays or tables
-    * @param {*} expected
-    * @param {*} actual
-    * @param {string} message
-    */
+    // Perform a deep comparison of two values
+    // Useful for comparing arrays or tables
+    // @param {*} expected
+    // @param {*} actual
+    // @param {string} message
     function _assertDeepEqual(expected, actual, message = "At [%s]: expected \"%s\", got \"%s\"") {
         return _assertDeepEqualImpl(expected, actual, message, true) // forward pass
             && _assertDeepEqualImpl(actual, expected, message, false); // backwards pass
@@ -116,8 +114,10 @@ class DifferentValues extends ImpTestCase {
                             iState = iState | 128; // 128 - value is wrong in finally handler
                         }
                     }.bindenv(this));
+
                     // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
                     assertEqual(0, iState, "The Promise should not be resolved strict after the promise declaration");
+                    
                     // now it should be resolved
                     imp.wakeup(1 , function() {
                         local result = [true, "Value='" + myValue + "', iState=" + iState];
@@ -127,7 +127,7 @@ class DifferentValues extends ImpTestCase {
                         _verifyTrue(iState & 128, result, "Value is wrong in finally handler. ");
                         if (iState & 0X3C) { // 0011 1100 = 0X3C
                             err("Failed: unexpected handler call. " + result[1]);
-                        } else if (result[0]) { // 0011 1100 = 0X3C
+                        } else if (result[0]) {
                             ok("Passed: " + result[1]);
                         } else {
                             err("Failed: " + result[1]);
@@ -141,9 +141,8 @@ class DifferentValues extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test basic resolving
-     */
+    // Test basic resolving
+    
     function testBasicResolving_1() {
         return _basicResolving(false, [true, false, 0]);
     }
@@ -191,9 +190,8 @@ class DifferentValues extends ImpTestCase {
         return _basicResolving(false, [server]);
     }
 
-    /**
-     * Test delayed resolving
-     */
+    // Test delayed resolving
+
     function testDelayedResolving_1() {
         return _basicResolving(true, [true, false, 0]);
     }
@@ -241,9 +239,8 @@ class DifferentValues extends ImpTestCase {
         return _basicResolving(true, [server]);
     }
 
-    /**
-     * Test resolving with nested promises
-     */
+    // Test resolving with nested promises
+
     function _nestedResolve(values) {
         local promises = [];
         foreach (nextValue in values) {

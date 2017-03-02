@@ -1,21 +1,20 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2017 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
 
-/**
- * Test case:
- * "then" handlers should not be called if promises in race, all, serial, loop is in pending state
- */
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
+ // Test case:
+ // "then" handlers should not be called if promises in race, all, serial, loop is in pending state
 class PendingState extends ImpTestCase {
-    /**
-     * race  - then
-     */
+ 
+    // race  - then
+ 
     function testRaceThen() {
         return Promise(function(ok, err) {
             local isResolved = false;
-            ::Promise.race([
+            Promise.race([
                     ::Promise(function (resolve, reject) { }),
                     @() ::Promise(function (resolve, reject) { }),
                     ::Promise(function (resolve, reject) { })
@@ -31,9 +30,8 @@ class PendingState extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * race  - finally
-     */
+    // race  - finally
+
     function testRaceFinally() {
         return Promise(function(ok, err) {
             local isResolved = false;
@@ -51,9 +49,8 @@ class PendingState extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * all - then
-     */
+    // all - then
+
     function testAllThen() {
         return Promise(function(ok, err) {
             local isResolved = false;
@@ -73,9 +70,8 @@ class PendingState extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * all - finally
-     */
+    // all - finally
+
     function testAllFinally() {
         return Promise(function(ok, err) {
             local isResolved = false;
@@ -93,9 +89,8 @@ class PendingState extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * serial - then
-     */
+    // serial - then
+
     function testSerialThen() {
         return Promise(function(ok, err) {
             local isResolved = false;
@@ -115,9 +110,8 @@ class PendingState extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * serial - finally
-     */
+    // serial - finally
+
     function testSerialFinally() {
         return Promise(function(ok, err) {
             local isResolved = false;
@@ -135,9 +129,8 @@ class PendingState extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * loop - then
-     */
+    // loop - then
+
     function testLoopThen() {
         return Promise(function(ok, err) {
             local isResolved = false;
@@ -153,9 +146,8 @@ class PendingState extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * loop - finally
-     */
+    // loop - finally
+
     function testLoopFinally() {
         return Promise(function(ok, err) {
             local isResolved = false;

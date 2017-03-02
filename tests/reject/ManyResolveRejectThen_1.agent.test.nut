@@ -1,7 +1,9 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2017 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
+
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
 //Case reject - then(func)
 class ManyResolveRejectThen_1 extends ImpTestCase {
@@ -14,16 +16,14 @@ class ManyResolveRejectThen_1 extends ImpTestCase {
         }
     }
 
-    /**
-    * Perform a deep comparison of two values
-    * @param {*} value1
-    * @param {*} value2
-    * @param {string} message
-    * @param {boolean} isForwardPass - on forward pass value1 is treated "expected", value2 as "actual" and vice-versa on backward pass
-    * @param {string} path - current slot path
-    * @param {int} level - current depth level
-    * @private
-    */
+    // Perform a deep comparison of two values
+    // @param {*} value1
+    // @param {*} value2
+    // @param {string} message
+    // @param {boolean} isForwardPass - on forward pass value1 is treated "expected", value2 as "actual" and vice-versa on backward pass
+    // @param {string} path - current slot path
+    // @param {int} level - current depth level
+    // @private
     function _assertDeepEqualImpl(value1, value2, message, isForwardPass, path = "", level = 0) {
         local result = true;
         local cleanPath = @(p) p.len() == 0 ? p : p.slice(1);
@@ -57,13 +57,11 @@ class ManyResolveRejectThen_1 extends ImpTestCase {
         return result;
     }
 
-    /**
-    * Perform a deep comparison of two values
-    * Useful for comparing arrays or tables
-    * @param {*} expected
-    * @param {*} actual
-    * @param {string} message
-    */
+    // Perform a deep comparison of two values
+    // Useful for comparing arrays or tables
+    // @param {*} expected
+    // @param {*} actual
+    // @param {string} message
     function _assertDeepEqual(expected, actual, message = "At [%s]: expected \"%s\", got \"%s\"") {
         return _assertDeepEqualImpl(expected, actual, message, true) // forward pass
             && _assertDeepEqualImpl(actual, expected, message, false); // backwards pass
@@ -117,6 +115,7 @@ class ManyResolveRejectThen_1 extends ImpTestCase {
                             iState = iState | 2; // 2 - value is wrong in resolve handler
                         }
                     }.bindenv(this));
+
                     // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
                     assertEqual(0, iState, "The Promise should not be resolved strict after the promise declaration");
 
@@ -137,9 +136,8 @@ class ManyResolveRejectThen_1 extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test rejection with many resolve/reject call
-     */
+    // Test rejection with many resolve/reject call
+
      function testBasicRejection_1() {
         return _manyResolvingRejecting(false, [true, false]);
     }
@@ -187,9 +185,8 @@ class ManyResolveRejectThen_1 extends ImpTestCase {
         }, server]);
     }
 
-    /**
-     * Test delayed rejection with many resolve/reject call
-     */
+    // Test delayed rejection with many resolve/reject call
+
     function testDelayedRejection_1() {
         return _manyResolvingRejecting(true, [true, false]);
     }
