@@ -28,7 +28,7 @@ class ManyResolveRejectAllFuncs extends ImpTestCase {
     function _assertDeepEqualImpl(value1, value2, message, isForwardPass, path = "", level = 0) {
         local result = true;
         local cleanPath = @(p) p.len() == 0 ? p : p.slice(1);
-        if (level > 32) {
+        if (level > 2) {
             server.log("Possible cyclic reference at " + cleanPath(path));
             return false;
         }
