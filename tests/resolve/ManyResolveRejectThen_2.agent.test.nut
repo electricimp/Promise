@@ -16,55 +16,20 @@ class ManyResolveRejectThen_2 extends ImpTestCase {
         }
     }
 
-    // Perform a deep comparison of two values
-    // @param {*} value1
-    // @param {*} value2
-    // @param {string} message
-    // @param {boolean} isForwardPass - on forward pass value1 is treated "expected", value2 as "actual" and vice-versa on backward pass
-    // @param {string} path - current slot path
-    // @param {int} level - current depth level
-    // @private
-    function _assertDeepEqualImpl(value1, value2, message, isForwardPass, path = "", level = 0) {
-        local result = true;
-        local cleanPath = @(p) p.len() == 0 ? p : p.slice(1);
-        if (level > 2) {
-            server.log("Possible cyclic reference at " + cleanPath(path));
-            return false;
-        }
-        switch (type(value1)) {
-            case "table":
-            case "class":
-            case "array":
-                foreach (k, v in value1) {
-                    path += "." + k;
-                    if (!(k in value2)) {
-                        server.log(format("%s slot [%s] in actual value",
-                            isForwardPass ? "Missing" : "Extra", cleanPath(path)));
-                        return false;
-                    }
-                    result = result && _assertDeepEqualImpl(value1[k], value2[k], message, isForwardPass, path, level + 1);
-                }
-                break;
-            case "null":
-                break;
-            default:
-                if (value2 != value1) {
-                    server.log(format(message, cleanPath(path), value1 + "", value2 + ""));
-                    return false;
-                }
-                break;
-        }
-        return result;
-    }
-
-    // Perform a deep comparison of two values
+    // Wrapper of Perform a deep comparison of two values
     // Useful for comparing arrays or tables
     // @param {*} expected
     // @param {*} actual
     // @param {string} message
-    function _assertDeepEqual(expected, actual, message = "At [%s]: expected \"%s\", got \"%s\"") {
-        return _assertDeepEqualImpl(expected, actual, message, true) // forward pass
-            && _assertDeepEqualImpl(actual, expected, message, false); // backwards pass
+    // @private
+    function _assertDeepEqualWrap(expected, actual, message) {
+        try {
+            assertDeepEqual(expected, actual, message);
+            return true;
+        } catch (err) {
+            server.log(err);
+            return false;
+        }
     }
 
     function _manyResolvingRejecting(isDelyed, values) {
@@ -111,18 +76,18 @@ class ManyResolveRejectThen_2 extends ImpTestCase {
                     }.bindenv(this));
                     p.then(function(res) { 
                         iState = iState | 1; // 1 - resolve handler is called
-                        if (_assertDeepEqual(myValue, res, "Resolve handler - wrong value, value='" + myValue + "', res=" + res)) {
+                        if (_assertDeepEqualWrap(myValue, res, "Resolve handler - wrong value, value='" + myValue + "', res=" + res)) {
                             iState = iState | 2; // 2 - value is wrong in resolve handler
                         }
                     }.bindenv(this), function(res) { 
                         iState = iState | 4; // 4 - reject handler is called
-                        if (_assertDeepEqual(myValue, res, "Reject handler - wrong value, value='" + myValue + "', res=" + res)) {
+                        if (_assertDeepEqualWrap(myValue, res, "Reject handler - wrong value, value='" + myValue + "', res=" + res)) {
                             iState = iState | 8; // 8 - value is wrong in reject handler
                         }
                     }.bindenv(this));
                     p.fail(function(res) { 
                         iState = iState | 16; // 16 - fail handler is called
-                        if (_assertDeepEqual(myValue, res, "Fail handler - wrong value, value='" + myValue + "', res=" + res)) {
+                        if (_assertDeepEqualWrap(myValue, res, "Fail handler - wrong value, value='" + myValue + "', res=" + res)) {
                             iState = iState | 32; // 32 - value is wrong in fail handler
                         }
                     }.bindenv(this));
