@@ -1,12 +1,14 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
+
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
 class BasicTestCase extends ImpTestCase {
-    /**
-     * Test basic resolving
-     */
+
+    // Test basic resolving
+
     function testBasicResolving() {
         return Promise(function(ok, err) {
             local isResolved = false;
@@ -28,9 +30,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test delayed resolving
-     */
+    // Test delayed resolving
+
     function testDelayedResolving() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
@@ -44,9 +45,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test delayed rejection
-     */
+    // Test delayed rejection
+
     function testDelayedRejection() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
@@ -60,9 +60,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test resolving with nested promises
-     */
+    // Test resolving with nested promises
+
     function testNestedResolve() {
         return Promise(function(ok, err) {
             local res = ::Promise.resolve.bindenv(::Promise);

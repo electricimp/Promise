@@ -1,13 +1,15 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
+
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
 class ThenChainTestCase extends ImpTestCase {
-    /**
-     * Test a chain of `then`, with each return value being passed to the next
-     * handler
-     */
+
+    // Test a chain of `then`, with each return value being passed to the next
+    // handler
+
     function testThenChaining() {
         return Promise(function(ok, err) {
             ::Promise.resolve("value").then(@(val) val + 1)

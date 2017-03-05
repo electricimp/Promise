@@ -1,13 +1,14 @@
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
 
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
 class ThenAfterFailTestCase extends ImpTestCase {
-    /**
-     * Test that .then() placed after .fail() should be called on rejection
-     */
+
+    // Test that .then() placed after .fail() should be called on rejection
+
     function testThenAfterFail() {
         return Promise(function(ok, err) {
 
