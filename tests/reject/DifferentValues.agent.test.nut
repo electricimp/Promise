@@ -226,7 +226,7 @@ class DifferentValues extends ImpTestCase {
                         this.assertDeepEqual(myValue, value, "Promise is rejected with wrong value, value=" + value);
                         isFailCalled = true;
                     }.bindenv(this));
-                    imp.wakeup(0, function() {
+                    imp.wakeup(1, function() {
                         local strFail = "";
                         if (isThenCalled !=true) {
                             strFail += "Function in the then(null, func) is not called, value=" + myValue;

@@ -14,7 +14,7 @@ class PendingState extends ImpTestCase {
     function testRaceThen() {
         return Promise(function(ok, err) {
             local isResolved = false;
-            Promise.race([
+            ::Promise.race([
                     ::Promise(function (resolve, reject) { }),
                     @() ::Promise(function (resolve, reject) { }),
                     ::Promise(function (resolve, reject) { })

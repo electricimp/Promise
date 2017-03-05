@@ -24,7 +24,7 @@ class Serial extends ImpTestCase {
                     } catch(ex) {
                         msg = "Unexpected error " + ex + " " + msg;
                     }
-                    imp.wakeup(0, function() {
+                    imp.wakeup(1, function() {
                         if (_value == null) {
                             server.log("Fail " + msg);
                             err("Fail " + msg);
@@ -41,15 +41,17 @@ class Serial extends ImpTestCase {
         }.bindenv(this));
     }
 
-    function testWrongType_1() {
+    // Disabled
+    // Issue: Unexpected error in Promise.serial() #24
+    function _DISABLED_testWrongType_1() {
         return _wrongType([false, 0, "",  "tmp", 0.001]);
     }
 
-    function testWrongType_2() {
+    function _DISABLED_testWrongType_2() {
         return _wrongType([regexp(@"(\d+) ([a-zA-Z]+)(\p)"), null, blob(4)]);
     }
 
-    function testWrongType_3() {
+    function _DISABLED_testWrongType_3() {
         return _wrongType([array(5), {
             firstKey = "Max Normal", 
             secondKey = 42, 
@@ -58,7 +60,7 @@ class Serial extends ImpTestCase {
         }]);
     }
 
-    function testWrongType_4() {
+    function _DISABLED_testWrongType_4() {
         return _wrongType([class {
             tmp = 0;
             constructor(){

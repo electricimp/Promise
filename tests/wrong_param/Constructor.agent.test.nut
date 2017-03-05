@@ -27,7 +27,7 @@ class Constructor extends ImpTestCase {
                     p.finally(function(res) {
                         assertDeepEqual(_value, res, "Finally handler - wrong value, value=" + res);
                     }.bindenv(this));
-                    imp.wakeup(0, function() {
+                    imp.wakeup(1, function() {
                         if (_value == null) {
                             server.log("Fail " + msg);
                             err("Fail " + msg);

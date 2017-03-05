@@ -24,7 +24,7 @@ class Finally extends ImpTestCase {
                     } catch(err) {
                         msg = "Unexpected error " + ex + " " + msg;
                     }
-                    imp.wakeup(0, function() {
+                    imp.wakeup(1, function() {
                         if (_value == null) {
                             server.log("Fail " + msg);
                             err("Fail " + msg);

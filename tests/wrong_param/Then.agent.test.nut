@@ -18,13 +18,15 @@ class Then extends ImpTestCase {
                     try {
                         ::Promise(function (resolve, reject) {
                             resolve(1);
-                        }).then(myValue).fail(function(res) { 
+                        }).then(myValue).then(function(res) { 
                             _value = res;
+                        }.bindenv(this), function(res) { 
+                            msg = "Reject handler is called " + msg;
                         }.bindenv(this));
                     } catch(ex) {
                         msg = "Unexpected error " + ex + " " + msg;
                     }
-                    imp.wakeup(0, function() {
+                    imp.wakeup(1, function() {
                         if (_value == null) {
                             server.log("Fail " + msg);
                             err("Fail " + msg);
@@ -58,13 +60,15 @@ class Then extends ImpTestCase {
         return _wrongFirst([null, blob(4), array(5)]);
     }
 
+    // Disabled case: function() {}
+    // Issue: The behavior of Promise.then() should be the same in cases of wrong parameters #25
     function testWrongFirst_5() {
         return _wrongFirst([{
             firstKey = "Max Normal", 
             secondKey = 42, 
             thirdKey = true
-        }, function() {
-        },  class {
+        }, /*function() {
+        },*/  class {
             tmp = 0;
             constructor(){
                 tmp = 15;
@@ -87,13 +91,15 @@ class Then extends ImpTestCase {
                     try {
                         ::Promise(function (resolve, reject) {
                             reject(1);
-                        }).then(null, value).fail(function(res) { 
+                        }).then(null, value).then(function(res) { 
+                            msg = "Resolve handler is called " + msg;
+                        }.bindenv(this), function(res) { 
                             _value = res;
                         }.bindenv(this));
                     } catch(ex) {
                         msg = "Unexpected error " + ex + " " + msg;
                     }
-                    imp.wakeup(0, function() {
+                    imp.wakeup(1, function() {
                         if (_value == null) {
                             server.log("Fail " + msg);
                             err("Fail " + msg);
