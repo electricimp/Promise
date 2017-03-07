@@ -1,16 +1,16 @@
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
 
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
-/**
- * Test case for Promise.loop()
- */
+// Test case for Promise.loop()
+
 class LoopTestCase extends ImpTestCase {
-    /**
-     * Check return type
-     */
+
+    // Check return type
+
     function testReturnType() {
         local p = ::Promise.loop(
             function () {},
@@ -20,9 +20,8 @@ class LoopTestCase extends ImpTestCase {
         this.assertTrue(p instanceof ::Promise);
     }
 
-    /**
-     * Check immediate stop
-     */
+    // Check immediate stop
+
     function testImmediateStop() {
         return Promise(function(ok, err) {
             local p = ::Promise.loop(
@@ -35,9 +34,8 @@ class LoopTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test looping with all resolves
-     */
+    // Test looping with all resolves
+
     function testLoopingWithResolves() {
         return Promise(function(ok, err) {
             local i = 0;
@@ -65,9 +63,8 @@ class LoopTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test looping with exit on rejection
-     */
+    // Test looping with exit on rejection
+
     function testLoopingWithRejection() {
         return Promise(function(ok, err) {
             local i = 0;
@@ -100,9 +97,8 @@ class LoopTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test .finally() order with loops
-     */
+    // Test .finally() order with loops
+
     function testLoopFinallyOrder() {
         return Promise(function(ok, err) {
 

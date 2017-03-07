@@ -1,24 +1,24 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
 
-/**
- * Test case for Promise.race()
- */
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
+
+// Test case for Promise.race()
+
 class RaceTestCase extends ImpTestCase {
-    /**
-     * Check return type
-     */
+
+    // Check return type
+
     function testReturnType() {
         local p = ::Promise.race([]);
         this.assertTrue(p instanceof ::Promise);
     }
 
 
-    /**
-     * Test .race() with empty array
-     */
+    // Test .race() with empty array
+
     function testEmptyPromisesArray() {
         return Promise(function(ok, err) {
             local p = ::Promise.race([]);
@@ -29,9 +29,8 @@ class RaceTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test .race() with all Promises in the chain resolving
-     */
+    // Test .race() with all Promises in the chain resolving
+
     function testRaceWithAllResolving() {
         return Promise(function(ok, err) {
 
@@ -57,9 +56,9 @@ class RaceTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test .race() with rejection
-     */
+
+    // Test .race() with rejection
+
     function testRaceWithRejection() {
         return Promise(function(ok, err) {
 

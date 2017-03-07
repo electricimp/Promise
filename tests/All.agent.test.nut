@@ -1,23 +1,24 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
 
-/**
- * Test case for Promise.all()
- */
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
+
+
+// Test case for Promise.all()
+
 class AllTestCase extends ImpTestCase {
-    /**
-     * Check return type
-     */
+
+    // Check return type
+
     function testReturnType() {
         local p = ::Promise.all([]);
         this.assertTrue(p instanceof ::Promise);
     }
 
-    /**
-     * Test .all() with empty array
-     */
+    // Test .all() with empty array
+
     function testEmptyPromisesArray() {
         return Promise(function(ok, err) {
             local p = ::Promise.all([]);
@@ -32,9 +33,8 @@ class AllTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test .all() with all Promises in the chain resolving
-     */
+    // Test .all() with all Promises in the chain resolving
+
     function testAllWithAllResolving() {
         return Promise(function(ok, err) {
 
@@ -61,9 +61,8 @@ class AllTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test .all() with some Promises in the chain rejecting
-     */
+    // Test .all() with some Promises in the chain rejecting
+
     function testAllWithRejection() {
         return Promise(function(ok, err) {
             local promises = [
@@ -79,7 +78,7 @@ class AllTestCase extends ImpTestCase {
 
                 .fail(function (v) {
                     try {
-                        /*this.assertEqual(2, v);*/
+                        //this.assertEqual(2, v);
                         this.assert(v == 2 || v == 3);
                         ok();
                     } catch (e) {
