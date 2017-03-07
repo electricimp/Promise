@@ -1,13 +1,14 @@
+// Copyright (c) 2017 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
 
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
 class ResolveWithPromisesTestCase extends ImpTestCase {
-    /**
-     * Test resolution of Promise with another Promise
-     */
+
+    // Test resolution of Promise with another Promise
+
     function testResolutionWithPromise() {
         return Promise(function(ok, err) {
 
@@ -31,9 +32,8 @@ class ResolveWithPromisesTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test resolution of Promise with another Promise and rejection in the end
-     */
+    // Test resolution of Promise with another Promise and rejection in the end
+
     function testResolutionWithPromiseAndRejection() {
         return Promise(function(ok, err) {
 

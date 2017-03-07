@@ -1,23 +1,23 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
 
-/**
- * Test case for Promise.serial()
- */
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
+
+// Test case for Promise.serial()
+
 class SerialTestCase extends ImpTestCase {
-    /**
-     * Check return type
-     */
+
+    // Check return type
+
     function testReturnType() {
         local p = ::Promise.serial([]);
         this.assertTrue(p instanceof ::Promise);
     }
 
-    /**
-     * Test .serial() with all Promises in the chain resolving
-     */
+    // Test .serial() with all Promises in the chain resolving
+
     function testSerialWithAllResolving() {
         return Promise(function(ok, err) {
 
@@ -42,9 +42,8 @@ class SerialTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test .serial() with one of the Promises in the chain rejects
-     */
+    // Test .serial() with one of the Promises in the chain rejects
+
     function testSerialWithRejecting() {
         return Promise(function(ok, err) {
 
@@ -73,9 +72,8 @@ class SerialTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test .serial() with array of functions
-     */
+    // Test .serial() with array of functions
+
     function testSerialWithFunctions() {
         return Promise(function(ok, err) {
 

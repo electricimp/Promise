@@ -1,12 +1,14 @@
-/**
- * "Promise" symbol is injected dependency from ImpUnit_Promise module,
- * while class being tested can be accessed from global scope as "::Promise".
- */
+// Copyright (c) 2016 Electric Imp
+// This file is licensed under the MIT License
+// http://opensource.org/licenses/MIT
+
+// "Promise" symbol is injected dependency from ImpUnit_Promise module,
+// while class being tested can be accessed from global scope as "::Promise".
 
 class BasicTestCase extends ImpTestCase {
-    /**
-     * Test rejection with throw+fail() handler
-     */
+
+    // Test rejection with throw+fail() handler
+
     function testCatchWithThenHandler1() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
@@ -17,9 +19,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test rejection with reject()+fail() handler
-     */
+    // Test rejection with reject()+fail() handler
+
     function testCatchWithThenHandler2() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
@@ -29,9 +30,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test rejection with throw+fail() handler
-     */
+    // Test rejection with throw+fail() handler
+
     function testCatchWithFailHandler1() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
@@ -41,9 +41,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test rejection with reject()+fail() handler
-     */
+    // Test rejection with reject()+fail() handler
+
     function testCatchWithFailHandler2() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {
@@ -53,9 +52,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test that finally() is called on rejection
-     */
+    // Test that finally() is called on rejection
+
     function testFinallyCallOnRejection() {
         return Promise(function(ok, err) {
 
@@ -83,9 +81,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test that finally() is called on resolution
-     */
+    // Test that finally() is called on resolution
+
     function testFinallyCallOnResolution() {
         return Promise(function(ok, err) {
 
@@ -112,9 +109,8 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test that finally() is called on resolution
-     */
+    // Test that finally() is called on resolution
+
     function testFinallyCallOnResolution() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {resolve();});
@@ -122,9 +118,9 @@ class BasicTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    /**
-     * Test that finally() is called on rejection
-     */
+
+    // Test that finally() is called on rejection
+
     function testFinallyCallOnResolution() {
         return Promise(function(ok, err) {
             local p = ::Promise(function (resolve, reject) {reject();});
