@@ -4,10 +4,14 @@
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @author Aron Steg <aron@electricimp.com>
  * @author Jaye Heffernan <jaye@mysticpants.com>
- * @version 3.0.0
+ * @version 3.0.1
  */
+
+ // Error messages
+const PROMISE_ERR_UNHANDLED_REJ  = "Unhandled promise rejection: ";
+
 class Promise {
-    static version = [3, 0, 0];
+    static version = [3, 0, 1];
 
     static STATE_PENDING = 0;
     static STATE_FULFILLED = 1;
@@ -15,6 +19,7 @@ class Promise {
 
     _state = null;
     _value = null;
+    _last = null; 
 
     /* @var {{resolve, reject}[]} _handlers */
     _handlers = null;
@@ -24,6 +29,7 @@ class Promise {
     */
     constructor(action) {
         this._state = this.STATE_PENDING;
+        this._last = true;
         this._handlers = [];
 
         try {
@@ -42,6 +48,9 @@ class Promise {
     function _callHandlers() {
         if (this.STATE_PENDING != this._state) {
             imp.wakeup(0, function() {
+                if ((this._handlers.len() == 0) && (this._last) && (this.STATE_REJECTED == this._state)) { 
+                    server.log(PROMISE_ERR_UNHANDLED_REJ + this._value);
+                }
                 foreach (handler in this._handlers) {
                     (/* create closure and bind handler to it */ function (handler) {
                         if (this._state == this.STATE_FULFILLED) {
@@ -127,6 +136,7 @@ class Promise {
         onRejected  = (typeof onRejected  == "function") ? onRejected  : Promise._onRejected;
 
         local self = this;
+        this._last = false; 
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
                 "resolve": resolve.bindenv(this),
