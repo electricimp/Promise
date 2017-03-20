@@ -226,12 +226,18 @@ class Promise {
      */
     static function serial(promises) {
         local i = 0;
+        local onlyPromises = [];
+        for (local t = 0; t < promises.len(); t++) { 
+            local pr = "function" == type(promises[t])
+                    ? promises[t]()
+                    : promises[t];
+            pr._last = false; 
+            onlyPromises.push(pr);
+        }
         return this.loop(
-            @() i < promises.len(),
+            @() i < onlyPromises.len(),
             function () {
-                return "function" == type(promises[i])
-                    ? promises[i++]()
-                    : promises[i++];
+                return onlyPromises[i++];
             }
         )
     }
@@ -264,7 +270,7 @@ class Promise {
                 result[index] = value;
                 resolved += 1;
                 if (resolved == len) {
-                    resolve(result)
+                    resolve(result);
                 }
             };
 
@@ -333,3 +339,4 @@ class Promise {
         })
     }
 }
+
