@@ -43,7 +43,7 @@ class Promise {
 
     _state = null;
     _value = null;
-    _last = null; 
+    _isLeaf = null; 
 
     /* @var {{resolve, reject}[]} _handlers */
     _handlers = null;
@@ -53,7 +53,7 @@ class Promise {
     */
     constructor(action) {
         this._state = this.STATE_PENDING;
-        this._last = true;
+        this._isLeaf = true;
         this._handlers = [];
 
         try {
@@ -72,7 +72,10 @@ class Promise {
     function _callHandlers() {
         if (this.STATE_PENDING != this._state) {
             imp.wakeup(0, function() {
-                if ((this._handlers.len() == 0) && (this._last) && (this.STATE_REJECTED == this._state)) { 
+                if (this._isLeaf 
+                    && this._handlers.len() == 0 
+                    && this.STATE_REJECTED == this._state) 
+                    {
                     server.log(PROMISE_ERR_UNHANDLED_REJ + this._value);
                 }
                 foreach (handler in this._handlers) {
@@ -160,7 +163,7 @@ class Promise {
         onRejected  = (typeof onRejected  == "function") ? onRejected  : Promise._onRejected;
 
         local self = this;
-        this._last = false; 
+        this._isLeaf = false; 
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
                 "resolve": resolve.bindenv(this),
@@ -257,7 +260,7 @@ class Promise {
             local pr = "function" == type(promises[t])
                     ? promises[t]()
                     : promises[t];
-            pr._last = false; 
+            pr._isLeaf = false; 
             onlyPromises.push(pr);
         }
         return this.loop(
