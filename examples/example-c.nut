@@ -45,7 +45,7 @@
  * traditional, callback style function in a promise.
  */
 class MorseCode {
-    static URL_TEMPLATE = "http://www.morsecode-api.de/%s/%s";
+    static URL_TEMPLATE = "http://www.morsecode-api.de/%s?string=%s";
 
     _message = null;
 
@@ -115,14 +115,14 @@ class MorseCode {
      */
     static function PromisedSendAsync(request) {
         return Promise(function(resolve, reject) {
-            
+
             request.sendasync(function(response) {
                 if (response.statuscode < 200 || response.statuscode > 299) {
                     return reject(response);
                 }
                 return resolve(response); // Resolve promise on response
             }.bindenv(this));
-            
+
         }.bindenv(this));
     }
 

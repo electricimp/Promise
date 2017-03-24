@@ -35,7 +35,7 @@
 const PROMISE_ERR_UNHANDLED_REJ  = "Unhandled promise rejection: ";
 
 class Promise {
-    static version = [3, 0, 1];
+    static VERSION = "3.0.1";
 
     static STATE_PENDING = 0;
     static STATE_FULFILLED = 1;
@@ -43,7 +43,7 @@ class Promise {
 
     _state = null;
     _value = null;
-    _isLeaf = null; 
+    _last = null;
 
     /* @var {{resolve, reject}[]} _handlers */
     _handlers = null;
@@ -53,7 +53,7 @@ class Promise {
     */
     constructor(action) {
         this._state = this.STATE_PENDING;
-        this._isLeaf = true;
+        this._last = true;
         this._handlers = [];
 
         try {
@@ -72,10 +72,8 @@ class Promise {
     function _callHandlers() {
         if (this.STATE_PENDING != this._state) {
             imp.wakeup(0, function() {
-                if (this._isLeaf 
-                    && this._handlers.len() == 0 
-                    && this.STATE_REJECTED == this._state) 
-                    {
+                if (this._last && this._handlers.len() == 0
+                               && this.STATE_REJECTED == this._state) {
                     server.log(PROMISE_ERR_UNHANDLED_REJ + this._value);
                 }
                 foreach (handler in this._handlers) {
@@ -163,7 +161,7 @@ class Promise {
         onRejected  = (typeof onRejected  == "function") ? onRejected  : Promise._onRejected;
 
         local self = this;
-        this._isLeaf = false; 
+        this._last = false;
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
                 "resolve": resolve.bindenv(this),
@@ -247,7 +245,7 @@ class Promise {
      * Returns Promise that resolves when
      * all promises in chain resolve:
      * one after each other.
-     * Make every promise in array of promises not last 
+     * Make every promise in array of promises not last
      * for suppressing Unhadled Exeptions Warnings
      *
      * @param {{Promise|function}[]} promises - array of Promises/functions that return Promises
@@ -256,11 +254,11 @@ class Promise {
     static function serial(promises) {
         local i = 0;
         local onlyPromises = [];
-        for (local t = 0; t < promises.len(); t++) { 
+        for (local t = 0; t < promises.len(); t++) {
             local pr = "function" == type(promises[t])
                     ? promises[t]()
                     : promises[t];
-            pr._isLeaf = false; 
+            pr._last = false;
             onlyPromises.push(pr);
         }
         return this.loop(
