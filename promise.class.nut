@@ -1,13 +1,41 @@
+// MIT License
+//
+// Copyright 2016-2017 Electric Imp
+//
+// SPDX-License-Identifier: MIT
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+// EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+// OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
 /**
  * Promises for Electric Imp/Squirrel
  *
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @author Aron Steg <aron@electricimp.com>
  * @author Jaye Heffernan <jaye@mysticpants.com>
- * @version 3.0.0
+ * @version 3.0.1
  */
+
+ // Error messages
+const PROMISE_ERR_UNHANDLED_REJ  = "Unhandled promise rejection: ";
+
 class Promise {
-    static version = [3, 0, 0];
+    static version = [3, 0, 1];
 
     static STATE_PENDING = 0;
     static STATE_FULFILLED = 1;
@@ -15,6 +43,7 @@ class Promise {
 
     _state = null;
     _value = null;
+    _isLeaf = null; 
 
     /* @var {{resolve, reject}[]} _handlers */
     _handlers = null;
@@ -24,6 +53,7 @@ class Promise {
     */
     constructor(action) {
         this._state = this.STATE_PENDING;
+        this._isLeaf = true;
         this._handlers = [];
 
         try {
@@ -42,6 +72,12 @@ class Promise {
     function _callHandlers() {
         if (this.STATE_PENDING != this._state) {
             imp.wakeup(0, function() {
+                if (this._isLeaf 
+                    && this._handlers.len() == 0 
+                    && this.STATE_REJECTED == this._state) 
+                    {
+                    server.log(PROMISE_ERR_UNHANDLED_REJ + this._value);
+                }
                 foreach (handler in this._handlers) {
                     (/* create closure and bind handler to it */ function (handler) {
                         if (this._state == this.STATE_FULFILLED) {
@@ -127,6 +163,7 @@ class Promise {
         onRejected  = (typeof onRejected  == "function") ? onRejected  : Promise._onRejected;
 
         local self = this;
+        this._isLeaf = false; 
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
                 "resolve": resolve.bindenv(this),
@@ -209,19 +246,27 @@ class Promise {
     /**
      * Returns Promise that resolves when
      * all promises in chain resolve:
-     * one after each other
+     * one after each other.
+     * Make every promise in array of promises not last 
+     * for suppressing Unhadled Exeptions Warnings
      *
      * @param {{Promise|function}[]} promises - array of Promises/functions that return Promises
      * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
      */
     static function serial(promises) {
         local i = 0;
+        local onlyPromises = [];
+        for (local t = 0; t < promises.len(); t++) { 
+            local pr = "function" == type(promises[t])
+                    ? promises[t]()
+                    : promises[t];
+            pr._isLeaf = false; 
+            onlyPromises.push(pr);
+        }
         return this.loop(
-            @() i < promises.len(),
+            @() i < onlyPromises.len(),
             function () {
-                return "function" == type(promises[i])
-                    ? promises[i++]()
-                    : promises[i++];
+                return onlyPromises[i++];
             }
         )
     }
@@ -254,7 +299,7 @@ class Promise {
                 result[index] = value;
                 resolved += 1;
                 if (resolved == len) {
-                    resolve(result)
+                    resolve(result);
                 }
             };
 
