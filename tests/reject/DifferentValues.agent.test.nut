@@ -77,18 +77,18 @@ class DifferentValues extends ImpTestCase {
                             reject(myValue);
                         }
                     }.bindenv(this));
-                    p.then(function(res) { 
+                    p.then(function(res) {
                         iState = iState | 1; // 1 - resolve handler is called
                         if (_assertDeepEqualWrap(myValue, res, "Resolve handler - wrong value, value=" + res)) {
                             iState = iState | 2; // 2 - value is wrong in resolve handler
                         }
-                    }.bindenv(this), function(res) { 
+                    }.bindenv(this), function(res) {
                         iState = iState | 4; // 4 - reject handler is called
                         if (_assertDeepEqualWrap(myValue, res, "Reject handler - wrong value, value=" + res)) {
                             iState = iState | 8; // 8 - value is wrong in reject handler
                         }
                     }.bindenv(this));
-                    p.fail(function(res) { 
+                    p.fail(function(res) {
                         iState = iState | 16; // 16 - fail handler is called
                         if (_assertDeepEqualWrap(myValue, res, "Fail handler - wrong value, value=" + res)) {
                             iState = iState | 32; // 32 - value is wrong in fail handler
@@ -129,7 +129,7 @@ class DifferentValues extends ImpTestCase {
         }.bindenv(this));
     }
 
-    // Test basic rejection     
+    // Test basic rejection
 
     function testBasicRejection_1() {
         return _basicRejection(false, [true, false]);
@@ -161,8 +161,8 @@ class DifferentValues extends ImpTestCase {
 
     function testBasicRejection_8() {
         return _basicRejection(false, [{
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
             return 15;
@@ -211,8 +211,8 @@ class DifferentValues extends ImpTestCase {
 
     function testDelayedRejection_8() {
         return _basicRejection(true, [{
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
             return 15;
@@ -231,7 +231,7 @@ class DifferentValues extends ImpTestCase {
     function _nestedReject(values) {
         local promises = [];
         foreach (nextValue in values) {
-            promises.append( 
+            promises.append(
                 ::Promise(function(ok, err) {
                     local myValue = nextValue;
                     local rej = ::Promise.reject.bindenv(::Promise);
@@ -239,11 +239,11 @@ class DifferentValues extends ImpTestCase {
                     local isFailCalled = false;
                     rej(rej(rej(myValue)))
                     .then(err, function(value) {
-                        this.assertDeepEqual(myValue, value, "Promise is rejected with wrong value, value=" + value);
+                        assertDeepEqual(myValue, value, "Promise is rejected with wrong value, value=" + value);
                         isThenCalled = true;
                     }.bindenv(this))
                     .fail(function(value) {
-                        this.assertDeepEqual(myValue, value, "Promise is rejected with wrong value, value=" + value);
+                        assertDeepEqual(myValue, value, "Promise is rejected with wrong value, value=" + value);
                         isFailCalled = true;
                     }.bindenv(this));
                     imp.wakeup(1, function() {
@@ -287,8 +287,8 @@ class DifferentValues extends ImpTestCase {
 
     function testNestedReject_5() {
         return _nestedReject([blob(4), array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }]);
     }
@@ -301,7 +301,7 @@ class DifferentValues extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server]);
     }
 }

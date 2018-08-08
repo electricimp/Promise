@@ -37,7 +37,7 @@ class LoopTestCase extends ImpTestCase {
             function () {}
         );
 
-        this.assertTrue(p instanceof ::Promise);
+        assertTrue(p instanceof ::Promise);
     }
 
     // Check immediate stop
@@ -72,8 +72,8 @@ class LoopTestCase extends ImpTestCase {
             loopPromise
                 .then(function (v) {
                     try {
-                        this.assertEqual(4, i); // when i==4, loop should break
-                        this.assertEqual("abc3", v); // last value that looped promise resolved with
+                        assertEqual(4, i); // when i==4, loop should break
+                        assertEqual("abc3", v); // last value that looped promise resolved with
                         ok();
                     } catch (e) {
                         err(e);
@@ -106,8 +106,8 @@ class LoopTestCase extends ImpTestCase {
 
                 .fail(function (v) {
                     try {
-                        this.assertEqual(5, i); // when i==5, looped Promise rejects
-                        this.assertEqual("abc5", v); // last value that looped promise rejected with
+                        assertEqual(5, i); // when i==5, looped Promise rejects
+                        assertEqual("abc5", v); // last value that looped promise rejected with
                         ok();
                     } catch (e) {
                         err(e);

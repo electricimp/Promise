@@ -26,7 +26,7 @@
 // while class being tested can be accessed from global scope as "::Promise".
 
 class Then extends ImpTestCase {
-    
+
     function _wrongFirst(values) {
         local promises = [];
         foreach (value in values) {
@@ -38,9 +38,9 @@ class Then extends ImpTestCase {
                     try {
                         ::Promise(function (resolve, reject) {
                             resolve(1);
-                        }).then(myValue).then(function(res) { 
+                        }).then(myValue).then(function(res) {
                             _value = res;
-                        }.bindenv(this), function(res) { 
+                        }.bindenv(this), function(res) {
                             msg = "Reject handler is called " + msg;
                         }.bindenv(this));
                     } catch(ex) {
@@ -84,8 +84,8 @@ class Then extends ImpTestCase {
     // Issue: The behavior of Promise.then() should be the same in cases of wrong parameters #25
     function testWrongFirst_5() {
         return _wrongFirst([{
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, /*function() {
         },*/  class {
@@ -93,7 +93,7 @@ class Then extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }]);
     }
 
@@ -111,9 +111,9 @@ class Then extends ImpTestCase {
                     try {
                         ::Promise(function (resolve, reject) {
                             reject(1);
-                        }).then(null, value).then(function(res) { 
+                        }).then(null, value).then(function(res) {
                             msg = "Resolve handler is called " + msg;
-                        }.bindenv(this), function(res) { 
+                        }.bindenv(this), function(res) {
                             _value = res;
                         }.bindenv(this));
                     } catch(ex) {
@@ -155,8 +155,8 @@ class Then extends ImpTestCase {
 
     function testWrongSecond_5() {
         return _wrongSecond([{
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
         },  class {
@@ -164,7 +164,7 @@ class Then extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }]);
     }
 
@@ -176,8 +176,8 @@ class Then extends ImpTestCase {
         local values = [false, 0, "", "tmp", 0.001
         , regexp(@"(\d+) ([a-zA-Z]+)(\p)")
         , blob(4), array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
         },  class {
@@ -185,7 +185,7 @@ class Then extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server];
         foreach (value in values) {
             local p = ::Promise(function (resolve, reject) {
@@ -193,7 +193,7 @@ class Then extends ImpTestCase {
             });
             try {
                 p.then(value, value, value);
-                this.assertTrue(false, "Exception is expected. Value="+value);
+                assertTrue(false, "Exception is expected. Value="+value);
             } catch(err) {
             }
         }

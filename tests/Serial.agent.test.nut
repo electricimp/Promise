@@ -33,7 +33,7 @@ class SerialTestCase extends ImpTestCase {
 
     function testReturnType() {
         local p = ::Promise.serial([]);
-        this.assertTrue(p instanceof ::Promise);
+        assertTrue(p instanceof ::Promise);
     }
 
     // Test .serial() with all Promises in the chain resolving
@@ -52,7 +52,7 @@ class SerialTestCase extends ImpTestCase {
                     try {
                         // .serial() should resolve with value of the last value
                         // if all Promise's are resolving
-                        this.assertEqual(3, v);
+                        assertEqual(3, v);
                         ok();
                     } catch (e) {
                         err(e);
@@ -82,7 +82,7 @@ class SerialTestCase extends ImpTestCase {
                 .fail(function (v) {
                     try {
                         // .serial() should reject with value of the rejected promise
-                        this.assertEqual(2, v);
+                        assertEqual(2, v);
                         ok();
                     } catch (e) {
                         err(e);
@@ -112,7 +112,7 @@ class SerialTestCase extends ImpTestCase {
                 .fail(function (v) {
                     try {
                         // .serial() should reject with value of the rejected promise
-                        this.assertEqual(2, v);
+                        assertEqual(2, v);
                         ok();
                     } catch (e) {
                         err(e);

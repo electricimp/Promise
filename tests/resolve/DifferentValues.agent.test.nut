@@ -76,18 +76,18 @@ class DifferentValues extends ImpTestCase {
                             resolve(myValue);
                         }
                     }.bindenv(this));
-                    p.then(function(res) { 
+                    p.then(function(res) {
                         iState = iState | 1; // 1 - resolve handler is called
                         if (_assertDeepEqualWrap(myValue, res, "Resolve handler - wrong value, value='" + myValue + "', res=" + res)) {
                             iState = iState | 2; // 2 - value is wrong in resolve handler
                         }
-                    }.bindenv(this), function(res) { 
+                    }.bindenv(this), function(res) {
                         iState = iState | 4; // 4 - reject handler is called
                         if (_assertDeepEqualWrap(myValue, res, "Reject handler - wrong value, value='" + myValue + "', res=" + res)) {
                             iState = iState | 8; // 8 - value is wrong in reject handler
                         }
                     }.bindenv(this));
-                    p.fail(function(res) { 
+                    p.fail(function(res) {
                         iState = iState | 16; // 16 - fail handler is called
                         if (_assertDeepEqualWrap(myValue, res, "Fail handler - wrong value, value='" + myValue + "', res=" + res)) {
                             iState = iState | 32; // 32 - value is wrong in fail handler
@@ -102,7 +102,7 @@ class DifferentValues extends ImpTestCase {
 
                     // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
                     assertEqual(0, iState, "The Promise should not be resolved strict after the promise declaration");
-                    
+
                     // now it should be resolved
                     imp.wakeup(1 , function() {
                         local result = [true, "Value='" + myValue + "', iState=" + iState];
@@ -127,7 +127,7 @@ class DifferentValues extends ImpTestCase {
     }
 
     // Test basic resolving
-    
+
     function testBasicResolving_1() {
         return _basicResolving(false, [true, false, 0]);
     }
@@ -154,8 +154,8 @@ class DifferentValues extends ImpTestCase {
 
     function testBasicResolving_7() {
         return _basicResolving(false, [array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }]);
     }
@@ -203,8 +203,8 @@ class DifferentValues extends ImpTestCase {
 
     function testDelayedResolving_7() {
         return _basicResolving(true, [array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }]);
     }
@@ -235,7 +235,7 @@ class DifferentValues extends ImpTestCase {
                     local myValue = nextValue;
                     res(res(res(myValue)))
                         .then(function(value) {
-                            this.assertEqual(myValue, value);
+                            assertEqual(myValue, value);
                             ok();
                         }.bindenv(this)).fail(err);
                 }.bindenv(this))
@@ -256,8 +256,8 @@ class DifferentValues extends ImpTestCase {
 
     function testNestedResolve_3() {
         return _nestedResolve([null, blob(4), array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
             return 15;
@@ -270,7 +270,7 @@ class DifferentValues extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server]);
     }
 }

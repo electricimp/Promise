@@ -39,7 +39,7 @@ class BasicTestCase extends ImpTestCase {
             p.then(function(res) {isResolved = true;});
 
             // at this point Promise should not be resolved as it's body is handled in imp.wakeup(0)
-            this.assertEqual(false, isResolved);
+            assertEqual(false, isResolved);
 
             // now it should be resolved
             imp.wakeup(0, function() {
@@ -86,7 +86,7 @@ class BasicTestCase extends ImpTestCase {
             local res = ::Promise.resolve.bindenv(::Promise);
             res(res(res("value")))
                 .then(function(value) {
-                    this.assertEqual(value, "value");
+                    assertEqual(value, "value");
                     ok();
                 }.bindenv(this)).fail(err);
         }.bindenv(this));

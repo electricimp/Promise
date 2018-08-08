@@ -26,7 +26,7 @@
 // while class being tested can be accessed from global scope as "::Promise".
 
 class Serial extends ImpTestCase {
-    
+
     function _wrongType(values) {
         local promises = [];
         foreach (value in values) {
@@ -36,9 +36,9 @@ class Serial extends ImpTestCase {
                     local msg = "with value='" + myValue + "'";
                     local _value = null;
                     try {
-                        ::Promise.serial(myValue).then(function(res) { 
+                        ::Promise.serial(myValue).then(function(res) {
                             msg = "Resolve handler is called " + msg;
-                        }.bindenv(this), function(res) { 
+                        }.bindenv(this), function(res) {
                             _value = res;
                         }.bindenv(this));
                     } catch(ex) {
@@ -73,8 +73,8 @@ class Serial extends ImpTestCase {
 
     function _DISABLED_testWrongType_3() {
         return _wrongType([array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
         }]);
@@ -86,7 +86,7 @@ class Serial extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server]);
     }
 
@@ -94,8 +94,8 @@ class Serial extends ImpTestCase {
         local values = [false, 0, "", "tmp", 0.001
         , regexp(@"(\d+) ([a-zA-Z]+)(\p)")
         , null, blob(4), array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
         },  class {
@@ -103,12 +103,12 @@ class Serial extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server];
         foreach (value in values) {
             try {
                 ::Promise.serial(value, value);
-                this.assertTrue(false, "Exception is expected. Value="+value);
+                assertTrue(false, "Exception is expected. Value="+value);
             } catch(err) {
             }
         }
