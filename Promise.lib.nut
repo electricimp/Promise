@@ -28,14 +28,13 @@
  * @author Mikhail Yurasov <mikhail@electricimp.com>
  * @author Aron Steg <aron@electricimp.com>
  * @author Jaye Heffernan <jaye@mysticpants.com>
- * @version 3.0.1
  */
 
  // Error messages
 const PROMISE_ERR_UNHANDLED_REJ  = "Unhandled promise rejection: ";
 
 class Promise {
-    static VERSION = "3.0.1";
+    static VERSION = "4.0.0";
 
     static STATE_PENDING = 0;
     static STATE_FULFILLED = 1;
