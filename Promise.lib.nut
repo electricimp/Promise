@@ -35,7 +35,7 @@
 const PROMISE_ERR_UNHANDLED_REJ  = "Unhandled promise rejection: ";
 
 class Promise {
-    static VERSION = "4.0.0";
+    static VERSION = "3.0.1";
 
     static STATE_PENDING = 0;
     static STATE_FULFILLED = 1;
@@ -52,17 +52,17 @@ class Promise {
     * @param {function(resolve, reject)} action - action function
     */
     constructor(action) {
-        _state = STATE_PENDING;
-        _last = true;
-        _handlers = [];
+        this._state = this.STATE_PENDING;
+        this._last = true;
+        this._handlers = [];
 
         try {
             action(
-                _resolve.bindenv(this)
-                _reject.bindenv(this)
+                this._resolve.bindenv(this)
+                this._reject.bindenv(this)
             );
         } catch (e) {
-            _reject(e);
+            this._reject(e);
         }
     }
 
@@ -70,23 +70,23 @@ class Promise {
      * Execute chain of handlers
      */
     function _callHandlers() {
-        if (STATE_PENDING != _state) {
+        if (this.STATE_PENDING != this._state) {
             imp.wakeup(0, function() {
-                if (_last && _handlers.len() == 0
-                               && STATE_REJECTED == _state) {
-                    server.log(PROMISE_ERR_UNHANDLED_REJ + _value);
+                if (this._last && this._handlers.len() == 0
+                               && this.STATE_REJECTED == this._state) {
+                    server.log(PROMISE_ERR_UNHANDLED_REJ + this._value);
                 }
-                foreach (handler in _handlers) {
+                foreach (handler in this._handlers) {
                     (/* create closure and bind handler to it */ function (handler) {
-                        if (_state == STATE_FULFILLED) {
+                        if (this._state == this.STATE_FULFILLED) {
                             try {
-                                handler.resolve(handler.onFulfilled(_value));
+                                handler.resolve(handler.onFulfilled(this._value));
                             } catch (err) {
                                 handler.reject(err);
                             }
-                        } else if (_state == STATE_REJECTED) {
+                        } else if (this._state == this.STATE_REJECTED) {
                             try {
-                                handler.resolve(handler.onRejected(_value));
+                                handler.resolve(handler.onRejected(this._value));
                             } catch (err) {
                                 handler.reject(err);
                             }
@@ -94,7 +94,7 @@ class Promise {
                     })(handler);
                 }
 
-                _handlers = [];
+                this._handlers = [];
             }.bindenv(this));
         }
     }
@@ -103,18 +103,18 @@ class Promise {
      * Resolve promise with a value
      */
     function _resolve(value = null) {
-        if (STATE_PENDING == _state) {
+        if (this.STATE_PENDING == this._state) {
             // If promise is resolved with another promise let it resolve/reject
             // this one, otherwise resolve immediately
-            if (_isPromise(value)) {
+            if (this._isPromise(value)) {
                 value.then(
-                    _resolve.bindenv(this),
-                    _reject.bindenv(this)
+                    this._resolve.bindenv(this),
+                    this._reject.bindenv(this)
                 );
             } else {
-                _state = STATE_FULFILLED;
-                _value = value;
-                _callHandlers();
+                this._state = this.STATE_FULFILLED;
+                this._value = value;
+                this._callHandlers();
             }
         }
     }
@@ -123,10 +123,10 @@ class Promise {
      * Reject promise for a reason
      */
     function _reject(reason = null) {
-        if (STATE_PENDING == _state) {
-            _state = STATE_REJECTED;
-            _value = reason;
-            _callHandlers();
+        if (this.STATE_PENDING == this._state) {
+            this._state = this.STATE_REJECTED;
+            this._value = reason;
+            this._callHandlers();
         }
     }
 
@@ -161,17 +161,17 @@ class Promise {
         onRejected  = (typeof onRejected  == "function") ? onRejected  : Promise._onRejected;
 
         local self = this;
-        _last = false;
+        this._last = false;
         local result = Promise(function(resolve, reject) {
             self._handlers.push({
-                "resolve"     : resolve,
-                "onFulfilled" : onFulfilled,
-                "reject"      : reject,
-                "onRejected"  : onRejected
+                "resolve": resolve.bindenv(this),
+                "onFulfilled": onFulfilled,
+                "reject": reject.bindenv(this),
+                "onRejected": onRejected
             })
         });
 
-        _callHandlers();
+        this._callHandlers();
 
         return result;
     }
@@ -182,7 +182,7 @@ class Promise {
     * @return {this}
     */
     function fail(onRejected) {
-        return then(null, onRejected);
+        return this.then(null, onRejected);
     }
 
    /**
@@ -191,7 +191,7 @@ class Promise {
     * @return {this}
     */
     function finally(handler) {
-        return then(handler, handler);
+        return this.then(handler, handler);
     }
 
     /**
@@ -261,7 +261,7 @@ class Promise {
             pr._last = false;
             onlyPromises.push(pr);
         }
-        return loop(
+        return this.loop(
             @() i < onlyPromises.len(),
             function () {
                 return onlyPromises[i++];
@@ -326,7 +326,7 @@ class Promise {
      * of `promises` to reject
      */
     static function all(promises) {
-        return _parallel(promises, true);
+        return this._parallel(promises, true);
     }
 
     /**
@@ -339,7 +339,7 @@ class Promise {
      * first of `promises` to resolve (or rejects with the first to reject)
      */
     static function race(promises) {
-        return _parallel(promises, false);
+        return this._parallel(promises, false);
     }
 
     /**

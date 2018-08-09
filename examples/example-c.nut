@@ -22,7 +22,7 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#require "Promise.class.nut:3.0.1"
+#require "Promise.lib.nut:4.0.0"
 
 /**
  * Uses a chain of promises to call an API and make some transformations on the
