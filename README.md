@@ -1,24 +1,37 @@
+[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
+
 # Promise
 
-The library provides an implementation of promises for Electric Imp/Squirrel.
+The library provides an implementation of promises for Electric Imp platform in Squirrel.
 
-According to Wikipedia: “Futures and promises originated in functional programming and related paradigms (such as logic programming) to decouple a value (a future) from how it was computed (a promise), allowing the computation to be done more flexibly, notably by parallelizing it.”
+According to Wikipedia: 
+```
+Futures and promises originated in functional programming and related paradigms (such as logic programming) to decouple a value (a future) from how it was computed (a promise), allowing the computation to be done more flexibly, notably by parallelizing it.
+```
 
-For more information on the concept of promises, see the following references for Javascript:
+For more information on the concept of promises, 
+see the following references for Javascript implementation:
 
 - [Promises/A+](https://promisesaplus.com/)
 - [JavaScript Promises: There and back again](http://www.html5rocks.com/en/tutorials/es6/promises/)
 - [Promise - Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
-**To add this library to your project, add** `#require "Promise.lib.nut:4.0.0"` **to the top of your agent and/or device code.**
+Promise APIs in Squirrel extend that of the JavaScript implementation. 
+The library introduces some new methods that don't exist in the original JavaScript implementation. For example:
+- [Promise.race](Promise.race(*series*))
+- [Promise.loop](Promise.loop(*continueFunction, nextFunction*))
+- [Promise.serial](Promise.serial(*series*))
 
-[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
+**NOTE**: To add this library to your project, add `#require "Promise.lib.nut:4.0.0"` to the top of your agent and/or device code.
 
 ## Class Usage
 
 ### Constructor: Promise(*actionFunction*)
 
-The constructor should receive a single function, which will be executed to determine the final value and result. The function passed into *actionFunction* requires two parameters of its own, *resolve* and *reject*, both of which are themselves function references. Exactly one of these functions should be executed at the completion of the *actionFunction*.
+The constructor should receive a single function, which will be executed to determine the final value and result. 
+The function passed into *actionFunction* requires two parameters of its own, *resolve* and *reject*, both of which 
+are themselves function references. Exactly one of these functions should be executed at the completion of the 
+*actionFunction*:
 
 - `function resolve([value])` &mdash; calling *resolve()* sets Promise state as resolved and calls success handlers (passed as first argument of *.then()*)
 - `function reject([reason])` &mdash; calling *reject()* sets Promise state as rejected and calls *.fail()* handlers
@@ -29,11 +42,18 @@ The constructor should receive a single function, which will be executed to dete
 myPromise <- Promise(myActionFunction);
 ```
 
+**NOTE**: The action fuction is executed alone with the Promise being instantiated. It's not delayed in time.
+
 ## Instance Methods
 
 ### then(*[onFulfilled, onRejected]*)
 
-The *then()* method allows the developer to provide an *onFulfilled* function and/or an *onRejected* function. Default handlers will be used if no parameters are passed in. **Note** to pass in an *onRejected* function only, you must pass in `null` as the first parameter and the *onRejected* function as the second parameter.
+The *then()* method allows the developer to provide an *onFulfilled* function and/or an *onRejected* function. 
+Default handlers will be used if no parameters are passed in. 
+
+**NOTE:** To pass in an *onRejected* function only, you must pass in `null` 
+as the first parameter and the *onRejected* function as the second parameter or use
+the [fail](fail(*onRejected*)) instead.
 
 This method returns a *Promise* object to allow for method chaining.
 
@@ -46,7 +66,13 @@ myPromise
     });
 ```
 
-Promises which reject with reasons will have their *onRejected* handlers called with that reason. Promises which resolve with values will have their *onFulfilled* handler called with that value. Calls to *then()* return promises, so a handler function (either *onFulfilled* or *onRejected*) registered in *then()* which returns a value will pass this value on to the next *onFulfilled* handler in the chain, and any exceptions throw by a handler will be passed on to the next available *onRejected* handler. In this way errors can be caught and handled or thrown again, much like with Squirrel’s `try` and `catch`. The following example is for demonstration only and is overly verbose.
+Promises which reject with reasons will have their *onRejected* handlers called with that reason. 
+Promises which resolve with values will have their *onFulfilled* handler called with that value. 
+Calls to *then()* return promises, so a handler function (either *onFulfilled* or *onRejected*) 
+registered in *then()* which returns a value will pass this value on to the next *onFulfilled* 
+handler in the chain, and any exceptions throw by a handler will be passed on to the next available 
+*onRejected* handler. In this way errors can be caught and handled or thrown again, much like with 
+Squirrel’s `try` and `catch`. The following example is for demonstration only and is overly verbose.
 
 ```squirrel
 // 'name' is a variable that *should* contain a string, but may not be
@@ -72,17 +98,29 @@ Promise.resolve(name)
     });
 ```
 
-Passing `null` as a handler corresponds to the default behaviour of passing any values through to the next available *onFulfilled* handler, or throwing exceptions throwing to the next available *onRejected* handler.
+Passing `null` as a handler corresponds to the default behaviour of passing any values 
+through to the next available *onFulfilled* handler, or throwing exceptions throwing 
+to the next available *onRejected* handler.
 
-**Note** Just as if no *onFulfilled* handlers are registered the last value returned will be ignored, if no *onRejected* handlers are registered any exceptions that occur within a promise executor or handler function will **not** be caught and will be silently ignored. Thus it is prudent to always add the following line at the end of your promise chains:
+**NOTE:** Just as if no *onFulfilled* handlers are registered the last value returned will 
+be ignored, if no *onRejected* handlers are registered any exceptions that occur within a 
+promise executor or handler function will **not** be caught and are be ignored. 
+An "Unhandled promise rejection" warning is generated by the library in this case.
+
+It is prudent to always add the following line at the end of your promise chains:
 
 ```squirrel
 .fail(server.error.bindenv(server));
 ```
 
+**NOTE:** The `Promise` instance object, `then` is called on may already have 
+been resolved or rejected. In this case the `onFulfilled` or `onRejected` handler 
+will be called immediately.
+
 ### fail(*onRejected*)
 
-The *fail()* method allows the developer to provide an *onRejection* function. This call is quivalent to `.then(null, onRejected)`.
+The *fail()* method allows the developer to provide an *onRejection* function. 
+This call is quivalent to `.then(null, onRejected)`.
 
 ```squirrel
 myPromise
@@ -94,7 +132,9 @@ myPromise
 
 ### finally(*alwaysFunction*)
 
-The *finally()* method allows the developer to provide a function that is executed both on resolve and rejection (ie. when the promise is *settled*). This call is quivalent to `.then(alwaysFunction, alwaysFunction)`. The *alwaysFunction* accepts one prameter: result or error.
+The *finally()* method allows the developer to provide a function that is executed 
+both on resolve and rejection (ie. when the promise is *settled*). This call is quivalent 
+to `.then(alwaysFunction, alwaysFunction)`. The *alwaysFunction* accepts one prameter: result or error.
 
 ```squirrel
 myPromise
@@ -129,7 +169,9 @@ Promise.reject(reason)
 
 ### Promise.all(*series*)
 
-This method executes promises in parallel and resolves when they are all done. It Returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.
+This method executes promises in parallel and resolves when they are all done. 
+It Returns a promise that resolves with an array of the resolved promise value 
+or rejects with first rejected paralleled promise value.
 
 The parameter *series* is an array of promises and/or functions that return promises.
 
@@ -150,7 +192,8 @@ p.then(function(values) {
 
 ### Promise.race(*series*)
 
-This method executes promises in parallel and resolves when the first is done. It returns a promise that resolves or rejects with the first resolved/rejected promise value.
+This method executes promises in parallel and resolves when the first is done. 
+It returns a promise that resolves or rejects with the first resolved/rejected promise value.
 
 The parameter *series* is an array of promises and/or functions that return promises.
 
@@ -205,13 +248,78 @@ This method returns a promise that resolves when all the promises in the chain r
 
 The parameter *series* is an array of promises and/or functions that return promises.
 
-For example, in the following code *p* rejects with value `"2"` in 2.5 seconds:
+The action function is triggered at the moment when the Promise instance is created. So using functions returning Promise instances to pass into `Promise.serial` makes instantiation sequential. I.e. a promise is created and the action is triggered only when the previous Promise in the series got resolved or rejected.
+
+For example, in the following code `p` rejects with value `"2"` in 2.5 seconds 
+(the second function-argument is executed only when the first Promise resolves and the second one is instantiated):
 
 ```squirrel
 local series = [
-    Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
-    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() reject(2))),
-    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+    Promise(
+        function(resolve, reject) {
+            imp.wakeup(1, 
+                function() {
+                    resolve(1)
+                }
+            )
+        }
+    ),
+    function() {
+        return Promise(
+            function(resolve, reject) {
+                imp.wakeup(1.5,
+                    function() {
+                        resolve(2)
+                    }
+                )
+            }
+        )
+    },
+    Promise(
+        function(resolve, reject) {
+            imp.wakeup(0.5, 
+                function() {
+                    resolve(3)
+                }
+            )
+        }
+    )
+];
+
+local p = Promise.serial(series);
+```
+
+While in the following code p rejects in 1.5 seconds as all the Promises are instantiated at the same time:
+
+```squirrel
+local series = [
+    Promise(
+        function(resolve, reject) {
+            imp.wakeup(1, 
+                function() {
+                    resolve(1)
+                } 
+            )
+        }
+    ),
+    Promise(
+        function(resolve, reject) {
+            imp.wakeup(1.5,
+                function() {
+                    resolve(2)
+                }
+            )
+        }
+    ),
+    Promise(
+        function(resolve, reject) {
+            imp.wakeup(0.5, 
+                function() {
+                    resolve(3)
+                }
+            )
+        }
+    )
 ];
 
 local p = Promise.serial(series);
@@ -219,31 +327,8 @@ local p = Promise.serial(series);
 
 ## Testing
 
-Repository contains [impUnit](https://github.com/electricimp/impUnit) tests and a configuration for [impTest](https://github.com/electricimp/impTest) tool.
-
-### TL;DR
-
-```bash
-cp .imptest .imptest-local
-nano .imptest-local # edit device/model
-imptest test -c .imptest-local
-```
-
-### Running Tests
-
-Tests can be launched with:
-
-```bash
-imptest test
-```
-
-By default configuration for the testing is read from [.imptest](https://github.com/electricimp/impTest/blob/develop/docs/imptest-spec.md).
-
-To run test with your settings (for example while you are developing), create your copy of **.imptest** file and name it something like **.imptest.local**, then run tests with:
-
- ```bash
- imptest test -c .imptest.local
- ```
+Repository contains [impt](https://github.com/electricimp/imp-central-impt) tests. Please refer to the 
+[imp test](https://github.com/electricimp/imp-central-impt/blob/master/TestingGuide.md) documentation for more details. 
 
 Tests will run with any imp.
 
