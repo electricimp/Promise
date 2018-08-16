@@ -179,15 +179,32 @@ For example, in the following code *p* resolves with value `[1, 2, 3]` in 1.5 se
 
 ```squirrel
 local series = [
-    @() Promise(@(resolve, reject) imp.wakeup(1, @() resolve(1))),
-    @() Promise(@(resolve, reject) imp.wakeup(1.5, @() resolve(2))),
-    Promise(@(resolve, reject) imp.wakeup(0.5, @() resolve(3)))
+    Promise(
+        function(resolve, reject) {
+            imp.wakeup(1, function() {resolve(1)})
+        }
+    ),
+    Promise(
+        function(resolve, reject) {
+            imp.wakeup(1.5, function() {resolve(2)})
+        }
+    ),
+    Promise(
+        function(resolve, reject) { 
+            imp.wakeup(0.5, function() {resolve(3)})
+        }
+    )
 ];
 
 local p = Promise.all(series);
-p.then(function(values) {
+p.then(
+    function(values) {
         // values == [1, 2, 3]
-    });
+        foreach (a in values) {
+            server.log(a);
+        }
+    }
+);
 ```
 
 ### Promise.race(*series*)
@@ -197,15 +214,43 @@ It returns a promise that resolves or rejects with the first resolved/rejected p
 
 The parameter *series* is an array of promises and/or functions that return promises.
 
-For example, in the following code *p* rejects with value `"1"` in 1 second:
+For example, in the following code *p* rejects with value `"1"` in 0.5 second:
 
 ```squirrel
 local promises = [
     // rejects first as the other one with 1s timeout
     // starts later from inside .race()
-    Promise(function (resolve, reject) { imp.wakeup(1, @() reject(1)) }),
-    @() Promise(function (resolve, reject) { imp.wakeup(1.5, @() resolve(2)) }),
-    @() Promise(function (resolve, reject) { imp.wakeup(1, @() reject(3)) }),
+    Promise(
+        function(resolve, reject) { 
+            imp.wakeup(1,  
+                function() {
+                    reject(1);
+                }
+            ) 
+        }
+    ),
+    function() {
+        return Promise(
+            function(resolve, reject) { 
+                imp.wakeup(1.5, 
+                    function() {
+                        resolve(2);
+                    }
+                ) 
+            }
+        )
+    },
+    function() {
+        return Promise(
+            function(resolve, reject) { 
+                imp.wakeup(0.5, 
+                    function() {
+                        reject(3);
+                    }
+                ) 
+            }
+        )
+    }
 ];
 
 local p = Promise.race(promises);
