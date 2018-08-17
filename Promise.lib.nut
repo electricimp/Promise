@@ -22,17 +22,11 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-/**
- * Promises for Electric Imp/Squirrel
- *
- * @author Mikhail Yurasov <mikhail@electricimp.com>
- * @author Aron Steg <aron@electricimp.com>
- * @author Jaye Heffernan <jaye@mysticpants.com>
- */
 
- // Error messages
+// Error messages
 const PROMISE_ERR_UNHANDLED_REJ  = "Unhandled promise rejection: ";
 
+// Promises for Electric Imp/Squirrel
 class Promise {
     static VERSION = "4.0.0";
 
@@ -44,12 +38,12 @@ class Promise {
     _value = null;
     _last = null;
 
-    /* @var {{resolve, reject}[]} _handlers */
+    // @var {{resolve, reject}[]} _handlers
     _handlers = null;
 
-    /**
-    * @param {function(resolve, reject)} action - action function
-    */
+    //
+    // @param {function(resolve, reject)} action - action function
+    //
     constructor(action) {
         _state = STATE_PENDING;
         _last = true;
@@ -65,9 +59,9 @@ class Promise {
         }
     }
 
-    /**
-     * Execute chain of handlers
-     */
+    //
+    // Execute chain of handlers
+    //
     function _callHandlers() {
         if (STATE_PENDING != _state) {
             imp.wakeup(0, function() {
@@ -75,7 +69,7 @@ class Promise {
                     server.log(PROMISE_ERR_UNHANDLED_REJ + _value);
                 }
                 foreach (handler in _handlers) {
-                    (/* create closure and bind handler to it */ function (handler) {
+                    (function (handler) { // create closure and bind handler to it
                         if (_state == STATE_FULFILLED) {
                             try {
                                 handler.resolve(handler.onFulfilled(_value));
@@ -97,9 +91,9 @@ class Promise {
         }
     }
 
-    /**
-     * Resolve promise with a value
-     */
+    //
+    // Resolve promise with a value
+    //
     function _resolve(value = null) {
         if (STATE_PENDING == _state) {
             // If promise is resolved with another promise let it resolve/reject
@@ -117,9 +111,9 @@ class Promise {
         }
     }
 
-    /**
-     * Reject promise for a reason
-     */
+    //
+    // Reject promise for a reason
+    //
     function _reject(reason = null) {
         if (STATE_PENDING == _state) {
             _state = STATE_REJECTED;
@@ -128,11 +122,11 @@ class Promise {
         }
     }
 
-   /**
-    * Check if a value is a Promise.
-    * @param {Promise|*} value
-    * @return {boolean}
-    */
+    //
+    // Check if a value is a Promise.
+    // @param {Promise|*} value
+    // @return {boolean}
+    //
     function _isPromise(value) {
         if (
             // detect that the value is some form of Promise
@@ -147,12 +141,12 @@ class Promise {
         return false
     }
 
-   /**
-    * Add handlers on resolve/rejection
-    * @param {function|null} onFulfilled
-    * @param {function|null} onRejected
-    * @return {this}
-    */
+    //
+    // Add handlers on resolve/rejection
+    // @param {function|null} onFulfilled
+    // @param {function|null} onRejected
+    // @return {this}
+    //
     function then(onFulfilled = null, onRejected = null) {
         // If either handler is left null, set it to our default handlers
         onFulfilled = (typeof onFulfilled == "function") ? onFulfilled : Promise._onFulfilled;
@@ -174,46 +168,46 @@ class Promise {
         return result;
     }
 
-   /**
-    * Add handler on rejection
-    * @param {function} onRejected
-    * @return {this}
-    */
+    //
+    // Add handler on rejection
+    // @param {function} onRejected
+    // @return {this}
+    //
     function fail(onRejected) {
         return then(null, onRejected);
     }
 
-   /**
-    * Add handler that is executed both on resolve and rejection
-    * @param {function(value)} handler
-    * @return {this}
-    */
+    //
+    // Add handler that is executed both on resolve and rejection
+    // @param {function(value)} handler
+    // @return {this}
+    //
     function finally(handler) {
         return then(handler, handler);
     }
 
-    /**
-     * The default `onFulfilled` handler (the identity function)
-     */
+    //
+    // The default `onFulfilled` handler (the identity function)
+    //
     static function _onFulfilled(value) {
         return value;
     }
 
-    /**
-     * The default rejection handler, just throws to the next handler
-     */
+    //
+    // The default rejection handler, just throws to the next handler
+    //
     static function _onRejected(reason) {
         throw reason;
     }
 
-    /**
-     * While loop with Promise's
-     * Stops on continueCallback() == false or first rejection of looped Promise
-     *
-     * @param {function:boolean} condition - if returns false, loop stops
-     * @param {function:Promise} next - function to get next promise in the loop
-     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop finishes
-     */
+    //
+    // While loop with Promise's
+    // Stops on continueCallback() == false or first rejection of looped Promise
+    //
+    // @param {function:boolean} condition - if returns false, loop stops
+    // @param {function:Promise} next - function to get next promise in the loop
+    // @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise when loop finishes
+    //
     static function loop(condition, next) {
         return Promise(function (resolve, reject) {
 
@@ -239,16 +233,16 @@ class Promise {
         }.bindenv(this));
     }
 
-    /**
-     * Returns Promise that resolves when
-     * all promises in chain resolve:
-     * one after each other.
-     * Make every promise in array of promises not last
-     * for suppressing Unhadled Exeptions Warnings
-     *
-     * @param {{Promise|function}[]} promises - array of Promises/functions that return Promises
-     * @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
-     */
+    //
+    // Returns Promise that resolves when
+    // all promises in chain resolve:
+    // one after each other.
+    // Make every promise in array of promises not last
+    // for suppressing Unhadled Exeptions Warnings
+    //
+    // @param {{Promise|function}[]} promises - array of Promises/functions that return Promises
+    // @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
+    //
     static function serial(promises) {
         local i = 0;
         return loop(
@@ -261,17 +255,17 @@ class Promise {
         )
     }
 
-    /**
-     * Returns Promise that resolves when all promises in the list resolve
-     *
-     * @param {{Promise}[]} promises - array of Promises (or functions that
-     * return promises)
-     * @param {boolean} wait - whether to wait for all promises to resolve, or
-     * just the first
-     * @return {Promise} Promise that is resolved with the list of values that
-     * `promises` resolved to (in order) OR with the value of the first promise
-     * that resolves (depending on `wait`)
-     */
+    //
+    // Returns Promise that resolves when all promises in the list resolve
+    //
+    // @param {{Promise}[]} promises - array of Promises (or functions that
+    // return promises)
+    // @param {boolean} wait - whether to wait for all promises to resolve, or
+    // just the first
+    // @return {Promise} Promise that is resolved with the list of values that
+    // `promises` resolved to (in order) OR with the value of the first promise
+    // that resolves (depending on `wait`)
+    //
     static function _parallel(promises, wait) {
         return Promise(function(resolve, reject) {
             local resolved = 0; // number of promises resolved
@@ -306,51 +300,50 @@ class Promise {
         }.bindenv(this))
     }
 
-    /**
-     * Returns Promise that resolves to an array containing the results of each
-     * given promise (or rejects with the first rejected)
-     *
-     * @param {{Promise}[]} promises - array of Promises (or functions which
-     * return promises)
-     * @return {Promise} Promise that is resolved with the list of values that
-     * `promises` resolved to (in order) or rejects with the reason of the first
-     * of `promises` to reject
-     */
+    //
+    // Returns Promise that resolves to an array containing the results of each
+    // given promise (or rejects with the first rejected)
+    // @param {{Promise}[]} promises - array of Promises (or functions which
+    //          return promises)
+    // @return {Promise} Promise that is resolved with the list of values that
+    //          `promises` resolved to (in order) or rejects with the reason of the first
+    //          of `promises` to reject
+    //
     static function all(promises) {
         return _parallel(promises, true);
     }
 
-    /**
-     * Returns Promise that resolves to the first value that any of the given
-     * promises resolve to
-     *
-     * @param {{Promise}[]} promises - array of Promises (or functions which
-     * return promises)
-     * @return {Promise} Promise that is resolved with the to the value of the
-     * first of `promises` to resolve (or rejects with the first to reject)
-     */
+
+    //
+    // Returns Promise that resolves to the first value that any of the given
+    // promises resolve to
+    //
+    // @param {{Promise}[]} promises - array of Promises (or functions which
+    // return promises)
+    // @return {Promise} Promise that is resolved with the to the value of the
+    // first of `promises` to resolve (or rejects with the first to reject)
+    //
     static function race(promises) {
         return _parallel(promises, false);
     }
 
-    /**
-     * Returns promise that immediately resolves to the given value
-     *
-     * @param {*} value - value to resolve to
-     * @return {Promise} - a Promise that immediately resolves to `value`
-     */
+    //
+    // Returns promise that immediately resolves to the given value
+    //
+    // @param {*} value - value to resolve to
+    // @return {Promise} - a Promise that immediately resolves to `value`
+    //
     static function resolve(value) {
         return Promise(function(resolve, reject) {
             resolve(value);
         })
     }
 
-    /**
-     * Returns promise that immediately rejects with the given reason
-     *
-     * @param {*} value - value to resolve to
-     * @return {Promise} - a Promise that immediately rejects with `reason`
-     */
+    // Returns promise that immediately rejects with the given reason
+    //
+    // @param {*} value - value to resolve to
+    // @return {Promise} - a Promise that immediately rejects with `reason`
+    //
     static function reject(reason) {
         return Promise(function(resolve, reject) {
             reject(reason);
