@@ -71,8 +71,7 @@ class Promise {
     function _callHandlers() {
         if (STATE_PENDING != _state) {
             imp.wakeup(0, function() {
-                if (_last && _handlers.len() == 0
-                               && STATE_REJECTED == _state) {
+                if (_last && _handlers.len() == 0 && STATE_REJECTED == _state) {
                     server.log(PROMISE_ERR_UNHANDLED_REJ + _value);
                 }
                 foreach (handler in _handlers) {
