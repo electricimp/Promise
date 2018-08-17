@@ -295,7 +295,7 @@ The parameter *series* is an array of promises and/or functions that return prom
 
 The action function is triggered at the moment when the Promise instance is created. So using functions returning Promise instances to pass into `Promise.serial` makes instantiation sequential. I.e. a promise is created and the action is triggered only when the previous Promise in the series got resolved or rejected.
 
-For example, in the following code `p` rejects with value `"2"` in 2.5 seconds
+For example, in the following code `p` resolves with value `"3"` in 2.5 seconds
 (the second function-argument is executed only when the first Promise resolves and the second one is instantiated):
 
 ```squirrel
@@ -334,7 +334,7 @@ local series = [
 local p = Promise.serial(series);
 ```
 
-While in the following code p rejects in 1.5 seconds as all the Promises are instantiated at the same time:
+While in the following code p resolves in 1.5 seconds with value `"3"` as all the Promises are instantiated at the same time:
 
 ```squirrel
 local series = [
