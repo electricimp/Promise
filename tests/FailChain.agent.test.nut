@@ -37,7 +37,7 @@ class FailChainTestCase extends ImpTestCase {
                 .fail(function(res) { throw res + 2})
                 .fail(function(res) { throw res + 3})
                 .fail(function(res) {
-                    this.assertEqual(res, "reason123");
+                    assertEqual(res, "reason123");
                     ok();
                 }.bindenv(this)).fail(err);
         }.bindenv(this));
@@ -48,7 +48,7 @@ class FailChainTestCase extends ImpTestCase {
             ::Promise.resolve("value")
                 .then(function(v) { throw "reason"; })
                 .fail(function(reason) {
-                    this.assertEqual(reason, "reason");
+                    assertEqual(reason, "reason");
                     ok();
                 }.bindenv(this))
                 .fail(err);
@@ -61,7 +61,7 @@ class FailChainTestCase extends ImpTestCase {
             .fail(function(reason) {
                 return "value";
             }).then(function(value) {
-                this.assertEqual(value, "value");
+                assertEqual(value, "value");
                 ok();
             }.bindenv(this)).fail(err);
         }.bindenv(this));

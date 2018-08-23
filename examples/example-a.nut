@@ -22,7 +22,7 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#require "Promise.class.nut:3.0.1"
+#require "Promise.lib.nut:4.0.0"
 
 // -----------------------------------------------------------------------------
 // This class exposed a single method fire() which waits a second and then randomly fails or succeeds.

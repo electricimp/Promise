@@ -38,7 +38,7 @@ class Finally extends ImpTestCase {
                     try {
                         ::Promise(function (resolve, reject) {
                             reject(1);
-                        }).finally(myValue).fail(function(res) { 
+                        }).finally(myValue).fail(function(res) {
                             _value = res;
                         }.bindenv(this));
                     } catch(err) {
@@ -80,8 +80,8 @@ class Finally extends ImpTestCase {
 
     function testWrongType_5() {
         return _wrongType([{
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
         },  class {
@@ -89,7 +89,7 @@ class Finally extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }]);
     }
 
@@ -101,8 +101,8 @@ class Finally extends ImpTestCase {
         local values = [false, 0, "", "tmp", 0.001
         , regexp(@"(\d+) ([a-zA-Z]+)(\p)")
         , null, blob(4), array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
         },  class {
@@ -110,14 +110,14 @@ class Finally extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server];
         foreach (value in values) {
             try {
                 ::Promise(function (resolve, reject) {
                     resolve(1);
                 }).finally(value, value);
-                this.assertTrue(false, "Exception is expected. Value="+value);
+                assertTrue(false, "Exception is expected. Value="+value);
             } catch(err) {
             }
         }

@@ -22,7 +22,7 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#require "Promise.class.nut:3.0.1"
+#require "Promise.lib.nut:4.0.0"
 
 /**
  * Example of resolving Promise after 1 second timeout
@@ -57,16 +57,16 @@ a().then(function(e) {
 });
 
 b().then(/* ok callback */ function(e) {
-  server.log("b: resolved with \"" + e + "\"")
+    server.log("b: resolved with \"" + e + "\"")
 }, /* error callback */function(e) {
-  server.log("b: failed with \"" + e + "\" (handler #1)")
-  throw e;
+    server.log("b: failed with \"" + e + "\" (handler #1)")
+    throw e;
 })
 .fail(function(e) {
-  server.log("b: failed with \"" + e + "\" (handler #2)")
+    server.log("b: failed with \"" + e + "\" (handler #2)")
 })
 .finally(function(e) {
-  server.log("b: finally()")
+    server.log("b: finally()")
 });
 
 /*

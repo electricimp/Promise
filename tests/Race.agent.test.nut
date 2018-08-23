@@ -33,7 +33,7 @@ class RaceTestCase extends ImpTestCase {
 
     function testReturnType() {
         local p = ::Promise.race([]);
-        this.assertTrue(p instanceof ::Promise);
+        assertTrue(p instanceof ::Promise);
     }
 
 
@@ -66,7 +66,7 @@ class RaceTestCase extends ImpTestCase {
                 .then(function (v) {
                     try {
                         // .race() should resolve with value of the first resolved promise
-                        this.assertEqual(1, v);
+                        assertEqual(1, v);
                         ok();
                     } catch (e) {
                         err(e);
@@ -97,7 +97,7 @@ class RaceTestCase extends ImpTestCase {
                 .fail(function (v) {
                     try {
                         // .race() should reject with value of the first rejected promise
-                        this.assertEqual(1, v);
+                        assertEqual(1, v);
                         ok();
                     } catch (e) {
                         err(e);
