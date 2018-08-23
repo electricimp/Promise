@@ -41,7 +41,7 @@ class ResolveWithPromisesTestCase extends ImpTestCase {
 
             p.then(function (res) {
                 try {
-                    this.assertEqual("abc", res);
+                    assertEqual("abc", res);
                     ok();
                 } catch (e) {
                     err(e);
@@ -72,7 +72,7 @@ class ResolveWithPromisesTestCase extends ImpTestCase {
 
             p.fail(function (v) {
                 try {
-                    this.assertEqual("abc", v);
+                    assertEqual("abc", v);
                     ok();
                 } catch (e) {
                     err(e);

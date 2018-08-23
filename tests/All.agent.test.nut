@@ -34,7 +34,7 @@ class AllTestCase extends ImpTestCase {
 
     function testReturnType() {
         local p = ::Promise.all([]);
-        this.assertTrue(p instanceof ::Promise);
+        assertTrue(p instanceof ::Promise);
     }
 
     // Test .all() with empty array
@@ -44,7 +44,7 @@ class AllTestCase extends ImpTestCase {
             local p = ::Promise.all([]);
             p.then(function (v) {
                 try {
-                    this.assertDeepEqual([], v);
+                    assertDeepEqual([], v);
                     ok();
                 } catch (e) {
                     err(e);
@@ -69,9 +69,9 @@ class AllTestCase extends ImpTestCase {
                     try {
                         // .all() should resolve with array of all values
                         // if all Promise's are resolving
-                        this.assertEqual(1, v[0]);
-                        this.assertEqual(2, v[1]);
-                        this.assertEqual(3, v[2]);
+                        assertEqual(1, v[0]);
+                        assertEqual(2, v[1]);
+                        assertEqual(3, v[2]);
                         ok();
                     } catch (e) {
                         err(e);
@@ -98,8 +98,8 @@ class AllTestCase extends ImpTestCase {
 
                 .fail(function (v) {
                     try {
-                        //this.assertEqual(2, v);
-                        this.assert(v == 2 || v == 3);
+                        //assertEqual(2, v);
+                        assert(v == 2 || v == 3);
                         ok();
                     } catch (e) {
                         err(e);

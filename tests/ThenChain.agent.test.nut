@@ -36,7 +36,7 @@ class ThenChainTestCase extends ImpTestCase {
                 .then(@(val) val + 2)
                 .then(@(val) val + 3)
                 .then(function(val) {
-                    this.assertEqual(val, "value123");
+                    assertEqual(val, "value123");
                     ok();
                 }.bindenv(this)).fail(err);
         }.bindenv(this));

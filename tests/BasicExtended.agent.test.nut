@@ -89,8 +89,8 @@ class BasicTestCase extends ImpTestCase {
                 .fail(function (v) { failCalled = true; })
                 .finally(function (v) {
                     try {
-                        this.assertEqual(false, thenCalled);
-                        this.assertEqual(true, failCalled);
+                        assertEqual(false, thenCalled);
+                        assertEqual(true, failCalled);
                         ok();
                     } catch (e) {
                         err(e);
@@ -118,8 +118,8 @@ class BasicTestCase extends ImpTestCase {
                 .fail(function (v) { failCalled = true; })
                 .finally(function (v) {
                     try {
-                        this.assertEqual(true, thenCalled);
-                        this.assertEqual(false, failCalled);
+                        assertEqual(true, thenCalled);
+                        assertEqual(false, failCalled);
                         ok();
                     } catch (e) {
                         err(e);

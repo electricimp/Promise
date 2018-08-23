@@ -46,11 +46,11 @@ class ThenAfterFailTestCase extends ImpTestCase {
                 .then(function (v) { thenAfterFailedCalled = true; value = v; }.bindenv(this)) // should be called
                 .finally(function(v) {
                     try {
-                        this.assertEqual(false, thenCalled);
-                        this.assertEqual(true, failCalled);
-                        this.assertEqual(true, thenAfterFailedCalled,
+                        assertEqual(false, thenCalled);
+                        assertEqual(true, failCalled);
+                        assertEqual(true, thenAfterFailedCalled,
                             ".then() expected to be called after .fail() on rejection");
-                        this.assertEqual(null, value);
+                        assertEqual(null, value);
                         ok();
                     } catch (e) {
                         err(e);

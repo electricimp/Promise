@@ -29,8 +29,8 @@ class Loop extends ImpTestCase {
     values = [false, 0, "", "tmp", 0.001
         , regexp(@"(\d+) ([a-zA-Z]+)(\p)")
         , null, blob(4), array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         }, function() {
             return "w";
@@ -39,7 +39,7 @@ class Loop extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server];
 
     function _wrongFirst(values) {
@@ -51,9 +51,9 @@ class Loop extends ImpTestCase {
                     local msg = "with value='" + myValue + "'";
                     local _value = null;
                     try {
-                        ::Promise.loop(myValue, @() ::Promise(function (resolve, reject) { resolve(2) })).then(function(res) { 
+                        ::Promise.loop(myValue, @() ::Promise(function (resolve, reject) { resolve(2) })).then(function(res) {
                             msg = "Resolve handler is called " + msg;
-                        }.bindenv(this), function(res) { 
+                        }.bindenv(this), function(res) {
                             _value = res;
                         }.bindenv(this));
                     } catch(ex) {
@@ -88,8 +88,8 @@ class Loop extends ImpTestCase {
 
     function _DISABLED_testWrongFirst_3() {
         return _wrongFirst([/*array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         },*/ function() {
             return "w";
@@ -102,7 +102,7 @@ class Loop extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server]);
     }
 
@@ -114,9 +114,9 @@ class Loop extends ImpTestCase {
                     local msg = "with value='" + value + "'";
                     local _value = null;
                     try {
-                        ::Promise.loop(@() true, value).then(function(res) { 
+                        ::Promise.loop(@() true, value).then(function(res) {
                             msg = "Resolve handler is called " + msg;
-                        }.bindenv(this), function(res) { 
+                        }.bindenv(this), function(res) {
                             _value = res;
                         }.bindenv(this));
                     } catch(ex) {
@@ -151,8 +151,8 @@ class Loop extends ImpTestCase {
 
     function _DISABLED_testWrongSecond_3() {
         return _wrongSecond([/*array(5), {
-            firstKey = "Max Normal", 
-            secondKey = 42, 
+            firstKey = "Max Normal",
+            secondKey = 42,
             thirdKey = true
         },*/ function() {
             return "w";
@@ -165,7 +165,7 @@ class Loop extends ImpTestCase {
             constructor(){
                 tmp = 15;
             }
-            
+
         }, server]);
     }
 
@@ -173,7 +173,7 @@ class Loop extends ImpTestCase {
         foreach (value in values) {
             try {
                 ::Promise.loop(value);
-                this.assertTrue(false, "Exception is expected. Value="+value);
+                assertTrue(false, "Exception is expected. Value="+value);
             } catch(err) {
             }
         }
@@ -183,7 +183,7 @@ class Loop extends ImpTestCase {
         foreach (value in values) {
             try {
                 ::Promise.loop(value, value, value);
-                this.assertTrue(false, "Exception is expected. Value="+value);
+                assertTrue(false, "Exception is expected. Value="+value);
             } catch(err) {
             }
         }
