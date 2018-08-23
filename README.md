@@ -370,23 +370,6 @@ local series = [
 local p = Promise.serial(series);
 ```
 
-## Recommended Applications
-
-TODO: provide links to the APIs
-TODO: add examples
-
-|  Actions  | Execution   | Suggestions  | Examples |
-|---|---|---|---|
-| Sync   | Sync  | `.then`,<br>`.serial`, or<br> `.loop`  | |
-| Async  | Sync   | `.serial` + `f() {return Promise(action)}`, <br> `.loop` + `f() {return Promise(action)}` or <br>`.then` + `return Promise(action)` | |
-|  Async | Async  | `.all`,<br>`.loop`,<br>`.serial`, or<br>`.then` + `return Promise(action)`| |
-|  Sync | Async  | N/A  | N/A |
-|  Sync and Async | Sync | `.serial` + `f() {return Promise}` or <br>`.loop` + `f() {return Promise}` | |
-|  Sync and Async | Async | N/A | N/A |
-
-`Sync` - the series of Promises terminates if one of them rejects
-`Async` - the series is done when all the promises are done (regardless of whether they are resolved or rejected).
-
 ## Testing
 
 Repository contains [impt](https://github.com/electricimp/imp-central-impt) tests. Please refer to the
