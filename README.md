@@ -403,7 +403,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
     });
     ```
 
-* .serial()  
+* .serial(*series*)  
    This method returns a promise that resolves when all the promises in the chain resolve or when the first one rejects. The action function is triggered at the moment when the Promise instance is created. So using functions returning Promise instances to pass into `Promise.serial` makes instantiation sequential. I.e. a promise is created and the action is triggered only when the previous Promise in the series got resolved or rejected.
 
    Returns result of last executed promise.
@@ -486,7 +486,7 @@ There are two main methods to execute multiple promises in parallel mode:
 
     Promise.all([action1, action2, action3])
     .then(function(values) {
-        foreach (item of values) {
+        foreach (item in values) {
             server.log(item); // <-- 1 2 3
         }
     });
