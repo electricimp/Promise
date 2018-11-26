@@ -375,6 +375,61 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 
 #### Sync
 
+* .then()
+   Chain of then() handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and fail() handler triggered. 
+
+   Example:
+```
+function action1 () {
+    return Promise.resolve(1);
+}
+
+function action2 () {
+    return Promise.resolve(2);
+}
+
+function action3 () {
+    return Promise.resolve(3);
+}
+
+action1()
+.then(action2)
+.then(action3)
+.then(function(res) {
+    server.log(res); // <-- 3
+})
+.fail((function(err) {
+    server.log(err); // show error
+});
+```
+
+* .serial()
+   This method returns a promise that resolves when all the promises in the chain resolve or when the first one rejects. The action function is triggered at the moment when the Promise instance is created. So using functions returning Promise instances to pass into `Promise.serial` makes instantiation sequential. I.e. a promise is created and the action is triggered only when the previous Promise in the series got resolved or rejected.
+
+   Returns result of last executed promise.
+
+   The parameter *series* is an array of promises and/or functions that return promises.
+
+   Example:
+```squirrel
+function action1 () {
+    return Promise(function(resolve, reject) {
+        imp.wakeup(1, function() { resolve(1) });
+    };
+}
+
+function action2 () {
+    return Promise(function(resolve, reject) {
+        imp.wakeup(1, function() { resolve(2) });
+    };
+}
+
+local p = Promise.serial([action1, action2]);
+p.then(function(res) {
+    server.log(res); // <-- 2
+})
+```
+
 #### Async
 
 There are two main methods to execute multiple promises in parallel mode:
@@ -402,7 +457,7 @@ function action3 () {
 Promise.all([action1, action2, action3])
 .then(function(values) {
     foreach (item of values) {
-        server.log(item); // 1 2 3
+        server.log(item); // <-- 1 2 3
     }
 });
 ``` 
@@ -429,7 +484,7 @@ function action3 () {
 
 Promise.race([action1, action2, action3])
 .then(function(value) {
-    server.log(value); // 3
+    server.log(value); // <-- 3
 });
 ```
 
