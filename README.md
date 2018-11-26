@@ -494,7 +494,10 @@ There are two main methods to execute multiple promises in parallel mode:
 
 * .race(*series*)  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
-   The parameter *series* is an array of promises and/or functions that return promises.
+   The parameter *series* is an array of promises and/or functions that return promises.  
+
+   *KEEP IN MIND: Execution of declared promise starts imidately and execution of promises from functions starts only
+   after race() call. So not recommended to mix promise-returning functions and promises in .race() argument*
 
    Example:
     ```
@@ -534,7 +537,8 @@ Tests will run with any imp.
 - [example a](./examples/example-a.nut)
 - [example b](./examples/example-b.nut)
 - [example c](./examples/example-c.nut)
-
+- [example of sync series](./examples/example-sync-series.nut)
+- [example of async series](./examples/example-async-series.nut)
 
 ## License
 
