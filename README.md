@@ -430,7 +430,35 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
     })
     ```
 
-* .loop()
+* .loop(*counterFunction*, *callback*)
+   This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
+
+   Example:
+
+    ```
+    function action (arg) {
+        return Promise(function(resolve, reject) {
+            resolve(arg*2);
+        });
+    }
+
+    local i = 0;
+    local res = Promise.loop(
+        @() i++ < 5,
+        function () {
+            return action(i);
+        }
+    );
+
+    res
+    .then(function(x) {
+        server.log("result:");
+        server.log(x);    // <-- 10
+    })
+    .fail(function(err){
+        server.log(err);
+    });
+    ```
 
 #### Async
 

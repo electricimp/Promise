@@ -26,78 +26,53 @@
 
 function actionA() {
     return Promise(function(resolve, reject) {
-        resolve("A");
+        imp.wakeup(2, function() { resolve("A") });
     });
 }
 
 function actionB() {
     return Promise(function(resolve, reject) {
-        resolve("B");
+        imp.wakeup(0.2, function() { resolve("B") });
     });
 }
 
 function actionC() {
     return Promise(function(resolve, reject) {
-        resolve("C");
+        imp.wakeup(3, function() { resolve("C") });
     });
 }
 
+/**
+ * Race example, executes all promises in parallel. Returns result of first resolved one.
+ */
+
+Promise.race([actionA, actionB, actionC])
+.then(function(x) {
+    server.log(x);
+});
+
+// declared promise like this executed imidately:
 local d = Promise(function(resolve, reject) {
    resolve("D"); 
 });
 
-/**
- * Simple sync chain of promises
- */
+// so if now we'll call race() with promise-returning functions and this one, it will be a fastest resolved
 
-actionA()
-.then(actionB)
-.then(actionC)
-.fail(function() {
-    server.log("Failed");
-})
-.finally(function() {
-    server.log("Chain executed");
+Promise.race([actionA, actionB, actionC, d])
+.then(function(x) {
+    server.log(x); // <-- D
 });
 
-/**
- * Example of serial promises execution
- * Executes promises or promise-returning functions one by one
- */
-
-local res = Promise.serial([actionA, actionB, actionC, d]);
-
-res.then(function(x) {
-    server.log(x);
-});
 
 /**
- * Example of loop
+ * Example of primise.all - async parallel execution
  */
 
-function action (arg) {
-    server.log(arg);
-    return Promise(function(resolve, reject) {
-        imp.wakeup(2, function() { resolve(arg*2) });
-    });
-}
-
-server.log("now run loop()");
-local i = 0;
-local res2 = Promise.loop(
-    @() i++ < 5,
-    function () {
-        return action(i);
+Promise.all([actionA, actionB, actionC, d])
+.then(function(values) {
+    foreach (item in values) {
+        server.log(item); // <-- A B C D
     }
-);
-
-res2.then(function(x) {
-    server.log("result:");
-    server.log(x);
-})
-.fail(function(err){
-    server.log(err);
 });
-
 
 
