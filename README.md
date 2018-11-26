@@ -369,6 +369,69 @@ local series = [
 
 local p = Promise.serial(series);
 ```
+## Execute in series
+
+Execution of multiple promises available in two modes: sync (one by one) or async (parallel execution). And this library provides several methods for both.
+
+#### Sync
+
+#### Async
+
+There are two main methods to execute multiple promises in parallel mode:
+
+* .all(*series*)
+   This method executes promises in parallel and resolves when they are all done. It returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.  
+   The parameter *series* is an array of promises and/or functions that return promises.
+
+   Example:
+```
+local action1 = Promise(function(resolve, reject) {
+    imp.wakeup(1, function() { resolve(1) });
+});
+
+local action2 = Promise(function(resolve, reject) {
+    imp.wakeup(1.5, function() { resolve(2) });
+});
+
+function action3 () {
+    return Promise(function(resolve, reject) {
+        imp.wakeup(0.5, function() {resolve(3)});
+    });
+};
+
+Promise.all([action1, action2, action3])
+.then(function(values) {
+    foreach (item of values) {
+        server.log(item); // 1 2 3
+    }
+});
+``` 
+
+* .race(*series*)
+   This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
+   The parameter *series* is an array of promises and/or functions that return promises.
+
+   Example:
+```
+local action1 = Promise(function(resolve, reject) {
+    imp.wakeup(1, function() { resolve(1) });
+});
+
+local action2 = Promise(function(resolve, reject) {
+    imp.wakeup(1.5, function() { resolve(2) });
+});
+
+function action3 () {
+    return Promise(function(resolve, reject) {
+        imp.wakeup(0.5, function() {resolve(3)});
+    });
+};
+
+Promise.race([action1, action2, action3])
+.then(function(value) {
+    server.log(value); // 3
+});
+```
 
 ## Testing
 
