@@ -498,23 +498,27 @@ There are two main methods to execute multiple promises in parallel mode:
 
    Example:
     ```
-    local action1 = Promise(function(resolve, reject) {
-        imp.wakeup(1, function() { resolve(1) });
-    });
-
-    local action2 = Promise(function(resolve, reject) {
-        imp.wakeup(1.5, function() { resolve(2) });
-    });
-
-    function action3 () {
+    function actionA() {
         return Promise(function(resolve, reject) {
-            imp.wakeup(0.5, function() {resolve(3)});
+            imp.wakeup(2, function() { resolve("A") });
         });
-    };
+    }
 
-    Promise.race([action1, action2, action3])
-    .then(function(value) {
-        server.log(value); // <-- 3
+    function actionB() {
+        return Promise(function(resolve, reject) {
+            imp.wakeup(0.2, function() { resolve("B") });
+        });
+    }
+
+    function actionC() {
+        return Promise(function(resolve, reject) {
+            imp.wakeup(3, function() { resolve("C") });
+        });
+    }
+
+    Promise.race([actionA, actionB, actionC])
+    .then(function(x) {
+        server.log(x); // <-- B
     });
     ```
 

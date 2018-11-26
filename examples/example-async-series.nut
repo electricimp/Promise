@@ -63,6 +63,24 @@ Promise.race([actionA, actionB, actionC, d])
     server.log(x); // <-- D
 });
 
+local action1 = Promise(function(resolve, reject) {
+    imp.wakeup(1, function() { resolve(1) });
+});
+
+local action2 = Promise(function(resolve, reject) {
+    imp.wakeup(1.5, function() { resolve(2) });
+});
+
+function action3 () {
+    return Promise(function(resolve, reject) {
+        imp.wakeup(0.3, function() {resolve(3)});
+    });
+};
+
+Promise.race([action1, action2, action3])
+.then(function(value) {
+    server.log(value); // <-- 3
+});
 
 /**
  * Example of primise.all - async parallel execution
