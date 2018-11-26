@@ -375,7 +375,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 
 #### Sync
 
-* .then()
+* .then()  
    Chain of then() handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and fail() handler triggered. 
 
    Example:
@@ -403,7 +403,7 @@ action1()
 });
 ```
 
-* .serial()
+* .serial()  
    This method returns a promise that resolves when all the promises in the chain resolve or when the first one rejects. The action function is triggered at the moment when the Promise instance is created. So using functions returning Promise instances to pass into `Promise.serial` makes instantiation sequential. I.e. a promise is created and the action is triggered only when the previous Promise in the series got resolved or rejected.
 
    Returns result of last executed promise.
@@ -434,7 +434,7 @@ p.then(function(res) {
 
 There are two main methods to execute multiple promises in parallel mode:
 
-* .all(*series*)
+* .all(*series*)  
    This method executes promises in parallel and resolves when they are all done. It returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.  
    The parameter *series* is an array of promises and/or functions that return promises.
 
@@ -462,7 +462,7 @@ Promise.all([action1, action2, action3])
 });
 ``` 
 
-* .race(*series*)
+* .race(*series*)  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
    The parameter *series* is an array of promises and/or functions that return promises.
 
