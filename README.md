@@ -377,7 +377,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 #### Synchronous
 
 * .then()  
-   Chain of then() handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and fail() handler triggered.  
+   Chain of `then()` handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and `.fail()` handler triggered.  
 
    Useful when we need to pass data from one step to the next one. For example for smart weather station we need to read temperature data from sensor and send it from agent. We code will looks like this:
 
@@ -394,7 +394,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
     });
    ```
 
-   Examples: [example of sync series](./examples/example-then.nut)
+   Examples: [Then](./examples/example-then.nut)
 
 * .serial(*series*)  
    Executes actions in exact listed order, but without passing result from one step to another. Returns Promise, so
@@ -422,7 +422,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
     })
     ```
 
-    Examples: [example of sync series](./examples/example-serial.nut)
+    Examples: [Serial](./examples/example-serial.nut)
 
 * .loop(*counterFunction*, *callback*)
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
@@ -460,31 +460,17 @@ There are two main methods to execute multiple promises in parallel mode:
 
 * .all(*series*)  
    This method executes promises in parallel and resolves when they are all done. It returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.  
-   The parameter *series* is an array of promises and/or functions that return promises.
+   
+   For example on our smart weather station we need to read metrics from multiple sensors, then send it on server. Method `.all()` returns promise and it resolved only when all metrics are collected:
 
-   Example:
     ```squirrel
-    local action1 = Promise(function(resolve, reject) {
-        imp.wakeup(1, function() { resolve(1) });
-    });
-
-    local action2 = Promise(function(resolve, reject) {
-        imp.wakeup(1.5, function() { resolve(2) });
-    });
-
-    function action3 () {
-        return Promise(function(resolve, reject) {
-            imp.wakeup(0.5, function() { resolve(3) });
-        });
-    };
-
-    Promise.all([action1, action2, action3])
-    .then(function(values) {
-        foreach (item in values) {
-            server.log(item); // <-- 1 2 3
-        }
+    Promise.all([getTemperature, getBarometer, getHumidity])
+    .then(function(metrics) {
+        agent.send("weather metrics", metrics);
     });
     ``` 
+
+    Examples: [All](./examples/example-all.nut)
 
 * .race(*series*)  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
@@ -493,32 +479,20 @@ There are two main methods to execute multiple promises in parallel mode:
    **NOTE:** Execution of declared promise starts imidately and execution of promises from functions starts only
    after `.race()` call. So not recommended to mix promise-returning functions and promises in `.race()` argument.
 
-   Example:
+   For example if we writing code for some parking assistance software, there are 3 parkings near the building and
+   we want to find free place for a car. Each parking has its own software API and we have different methods to request each of them. Now we call this 3 methods in parallel by `.race()` call and it returns Promise. As soon as any method will find a place, `.then` handler will be triggered: 
+
     ```squirrel
-    function actionA() {
-        return Promise(function(resolve, reject) {
-            imp.wakeup(2, function() { resolve("A") });
-        });
-    }
-
-    function actionB() {
-        return Promise(function(resolve, reject) {
-            imp.wakeup(0.2, function() { resolve("B") });
-        });
-    }
-
-    function actionC() {
-        return Promise(function(resolve, reject) {
-            imp.wakeup(3, function() { resolve("C") });
-        });
-    }
-
-    Promise.race([actionA, actionB, actionC])
-    .then(function(x) {
-        server.log(x); // <-- B
-
+    Promise.race([checkParkingA, checkParkingB, checkParkingC])
+    .then(function(place) {
+        server.log("Found place: " + place); // Found place: B11
+    });
+    .fail(function(err) {
+        server.log("Sorry, all parkings are busy now");
     });
     ```
+
+    Examples: [Race](./examples/example-race.nut)
 
 ## Testing
 
