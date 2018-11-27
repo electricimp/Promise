@@ -48,7 +48,7 @@ function actionC() {
 
 Promise.race([actionA, actionB, actionC])
 .then(function(x) {
-    server.log(x);
+    server.log(x);  // <-- B
 });
 
 // declared promise like this executed imidately:
@@ -63,6 +63,7 @@ Promise.race([actionA, actionB, actionC, d])
     server.log(x); // <-- D
 });
 
+// Another example:   first two actions executed right after Promise instance was declared
 local action1 = Promise(function(resolve, reject) {
     imp.wakeup(1, function() { resolve(1) });
 });
@@ -71,26 +72,17 @@ local action2 = Promise(function(resolve, reject) {
     imp.wakeup(1.5, function() { resolve(2) });
 });
 
+// this action will be executed only after race() call:
 function action3 () {
     return Promise(function(resolve, reject) {
         imp.wakeup(0.3, function() {resolve(3)});
     });
 };
 
+// so at this point action1 and action2 already executed and pending for result:
 Promise.race([action1, action2, action3])
 .then(function(value) {
     server.log(value); // <-- 3
-});
-
-/**
- * Example of primise.all - async parallel execution
- */
-
-Promise.all([actionA, actionB, actionC, d])
-.then(function(values) {
-    foreach (item in values) {
-        server.log(item); // <-- A B C D
-    }
 });
 
 
