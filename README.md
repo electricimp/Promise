@@ -288,10 +288,10 @@ local p = Promise.loop(
 ```
 
 ### Promise.serial(*series*)
+**Args**: Array of promises and/or promise-returning functions
+**Returns**: Promise
 
 This method returns a promise that resolves when all the promises in the chain resolve or when the first one rejects.
-
-The parameter *series* is an array of promises and/or functions that return promises.
 
 The action function is triggered at the moment when the Promise instance is created. So using functions returning Promise instances to pass into `Promise.serial` makes instantiation sequential. I.e. a promise is created and the action is triggered only when the previous Promise in the series got resolved or rejected.
 
@@ -369,17 +369,18 @@ local series = [
 
 local p = Promise.serial(series);
 ```
-## Execute in series
+
+## Recommended Use
 
 Execution of multiple promises available in two modes: sync (one by one) or async (parallel execution). And this library provides several methods for both.
 
-#### Sync
+#### Synchronous
 
 * .then()  
    Chain of then() handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and fail() handler triggered. 
 
    Example:
-    ```
+    ```squirrel
     function action1 () {
         return Promise.resolve(1);
     }
@@ -435,7 +436,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 
    Example:
 
-    ```
+    ```squirrel
     function action (arg) {
         return Promise(function(resolve, reject) {
             resolve(arg*2);
@@ -460,7 +461,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
     });
     ```
 
-#### Async
+#### Asynchronous
 
 There are two main methods to execute multiple promises in parallel mode:
 
@@ -469,7 +470,7 @@ There are two main methods to execute multiple promises in parallel mode:
    The parameter *series* is an array of promises and/or functions that return promises.
 
    Example:
-    ```
+    ```squirrel
     local action1 = Promise(function(resolve, reject) {
         imp.wakeup(1, function() { resolve(1) });
     });
@@ -496,11 +497,11 @@ There are two main methods to execute multiple promises in parallel mode:
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
    The parameter *series* is an array of promises and/or functions that return promises.  
 
-   *KEEP IN MIND: Execution of declared promise starts imidately and execution of promises from functions starts only
-   after race() call. So not recommended to mix promise-returning functions and promises in .race() argument*
+   **NOTE:** Execution of declared promise starts imidately and execution of promises from functions starts only
+   after `.race()` call. So not recommended to mix promise-returning functions and promises in `.race()` argument.
 
    Example:
-    ```
+    ```squirrel
     function actionA() {
         return Promise(function(resolve, reject) {
             imp.wakeup(2, function() { resolve("A") });
@@ -522,6 +523,7 @@ There are two main methods to execute multiple promises in parallel mode:
     Promise.race([actionA, actionB, actionC])
     .then(function(x) {
         server.log(x); // <-- B
+
     });
     ```
 
