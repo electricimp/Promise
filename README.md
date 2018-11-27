@@ -377,59 +377,44 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 #### Synchronous
 
 * .then()  
-   Chain of then() handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and fail() handler triggered. 
+   Chain of then() handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and fail() handler triggered.  
 
-   Example:
-    ```squirrel
-    function action1 () {
-        return Promise.resolve(1);
-    }
+   Useful when we need to pass data from one step to the next one. For example for smart weather station we need to read temperature data from sensor and send it from agent. We code will looks like this:
 
-    function action2 () {
-        return Promise.resolve(2);
-    }
-
-    function action3 () {
-        return Promise.resolve(3);
-    }
-
-    action1()
-    .then(action2)
-    .then(action3)
-    .then(function(res) {
-        server.log(res); // <-- 3
+   ```squirrel
+    initSensor()
+    .then(function(sensorId){
+        return readData(sensorId);
     })
-    .fail((function(err) {
-        server.log(err); // show error
+    .then(function(temp) {
+        agent.send("temp", temp);
+    })
+    .fail(function(err) {
+        server.log("Unexpected error: " + err);
     });
-    ```
+   ```
+
+   Examples: [example of sync series](./examples/example-then.nut)
 
 * .serial(*series*)  
-   This method returns a promise that resolves when all the promises in the chain resolve or when the first one rejects. The action function is triggered at the moment when the Promise instance is created. So using functions returning Promise instances to pass into `Promise.serial` makes instantiation sequential. I.e. a promise is created and the action is triggered only when the previous Promise in the series got resolved or rejected.
+   Executes actions in exact listed order, but without passing result from one step to another. Returns Promise, so
+   when all chain of actions were executed, result of the last action will be passed to `.then()` handler. If any of
+   events failed, `.fail()` handler triggered. 
 
-   Returns result of last executed promise.
-
-   The parameter *series* is an array of promises and/or functions that return promises.
-
-   Example:
+   For example if we need to check for updates of new firmware. If current action fired, it means previous step was
+   completed with success:
     ```squirrel
-    function action1 () {
-        return Promise(function(resolve, reject) {
-            imp.wakeup(1, function() { resolve(1) });
-        });
-    }
+    local series = [
+        connect,
+        checkUpdates,
+        download,
+        install
+    ];
 
-    function action2 () {
-        return Promise(function(resolve, reject) {
-            imp.wakeup(1, function() { resolve(2) });
-        });
-    }
-
-    Promise.serial([action1, action2])
-    .then(function(x){
-        server.log(x);
-    })
+    local update = Promise.serial(series);
     ```
+
+    Examples: [example of sync series](./examples/example-serial.nut)
 
 * .loop(*counterFunction*, *callback*)
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
@@ -456,7 +441,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
         server.log("result:");
         server.log(x);    // <-- 10
     })
-    .fail(function(err){
+    .fail(function(err) {
         server.log(err);
     });
     ```
@@ -481,7 +466,7 @@ There are two main methods to execute multiple promises in parallel mode:
 
     function action3 () {
         return Promise(function(resolve, reject) {
-            imp.wakeup(0.5, function() {resolve(3)});
+            imp.wakeup(0.5, function() { resolve(3) });
         });
     };
 
