@@ -412,6 +412,14 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
     ];
 
     local update = Promise.serial(series);
+
+    update
+    .then(function(ver) {
+        server.log("Installed version: " + ver);
+    })
+    .fail(function(err) {
+        server.log("Error: " + err);
+    })
     ```
 
     Examples: [example of sync series](./examples/example-serial.nut)
