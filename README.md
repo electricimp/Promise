@@ -402,7 +402,8 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
    events failed, `.fail()` handler triggered. 
 
    For example if we need to check for updates of new firmware. If current action fired, it means previous step was
-   completed with success:
+   completed with success. Method install returns version of installed software update (for example 0.57). So when all steps are passed, `.then()` triggered:
+
     ```squirrel
     local series = [
         connect,
@@ -411,11 +412,9 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
         install
     ];
 
-    local update = Promise.serial(series);
-
-    update
+    Promise.serial(series);
     .then(function(ver) {
-        server.log("Installed version: " + ver);
+        server.log("Installed version: " + ver); // Installed version: 0.57
     })
     .fail(function(err) {
         server.log("Error: " + err);
@@ -461,7 +460,7 @@ There are two main methods to execute multiple promises in parallel mode:
 * .all(*series*)  
    This method executes promises in parallel and resolves when they are all done. It returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.  
    
-   For example on our smart weather station we need to read metrics from multiple sensors, then send it on server. Method `.all()` returns promise and it resolved only when all metrics are collected:
+   For example on our smart weather station we need to read metrics from multiple sensors, then send it to server. Method `.all()` returns promise and it resolved only when all metrics are collected:
 
     ```squirrel
     Promise.all([getTemperature, getBarometer, getHumidity])
@@ -474,7 +473,6 @@ There are two main methods to execute multiple promises in parallel mode:
 
 * .race(*series*)  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
-   The parameter *series* is an array of promises and/or functions that return promises.  
 
    **NOTE:** Execution of declared promise starts imidately and execution of promises from functions starts only
    after `.race()` call. So not recommended to mix promise-returning functions and promises in `.race()` argument.
