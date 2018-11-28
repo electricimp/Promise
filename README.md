@@ -372,11 +372,11 @@ local p = Promise.serial(series);
 
 ## Recommended Use
 
-Execution of multiple promises available in two modes: sync (one by one) or async (parallel execution). And this library provides several methods for both.
+Execution of multiple promises available in two modes: synchronous (one by one) or asynchronous (parallel execution). And this library provides several methods for both.
 
 #### Synchronous
 
-* .then()  
+* `.then()`  
    Chain of `then()` handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and `.fail()` handler triggered.  
 
    Useful when we need to pass data from one step to the next one. For example for smart weather station we need to read temperature data from sensor and send it from agent. We code will looks like this:
@@ -396,7 +396,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 
    Examples: [Then](./examples/example-then.nut)
 
-* .serial(*series*)  
+* `.serial(*series*)`  
    Executes actions in exact listed order, but without passing result from one step to another. Returns Promise, so
    when all chain of actions were executed, result of the last action will be passed to `.then()` handler. If any of
    events failed, `.fail()` handler triggered. 
@@ -423,7 +423,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 
     Examples: [Serial](./examples/example-serial.nut)
 
-* .loop(*counterFunction*, *callback*)
+* `.loop(*counterFunction*, *callback*)`
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
 
    Example:
@@ -457,7 +457,7 @@ Execution of multiple promises available in two modes: sync (one by one) or asyn
 
 There are two main methods to execute multiple promises in parallel mode:
 
-* .all(*series*)  
+* `.all(*series*)`  
    This method executes promises in parallel and resolves when they are all done. It returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.  
    
    For example on our smart weather station we need to read metrics from multiple sensors, then send it to server. Method `.all()` returns promise and it resolved only when all metrics are collected:
@@ -471,7 +471,7 @@ There are two main methods to execute multiple promises in parallel mode:
 
     Examples: [All](./examples/example-all.nut)
 
-* .race(*series*)  
+* `.race(*series*)`  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
 
    **NOTE:** Execution of declared promise starts imidately and execution of promises from functions starts only
