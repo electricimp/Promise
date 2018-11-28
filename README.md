@@ -28,8 +28,8 @@ The constructor should receive a single function which will be executed to deter
 
 Exactly one of these functions should be executed at the completion of the *actionFunction*:
 
-- Calling *resolve()* accepts the promise and calls any *onFulfilled* handlers registered with [*.then()*](#thenonfullfilled-onrejected).
-- Calling *reject()* rejects the promise and calls any *.fail()* handlers or *onRejected* handlers registered with [*.then()*](#thenonfullfilled-onrejected).
+- Calling *resolve()* accepts the promise and calls any *onFulfilled* handlers registered with [*.then()*](#thenonfulfilled-onrejected).
+- Calling *reject()* rejects the promise and calls any *.fail()* handlers or *onRejected* handlers registered with [*.then()*](#thenonfulfilled-onrejected).
 
 #### Example ####
 
