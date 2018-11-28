@@ -423,7 +423,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
     Examples: [Serial](./examples/example-serial.nut)
 
-* `.loop(*counterFunction*, *callback*)`
+* `.loop(*counterFunction*, *callback*)`  
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
 
    Example:
