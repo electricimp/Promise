@@ -426,12 +426,12 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 * `.loop(*counterFunction*, *callback*)`  
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
 
-   For example we can use `loop()` to check fire alarm sensors in the building, pinging them one by one. We have method 
-   `checkSensorById()` that checks specified sensor by id and returns Promise. If during the loop returned rejected
-   promise, execution aborted and .fail() handler triggered.
+   For example we can use `loop()` to check doors sensors in the building to be sure all are closed, pinging them one by 
+   one. We have method `checkDoorById()` that checks specified sensor by id and returns Promise. If during the loop 
+   returned rejected promise, execution aborted and .fail() handler triggered.
 
     ```squirrel
-    function checkSensorById (id) {
+    function checkDoorById (id) {
         // some code, returns promise
     }
 
@@ -439,14 +439,14 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     Promise.loop(
         @() i++ < 6,
         function () {
-            return checkSensorById(i);
+            return checkDoorById(i);
         }
     )
     .then(function(x) {
-        server.log("All sensors are alive");
+        server.log("All doors are closed");
     })
     .fail(function(err){
-        server.log("Dead sensor detected!");
+        server.log("Unlocked door detected!");
     });
     ```
 

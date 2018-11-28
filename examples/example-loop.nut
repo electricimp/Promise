@@ -35,7 +35,7 @@
  * If sensor is alive, it returns resolved promise with value 'true'.
  * If sensor is not responding, returns rejected promise
  */
-function checkSensor (id) {
+function checkDoorById (id) {
     return Promise(function(resolve, reject) {
         imp.wakeup(2, function() { resolve(true) });
     });
@@ -45,14 +45,14 @@ local i = 1;
 Promise.loop(
     @() i++ < 6,
     function () {
-        return checkSensor(i);
+        return checkDoorById(i);
     }
 )
 .then(function(x) { // called in 10 seconds
-    server.log("All sensors are alive");
+    server.log("All doors are closed");
 })
 .fail(function(err){
-    server.log("Dead sensor detected!");
+    server.log("Unlocked door detected!");
 });
 
 // Result:
