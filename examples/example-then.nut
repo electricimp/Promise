@@ -76,7 +76,7 @@ Promise.resolve("The")
 });
 
 /**
- * Example of error handling, if any of actions returns rejected Promise, fail() handler triggered
+ * Example of error handling, if any of actions returns rejected Promise, fail() handler triggered:
  */
 
 function actionA () {

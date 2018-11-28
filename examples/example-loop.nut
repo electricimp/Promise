@@ -25,48 +25,36 @@
 #require "Promise.lib.nut:4.0.0"
 
 /**
- * Example of loop
+ * Example of loop execution, we have 5 sensors and one method to check state of sensor by id. We 
+ * run loop() which calls checkSensor method synchronously with ids 1..5. If got rejected promise
+ * on any of iterations, loop execution aborted and .fail() triggered. If all is ok, .then() called
+ * with result of last iteration 
  */
 
-function action (arg) {
-    server.log(arg);
+/**
+ * If sensor is alive, it returns resolved promise with value 'true'.
+ * If sensor is not responding, returns rejected promise
+ */
+function checkSensor (id) {
     return Promise(function(resolve, reject) {
-        imp.wakeup(2, function() { resolve(arg*2) });
+        imp.wakeup(2, function() { resolve(true) });
     });
 }
 
-server.log("now run loop()");
-local i = 0;
-local res = Promise.loop(
-    @() i++ < 5,
-    function () {
-        return action(i);
-    }
-);
-
-res.then(function(x) { // called in 10 seconds
-    server.log("result:");
-    server.log(x);   // <--  10
-})
-.fail(function(err){
-    server.log(err);
-});
-
-
-server.log("now run another loop()");
-
-local k = 0;
+local i = 1;
 Promise.loop(
-    @() k++ < 5,
+    @() i++ < 6,
     function () {
-        return Promise(function(resolve, reject) {
-            imp.wakeup(2, function() { resolve(k*2) });
-        });
+        return checkSensor(i);
     }
 )
-.then(function(val) {  // called in 10 seconds
-    server.log(val); // <-- 10
+.then(function(x) { // called in 10 seconds
+    server.log("All sensors are alive");
+})
+.fail(function(err){
+    server.log("Dead sensor detected!");
 });
 
-
-
+// Result:
+// (delay 10 seconds)
+// All sensors are alive
