@@ -1,4 +1,4 @@
-# Promise #
+# Promise 4.0.0 #
 
 This library provides an implementation of promises for Electric Imp Squirrel.
 
