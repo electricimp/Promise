@@ -24,20 +24,60 @@
 
 #require "Promise.lib.nut:4.0.0"
 
-// simple example of then() handlers chain
+const MAX = 100;
+
+/**
+ * Simple example of synchronous execution with passing arguments from one step to another:
+ */
+
+// generating random number as device id, returning as promise
+function initSensor() {
+    return Promise(function(resolve, reject) {
+        local deviceId = math.rand() % MAX;
+        resolve(deviceId);
+    });
+}
+
+// generating some random float value as temperature 
+function readData(sensor) {
+    local temp = math.rand() % MAX + 0.1;
+    return temp;
+}
+
+initSensor()
+.then(function(sensorId){
+    return readData(sensorId);
+})
+.then(function(temp) {
+    agent.send("temp", temp);
+})
+.fail(function(err) {
+    server.log("Unexpected error: " + err);
+});
+
+
+/**
+ * This is example of chain of .then() handlers, passing value from one to another:
+ */
+
 Promise.resolve("The")
 .then(function(res) {
-    return res + " world";    // then() can return simple value
+    return res + " world";
 })
 .then(function(res) {
-    return Promise.resolve(res + " is");   // or another promise
+    return Promise.resolve(res + " is");
 })
 .then(function(res) {
     return res + " yours";
 })
 .then(function(x) {
-    server.log(x);  // <-- "The world is yours"
+    // Result output: "The world is yours"
+    server.log(x);  
 });
+
+/**
+ * Example of error handling, if any of actions returns rejected Promise, fail() handler triggered
+ */
 
 function actionA () {
     return Promise(function(resolve, reject) {
@@ -45,9 +85,10 @@ function actionA () {
     });
 }
 
+// this action will fail
 function actionB (arg) {
     return Promise(function(resolve, reject) {
-        resolve("B");
+        reject("No such file");
     });
 }
 
@@ -57,49 +98,27 @@ function actionC (arg) {
     });
 }
 
-// classic mode:
 actionA()
 .then(actionB)
 .then(actionC)
 .then(function(x) {
-    server.log(x);  // <-- C
+    server.log(x);
 })
 .fail(function(err) {
-    server.log(err);   // log out error if some action failed
+    // Output: "Error: No such file"
+    server.log("Error: " + err);
 });
 
-server.log(test);
 
-// instead of final then/fail handlers we can use finally:
+/**
+ * instead of final then/fail handlers we can use finally():
+ */
+
 actionA()
 .then(actionB)
 .then(actionC)
 .finally(function(valueOrReason) {
-    server.log("myPromise resolved or rejected with value or reason: " + valueOrReason);
+    server.log("resolved or rejected with value or reason: " + valueOrReason);
 });
-
-Promise.resolve("Woo")
-.then(actionB)
-.then(actionC)
-.then(function(res) {
-    return Promise.reject("Error: no file");
-})
-.finally(function(valueOrReason) {
-    server.log(valueOrReason); // <-- "Error: no file"
-});
-
-local d = Promise(function(resolve, reject) {
-    imp.wakeup(3, function () { resolve("wake up"); });    
-});
-
-actionA()
-.then(actionB)
-.then(function(x) {
-    return d;   // returning pending promise
-})
-.then(function(x) {  // this then() handler executed right after d promise was resolved (after 3 seconds)
-    server.log(d); // <-- "wake up"
-});
-
 
 
