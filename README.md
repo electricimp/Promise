@@ -231,7 +231,7 @@ This method executes promises in parallel and resolves them when they are all do
 
 | Parameter | Type | Required? | Description |
 | --- | --- | --- | --- |
-| *series* | Array of promises and/or functions that return promises | Yes | The promises to be executed together |
+| *series* | Array of promises and/<br />or functions that return promises | Yes | The promises to be executed together |
 
 #### Return Value ####
 
@@ -271,7 +271,7 @@ This method executes promises in parallel and resolves them all when the first p
 
 | Parameter | Type | Required? | Description |
 | --- | --- | --- | --- |
-| *series* | Array of promises and/or functions that return promises | Yes | The promises to be executed together |
+| *series* | Array of promises and/<br />or functions that return promises | Yes | The promises to be executed together |
 
 #### Return Value ####
 
@@ -353,7 +353,7 @@ This method returns a promise that resolves when all of the promises in the chai
 
 | Parameter | Type | Required? | Description |
 | --- | --- | --- | --- |
-| *series* | Array of promises and/or functions that return promises | Yes | The promises to be executed |
+| *series* | Array of promises and/<br />or functions that return promises | Yes | The promises to be executed |
 
 #### Return Value ####
 
