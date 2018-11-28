@@ -1,6 +1,6 @@
 # Promise #
 
-The library provides an implementation of promises for Electric Imp Squirrel.
+This library provides an implementation of promises for Electric Imp Squirrel.
 
 According to Wikipedia: “Futures and promises originated in functional programming and related paradigms (such as logic programming) to decouple a value (a future) from how it was computed (a promise), allowing the computation to be done more flexibly, notably by parallelizing it”.
 
@@ -28,8 +28,8 @@ The constructor should receive a single function which will be executed to deter
 
 Exactly one of these functions should be executed at the completion of the *actionFunction*:
 
-- Calling *resolve()* accepts the promise and calls any *onFulfilled* handlers registered with *.then()*.
-- Calling *reject()* rejects the promise and calls any *.fail()* handlers or *onRejected* handlers registered with *.then()*.
+- Calling *resolve()* accepts the promise and calls any *onFulfilled* handlers registered with [*.then()*](#thenonfullfilled-onrejected).
+- Calling *reject()* rejects the promise and calls any *.fail()* handlers or *onRejected* handlers registered with [*.then()*](#thenonfullfilled-onrejected).
 
 #### Example ####
 
