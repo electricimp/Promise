@@ -41,8 +41,9 @@ function checkUpdates () {
             
             if (cur_version == version) {
                 reject("Latest version is already installed");
+            } else {
+                server.log("New version available");
             }
-            server.log("New version available");
             resolve(true);
         } else {
             reject("connection error");

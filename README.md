@@ -471,13 +471,13 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
         install
     ];
 
-    Promise.serial(series);
+    Promise.serial(series)
     .then(function(ver) {
         server.log("Installed version: " + ver); // Installed version: 0.57
     })
     .fail(function(err) {
         server.log("Error: " + err);
-    })
+    });
     ```
 
     Examples: [example-serial](./examples/example-serial.nut)
