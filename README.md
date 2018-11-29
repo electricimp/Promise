@@ -376,14 +376,22 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
 #### Synchronous
 
-* `.then()`  
-   Chain of `then()` handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and `.fail()` handler triggered.  
+* `then`  
+   Chain of `then` handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and `fail` handler triggered.  
 
    Useful when we need to pass data from one step to the next one. For example for smart weather station we need to read temperature data from sensor and send it from agent. We code will looks like this:
 
    ```squirrel
+    function initSensor() {
+        // some code, return promise
+    }
+
+    function readData(sensorId) {
+        // return temperature value
+    }
+
     initSensor()
-    .then(function(sensorId){
+    .then(function(sensorId) {
         return readData(sensorId);
     })
     .then(function(temp) {
@@ -396,13 +404,13 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
    Examples: [Then](./examples/example-then.nut)
 
-* `.serial(*series*)`  
+* `serial(series)`  
    Executes actions in exact listed order, but without passing result from one step to another. Returns Promise, so
-   when all chain of actions were executed, result of the last action will be passed to `.then()` handler. If any of
-   events failed, `.fail()` handler triggered. 
+   when all chain of actions were executed, result of the last action will be passed to `then` handler. If any of
+   events failed, `fail` handler triggered. 
 
    For example if we need to check for updates of new firmware. If current action fired, it means previous step was
-   completed with success. Method install returns version of installed software update (for example 0.57). So when all steps are passed, `.then()` triggered:
+   completed with success. Method install returns version of installed software update (for example 0.57). So when all steps are passed, `then` triggered:
 
     ```squirrel
     local series = [
@@ -423,12 +431,12 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
     Examples: [Serial](./examples/example-serial.nut)
 
-* `.loop(*counterFunction*, *callback*)`  
+* `loop(counterFunction, callback)`  
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
 
-   For example we can use `loop()` to check doors sensors in the building to be sure all are closed, pinging them one by 
+   For example we can use `loop` to check doors sensors in the building to be sure all are closed, pinging them one by 
    one. We have method `checkDoorById()` that checks specified sensor by id and returns Promise. If during the loop 
-   returned rejected promise, execution aborted and .fail() handler triggered.
+   returned rejected promise, execution aborted and `fail` handler triggered.
 
     ```squirrel
     function checkDoorById (id) {
@@ -445,7 +453,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     .then(function(x) {
         server.log("All doors are closed");
     })
-    .fail(function(err){
+    .fail(function(err) {
         server.log("Unlocked door detected!");
     });
     ```
@@ -456,10 +464,10 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
 There are two main methods to execute multiple promises in parallel mode:
 
-* `.all(*series*)`  
+* `all(series)`  
    This method executes promises in parallel and resolves when they are all done. It returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.  
    
-   For example on our smart weather station we need to read metrics from multiple sensors, then send it to server. Method `.all()` returns promise and it resolved only when all metrics are collected:
+   For example on our smart weather station we need to read metrics from multiple sensors, then send it to server. Method `all` returns promise and it resolved only when all metrics are collected:
 
     ```squirrel
     Promise.all([getTemperature, getBarometer, getHumidity])
@@ -470,14 +478,14 @@ There are two main methods to execute multiple promises in parallel mode:
 
     Examples: [All](./examples/example-all.nut)
 
-* `.race(*series*)`  
+* `race(series)`  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
 
    **NOTE:** Execution of declared promise starts imidately and execution of promises from functions starts only
-   after `.race()` call. So not recommended to mix promise-returning functions and promises in `.race()` argument.
+   after `race` call. So not recommended to mix promise-returning functions and promises in `race` argument.
 
    For example if we writing code for some parking assistance software, there are 3 parkings near the building and
-   we want to find free place for a car. Each parking has its own software API and we have different methods to request each of them. Now we call this 3 methods in parallel by `.race()` call and it returns Promise. As soon as any method will find a place, `.then` handler will be triggered: 
+   we want to find free place for a car. Each parking has its own software API and we have different methods to request each of them. Now we call this 3 methods in parallel by `race` call and it returns Promise. As soon as any method will find a place, `then` handler will be triggered: 
 
     ```squirrel
     Promise.race([checkParkingA, checkParkingB, checkParkingC])
