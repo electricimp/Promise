@@ -448,8 +448,28 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
    completed with success. Method install returns version of installed software update (for example 0.57). So when all steps are passed, [`then`](#thenonfulfilled-onrejected) triggered:
 
     ```squirrel
+    function checkUpdates () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(true);
+        });
+    }
+
+    function download () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(true);
+        });
+    }
+
+    function install () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(version);
+        });
+    }
+
     local series = [
-        connect,
         checkUpdates,
         download,
         install
@@ -547,6 +567,27 @@ There are two main methods to execute multiple promises in parallel mode:
    we want to find free place for a car. Each parking has its own software API and we have different methods to request each of them. Now we call this 3 methods in parallel by [`race`](#raceseries) call and it returns Promise. As soon as any method will find a place, [`then`](#thenonfulfilled-onrejected) handler will be triggered: 
 
     ```squirrel
+    function checkParkingA () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(place);
+        });
+    }
+
+    function checkParkingB () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(place);
+        });
+    }
+
+    function checkParkingC () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(place);
+        });
+    }
+
     Promise.race([checkParkingA, checkParkingB, checkParkingC])
     .then(function(place) {
         server.log("Found place: " + place); // Found place: B11

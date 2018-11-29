@@ -24,65 +24,40 @@
 
 #require "Promise.lib.nut:4.0.0"
 
-function actionA() {
-    return Promise(function(resolve, reject) {
-        imp.wakeup(2, function() { resolve("A") });
+// max value for random generator
+const MAX = 20;
+
+function checkParkingA () {
+    return Promise(function (resolve, reject) {
+        local delay = math.rand() % MAX + 2;
+        local place = "A" + (math.rand() % MAX);
+        imp.wakeup(delay, function() { resolve(place) });
     });
 }
 
-function actionB() {
-    return Promise(function(resolve, reject) {
-        imp.wakeup(0.2, function() { resolve("B") });
+function checkParkingB () {
+    return Promise(function (resolve, reject) {
+        local delay = math.rand() % MAX + 2;
+        local place = "B" + (math.rand() % MAX);
+        imp.wakeup(delay, function() { resolve(place) });
     });
 }
 
-function actionC() {
-    return Promise(function(resolve, reject) {
-        imp.wakeup(3, function() { resolve("C") });
+function checkParkingC () {
+    return Promise(function (resolve, reject) {
+        local delay = math.rand() % MAX + 2;
+        local place = "C" + (math.rand() % MAX);
+        imp.wakeup(delay, function() { resolve(place) });
     });
 }
 
-/**
- * Race example, executes all promises in parallel. Returns result of first resolved one.
- */
-
-Promise.race([actionA, actionB, actionC])
-.then(function(x) {
-    server.log(x);  // <-- B
-});
-
-// declared promise like this executed imidately:
-local d = Promise(function(resolve, reject) {
-   resolve("D"); 
-});
-
-// so if now we'll call race() with promise-returning functions and this one, it will be a fastest resolved
-
-Promise.race([actionA, actionB, actionC, d])
-.then(function(x) {
-    server.log(x); // <-- D
-});
-
-// Another example:   first two actions executed right after Promise instance was declared
-local action1 = Promise(function(resolve, reject) {
-    imp.wakeup(1, function() { resolve(1) });
-});
-
-local action2 = Promise(function(resolve, reject) {
-    imp.wakeup(1.5, function() { resolve(2) });
-});
-
-// this action will be executed only after race() call:
-function action3 () {
-    return Promise(function(resolve, reject) {
-        imp.wakeup(0.3, function() {resolve(3)});
-    });
-};
-
-// so at this point action1 and action2 already executed and pending for result:
-Promise.race([action1, action2, action3])
-.then(function(value) {
-    server.log(value); // <-- 3
+server.log("looking for place on parking...");
+Promise.race([checkParkingA, checkParkingB, checkParkingC])
+.then(function(place) {
+    server.log("Found place: " + place);
+})
+.fail(function(err) {
+    server.log("Sorry, all parkings are busy now");
 });
 
 
