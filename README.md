@@ -411,12 +411,19 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
    Useful when we need to pass data from one step to the next one. For example for smart weather station we need to read temperature data from sensor and send it from agent. We code will looks like this:
 
    ```squirrel
+    const MAX = 100;
+
     function initSensor() {
-        // some code, return promise
+        return Promise(function(resolve, reject) {
+            local deviceId = math.rand() % MAX;
+            resolve(deviceId);
+        });
     }
 
-    function readData(sensorId) {
-        // return temperature value
+    // generating some random float value as temperature 
+    function readData(sensor) {
+        local temp = math.rand() % MAX + 0.1;
+        return temp;
     }
 
     initSensor()
@@ -431,7 +438,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     });
    ```
 
-   Examples: [Then](./examples/example-then.nut)
+   Examples: [example-then](./examples/example-then.nut)
 
 * [`serial(series)`](#serialseries)  
    Executes actions in exact listed order, but without passing result from one step to another. Returns Promise, so
@@ -457,7 +464,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     })
     ```
 
-    Examples: [Serial](./examples/example-serial.nut)
+    Examples: [example-serial](./examples/example-serial.nut)
 
 * [`loop(counterFunction, callback)`](#loopcontinuefunction-nextfunction)  
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
@@ -468,7 +475,10 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
     ```squirrel
     function checkDoorById (id) {
-        // some code, returns promise
+        return Promise(function (resolve, reject) {
+            // some asynchronous operations here ...
+            resolve(true);
+        });
     }
 
     local i = 1;
@@ -486,7 +496,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     });
     ```
 
-    Examples: [Loop](./examples/example-loop.nut)
+    Examples: [example-loop](./examples/example-loop.nut)
 
 #### Asynchronous
 
@@ -498,13 +508,34 @@ There are two main methods to execute multiple promises in parallel mode:
    For example on our smart weather station we need to read metrics from multiple sensors, then send it to server. Method [`all`](#allseries)  returns promise and it resolved only when all metrics are collected:
 
     ```squirrel
+    function getTemperature () {
+        return Promise(function (resolve, reject) {
+            // some operations here ...
+            resolve(/***/);
+        });
+    }
+
+    function getBarometer () {
+        return Promise(function (resolve, reject) {
+            // some operations here ...
+            resolve(/***/);
+        });
+    }
+
+    function getHumidity () {
+        return Promise(function (resolve, reject) {
+            // some operations here ...
+            resolve(/***/);
+        });
+    }
+
     Promise.all([getTemperature, getBarometer, getHumidity])
     .then(function(metrics) {
         agent.send("weather metrics", metrics);
     });
     ``` 
 
-    Examples: [All](./examples/example-all.nut)
+    Examples: [example-all](./examples/example-all.nut)
 
 * [`race(series)`](#raceseries)  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
@@ -525,7 +556,7 @@ There are two main methods to execute multiple promises in parallel mode:
     });
     ```
 
-    Examples: [Race](./examples/example-race.nut)
+    Examples: [example-race](./examples/example-race.nut)
 
 ## Testing ##
 
