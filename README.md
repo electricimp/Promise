@@ -456,17 +456,13 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     }
 
     function download () {
-        return Promise(function (resolve, reject) {
-            // some async operations here ...
-            resolve(true);
-        });
+        // some operations here, return promise
+        return Promise.resolve(true);
     }
 
     function install () {
-        return Promise(function (resolve, reject) {
-            // some async operations here ...
-            resolve(version);
-        });
+        // some operations here, return promise
+        return Promise.resolve(version);
     }
 
     local series = [
