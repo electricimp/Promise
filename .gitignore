@@ -31,3 +31,4 @@ settings/auth.info
 *.tmp
 _private/
 *.swp
+.DS_Store
