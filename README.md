@@ -405,7 +405,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
 #### Synchronous
 
-* `then`  
+* [`then`](#thenonfulfilled-onrejected)
    Chain of `then` handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and `fail` handler triggered.  
 
    Useful when we need to pass data from one step to the next one. For example for smart weather station we need to read temperature data from sensor and send it from agent. We code will looks like this:
@@ -433,7 +433,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
    Examples: [Then](./examples/example-then.nut)
 
-* `serial(series)`  
+* [`serial(series)`](#serialseries)  
    Executes actions in exact listed order, but without passing result from one step to another. Returns Promise, so
    when all chain of actions were executed, result of the last action will be passed to `then` handler. If any of
    events failed, `fail` handler triggered. 
@@ -460,7 +460,7 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
 
     Examples: [Serial](./examples/example-serial.nut)
 
-* `loop(counterFunction, callback)`  
+* [`loop(counterFunction, callback)`](#loopcontinuefunction-nextfunction)
    This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
 
    For example we can use `loop` to check doors sensors in the building to be sure all are closed, pinging them one by 
