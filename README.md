@@ -607,6 +607,11 @@ The tests will run on any imp.
 - [Example A](./examples/example-a.nut)
 - [Example B](./examples/example-b.nut)
 - [Example C](./examples/example-c.nut)
+- [Example then()](./examples/example-then.nut)
+- [Example serial()](./examples/example-serial.nut)
+- [Example loop()](./examples/example-loop.nut)
+- [Example all()](./examples/example-all.nut)
+- [Example race()](./examples/example-race.nut)
 
 ## License ##
 

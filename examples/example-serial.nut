@@ -84,6 +84,3 @@ Promise.serial(series)
 // ( delay 5 seconds ) 
 // Installation in progress...
 // Success. Installed version: 63.0.3
-
-
-

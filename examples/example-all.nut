@@ -24,49 +24,36 @@
 
 #require "Promise.lib.nut:4.0.0"
 
-function actionA() {
-    return Promise(function(resolve, reject) {
-        imp.wakeup(2, function() { resolve("A") });
+// Generate random values in this methods
+function getTemperature () {
+    return Promise(function (resolve, reject) {
+        local temp = math.rand() % 35;
+        resolve(temp);
     });
 }
 
-function actionB() {
-    return Promise(function(resolve, reject) {
-        imp.wakeup(0.2, function() { resolve("B") });
+function getBarometer () {
+    return Promise(function (resolve, reject) {
+        local bar = 0.98 + 0.01 * (math.rand() % 5); 
+        resolve(bar);
     });
 }
 
-function actionC() {
-    return Promise(function(resolve, reject) {
-        imp.wakeup(3, function() { resolve("C") });
-    });
+function getHumidity () {
+    local value = 0.8 + 0.01 * (math.rand() % 20);
+    return Promise.resolve(value);
 }
 
-// declared promise like this executed imidately:
-local d = Promise(function(resolve, reject) {
-   resolve("D"); 
-});
+/**
+ * Collect metrics from all weather sensors and send it to agent (on server)
+ */
+Promise.all([getTemperature, getBarometer, getHumidity])
+.then(function(metrics) {
+    server.log("Temp (Celsius): " + metrics[0]);
+    server.log("Atm pressure (bar): " + metrics[1]);
+    server.log("Humidity (%): " + metrics[2]);
 
-// .all() returns Promise that resolved only when all actions were executed and resolved:
-Promise.all([actionA, actionB, actionC, d])
-.then(function(values) {
-    foreach (item in values) {
-        server.log(item); // <-- A B C D
-    }
-});
-
-// another example:
-local f = Promise(function(resolve, reject) {
-   reject("Bad filename"); 
-});
-
-// if one of actions were failed (returned rejected Promise), .fail() handler called 
-Promise.all([actionA, actionB, actionC, d, f])
-.then(function(values) {
-    // this not executed
-})
-.fail(function(x) {
-    server.log(x);  // <-- "Bad filename"
+    agent.send("weather metrics", metrics);
 });
 
 
