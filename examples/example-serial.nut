@@ -24,38 +24,65 @@
 
 #require "Promise.lib.nut:4.0.0"
 
-function actionA() {
-    return Promise(function(resolve, reject) {
-        resolve("A");
+const URL = "https://product-details.mozilla.org/1.0/firefox_versions.json";
+const key = "LATEST_FIREFOX_VERSION";
+
+local cur_version = "51.1";
+local version = "";
+
+function checkUpdates () {
+    return Promise(function (resolve, reject) {
+        local request = http.get(URL);
+        local response = request.sendsync();
+ 
+        if (response.statuscode == 200) {
+            local data = http.jsondecode(response.body);
+            version = data[key];
+            
+            if (cur_version == version) {
+                reject("Latest version is already installed");
+            }
+            server.log("New version available");
+            resolve(true);
+        } else {
+            reject("connection error");
+        }
     });
 }
 
-function actionB() {
+function download () {
     return Promise(function(resolve, reject) {
-        resolve("B");
+        server.log("Downloading now...");
+        imp.wakeup(4, function () { resolve(true) });
     });
 }
 
-function actionC() {
-    return Promise(function(resolve, reject) {
-        resolve("C");
-    });
+function install () {
+    server.log("Installation in progress...");
+    cur_version = version;
+    return Promise.resolve(version);
 }
 
-local d = Promise(function(resolve, reject) {
-   resolve("D"); 
+local series = [
+    checkUpdates,
+    download,
+    install
+];
+
+Promise.serial(series)
+.then(function(ver) {
+    server.log("Success. Installed version: " + ver);
+})
+.fail(function(err) {
+    server.log("Error: " + err);
 });
 
-/**
- * Example of serial promises execution
- * Executes promises or promise-returning functions one by one
- */
-
-local res = Promise.serial([actionA, actionB, actionC, d]);
-
-res.then(function(x) {
-    server.log(x);
-});
+// Result:
+// New version available
+// Downloading now...
+// ( delay 5 seconds ) 
+// Installation in progress...
+// Success. Installed version: 63.0.3
 
 
 
