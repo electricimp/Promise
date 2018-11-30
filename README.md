@@ -267,6 +267,10 @@ promises.then(function(values) {
 
 This method executes promises in parallel and resolves them all when the first promise is resolved.
 
+ So using functions returning promises to pass into *serial()* makes instantiation sequential, ie. a promise is created and the action is triggered only when the previous promise in the series was resolved or rejected.
+
+**NOTE:** To be sure all Promises are created and started at same time after race() called, need to use promise-returning functions. Otherwise a promise’s execution is triggered at the moment when the promise is created (before race actually called).
+
 #### Parameters ####
 
 | Parameter | Type | Required? | Description |
