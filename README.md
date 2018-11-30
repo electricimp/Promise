@@ -399,16 +399,20 @@ local series = [
 local p = Promise.serial(series);
 ```
 
-## Recommended Use
+## Recommended Use ##
 
-Execution of multiple promises available in two modes: synchronous (one by one) or asynchronous (parallel execution). And this library provides several methods for both.
+Execution of multiple promises is possible in two modes: **synchronous** (one by one) execution and **asynchronous** (parallel) execution. The library supports the both modes.
 
-#### Synchronous
+### Synchronous (One By One) Execution ###
+
+There are three methods to execute multiple promises sequentially:
 
 * [`then()`](#thenonfulfilled-onrejected)  
-   Chain of [`then`](#thenonfulfilled-onrejected) handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If current promise in chain was rejected, execution stops and [`fail`](#failonrejected) handler triggered.  
+   Chain of [`then`](#thenonfulfilled-onrejected) handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If the current promise in the chain has been rejected, the execution stops and [`fail`](#failonrejected) handler is triggered.  
 
-   Useful when we need to pass data from one step to the next one. For example for smart weather station we need to read temperature data from sensor and send it from agent. We code will looks like this:
+   It is useful when you need to pass data from one step to the next one.
+   
+   For example, a smart weather station needs to read temperature data from sensor and send it to agent. The code may look like this:
 
    ```squirrel
     const MAX = 100;
@@ -438,14 +442,12 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     });
    ```
 
-   Examples: [example-then](./examples/example-then.nut)
+   Full example: [example-then](./examples/example-then.nut)
 
 * [`serial(series)`](#serialseries)  
-   Executes actions in exact listed order, but without passing result from one step to another. Returns Promise, so
-   when all chain of actions were executed, result of the last action will be passed to [`then`](#thenonfulfilled-onrejected) handler. If any of events failed, [`fail`](#failonrejected) handler triggered. 
+   Executes actions in the exactly listed order, but without passing result from one step to another. Returns Promise, so when the whole chain of actions has been executed, the result of the last action is passed to [`then`](#thenonfulfilled-onrejected) handler. If any of the actions has been failed, [`fail`](#failonrejected) handler is triggered. 
 
-   For example if we need to check for updates of new firmware. If current action fired, it means previous step was
-   completed with success. Method install returns version of installed software update (for example 0.57). So when all steps are passed, [`then`](#thenonfulfilled-onrejected) triggered:
+   For example, if you need to check for updates of new firmware, the code may look like below. Check, download and install functions are executed one after another, if the previous one is completed successfully. Install function returns version of the installed software update (for example 0.57), so, when all steps are passed, [`then`](#thenonfulfilled-onrejected) is triggered and prints out the version.
 
     ```squirrel
     function checkUpdates () {
@@ -480,14 +482,12 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     });
     ```
 
-    Examples: [example-serial](./examples/example-serial.nut)
+    Full example: [example-serial](./examples/example-serial.nut)
 
 * [`loop(counterFunction, callback)`](#loopcontinuefunction-nextfunction)  
-   This method executes callback returning a promise every iteration, while counterFunction returns `true`. Returns result of last executed promise.
+   This method executes the *callback*, which returns Promise, in a loop, while the *counterFunction* returns `true`. When the loop ends, it returns the result of last executed Promise.
 
-   For example we can use `loop` to check doors sensors in the building to be sure all are closed, pinging them one by 
-   one. We have method `checkDoorById()` that checks specified sensor by id and returns Promise. If during the loop 
-   returned rejected promise, execution aborted and [`fail`](#failonrejected) handler triggered.
+   For example, you can use `loop` to check doors sensors in the building to be sure all doors are closed, by pinging them one by one. `checkDoorById()` method checks the sensor by id and returns Promise. If a promise is rejected, the loop ends and [`fail`](#failonrejected) handler is triggered.
 
     ```squirrel
     function checkDoorById (id) {
@@ -512,16 +512,16 @@ Execution of multiple promises available in two modes: synchronous (one by one) 
     });
     ```
 
-    Examples: [example-loop](./examples/example-loop.nut)
+    Full example: [example-loop](./examples/example-loop.nut)
 
-#### Asynchronous
+### Asynchronous (Parallel) Execution ###
 
-There are two main methods to execute multiple promises in parallel mode:
+There are two methods to execute multiple promises in parallel:
 
 * [`all(series)`](#allseries)  
-   This method executes promises in parallel and resolves when they are all done. It returns a promise that resolves with an array of the resolved promise value or rejects with first rejected paralleled promise value.  
+   This method executes promises in parallel and resolves them when they are all done. It returns a promise that resolves to an array of the resolved promise values, or rejects with first rejected promise’s value.
    
-   For example on our smart weather station we need to read metrics from multiple sensors, then send it to server. Method [`all`](#allseries)  returns promise and it resolved only when all metrics are collected:
+   For example, if in the smart weather station application, mentioned early, you have multiple sensors and want to read and send metrics from all of them, the code may look like below. [`all`](#allseries) method returns promise and it is resolved only when all metrics are collected.
 
     ```squirrel
     function getTemperature () {
@@ -551,16 +551,14 @@ There are two main methods to execute multiple promises in parallel mode:
     });
     ``` 
 
-    Examples: [example-all](./examples/example-all.nut)
+    Full example: [example-all](./examples/example-all.nut)
 
 * [`race(series)`](#raceseries)  
-   This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves or rejects with the first resolved/rejected promise value.  
+   This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves with the first resolved promise’s value, or is rejected with the first rejected promise’s reason.
 
-   **NOTE:** Execution of declared promise starts imidately and execution of promises from functions starts only
-   after [`race`](#raceseries) call. So not recommended to mix promise-returning functions and promises in [`race`](#raceseries) argument.
+   **NOTE:** Execution of declared promise starts immediately and execution of promises from functions starts only after [`race`](#raceseries) call. It is not recommended to mix promise-returning functions and promises in [`race`](#raceseries) argument.
 
-   For example if we writing code for some parking assistance software, there are 3 parkings near the building and
-   we want to find free place for a car. Each parking has its own software API and we have different methods to request each of them. Now we call this 3 methods in parallel by [`race`](#raceseries) call and it returns Promise. As soon as any method will find a place, [`then`](#thenonfulfilled-onrejected) handler will be triggered: 
+   For example, you write a parking assistance application and there are three different parkings. Each parking has its own software API with different methods to find a place. You can call three different methods in parallel using [`race`](#raceseries). As soon as any method finds a place, [`then`](#thenonfulfilled-onrejected) handler will be triggered.
 
     ```squirrel
     function checkParkingA () {
@@ -593,14 +591,14 @@ There are two main methods to execute multiple promises in parallel mode:
     });
     ```
 
-    Examples: [example-race](./examples/example-race.nut)
+    Full example: [example-race](./examples/example-race.nut)
 
 ## Testing ##
 
 The library repository contains [impt](https://github.com/electricimp/imp-central-impt) tests. Please refer to the
 [imp test](https://github.com/electricimp/imp-central-impt/blob/master/TestingGuide.md) documentation for more details.
 
-The tests will run on any imp.
+The tests can be run on any imp.
 
 ## Examples ##
 
