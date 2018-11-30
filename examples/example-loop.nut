@@ -25,15 +25,16 @@
 #require "Promise.lib.nut:4.0.0"
 
 /**
- * Example of loop execution, we have 5 sensors and one method to check state of sensor by id. We 
- * run loop() which calls checkSensor method synchronously with ids 1..5. If got rejected promise
- * on any of iterations, loop execution aborted and .fail() triggered. If all is ok, .then() called
- * with result of last iteration 
+ * Example of application for security system of the building.
+ * We need to check that all doors in building are locked. We got 5 sensors and one method to check state of
+ * sensor by id. So we call loop() which calls checkDoorById method synchronously with ids 1..5. If got rejected 
+ * promise on any of iterations, loop execution aborted and .fail() triggered. If all is ok, .then() called with 
+ * result of last iteration 
  */
 
 /**
- * If sensor is alive, it returns resolved promise with value 'true'.
- * If sensor is not responding, returns rejected promise
+ * If door is locked, it returns resolved promise with value 'true'.
+ * If door is not responding or door is unlocked, returns rejected promise
  */
 function checkDoorById (id) {
     return Promise(function(resolve, reject) {

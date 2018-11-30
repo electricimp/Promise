@@ -27,7 +27,8 @@
 const MAX = 100;
 
 /**
- * Simple example of synchronous execution with passing arguments from one step to another:
+ * In this example small application for a smart weather station. It reads temperature data from sensor and send it to agent. 
+ * Example of serial execution using chain of then() handlers.
  */
 
 // generating random number as device id, returning as promise

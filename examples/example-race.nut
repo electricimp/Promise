@@ -24,9 +24,17 @@
 
 #require "Promise.lib.nut:4.0.0"
 
+/**
+ * Example of parking assistance application
+ * There are three different parkings near the shopping center. Each parking has its own software API with
+ * different methods to find a place. We call three different methods in parallel using race(). As soon as any
+ * method will find a place, then() handler will be triggered.
+ */
+
 // max value for random generator
 const MAX = 20;
 
+// for each method we make random delay
 function checkParkingA () {
     return Promise(function (resolve, reject) {
         local delay = math.rand() % MAX + 2;

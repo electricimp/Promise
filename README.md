@@ -357,11 +357,11 @@ This method returns a promise that resolves when all of the promises in the chai
 
 #### Return Value ####
 
-Promise &mdash; A promise that resolves with the first resolved promise’s value, or is rejected with the first rejected promise’s reason.
+Promise &mdash; A promise that resolves with the last resolved promise’s value, or is rejected with the first rejected promise’s reason.
 
 #### Examples ####
 
-In the following code, *p* resolves with value `"3"` in 2.5 seconds. The second function’s argument is executed only when the first promise resolves and the second one is instantiated:
+In the following code, *p* resolves with value `3` in 2.5 seconds. The second function’s argument is executed only when the first promise resolves and the second one is instantiated:
 
 ```squirrel
 local series = [
@@ -555,8 +555,6 @@ There are two methods to execute multiple promises in parallel:
 
 * [`race(series)`](#raceseries)  
    This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves with the first resolved promise’s value, or is rejected with the first rejected promise’s reason.
-
-   **NOTE:** Execution of declared promise starts immediately and execution of promises from functions starts only after [`race`](#raceseries) call. It is not recommended to mix promise-returning functions and promises in [`race`](#raceseries) argument.
 
    For example, you write a parking assistance application and there are three different parkings. Each parking has its own software API with different methods to find a place. You can call three different methods in parallel using [`race`](#raceseries). As soon as any method finds a place, [`then`](#thenonfulfilled-onrejected) handler will be triggered.
 
