@@ -24,6 +24,12 @@
 
 #require "Promise.lib.nut:4.0.0"
 
+/**
+ * This is example of application for smart weather station. There are multiple sensors and we'll read
+ * metrics from all of them in parallel, then send data to agent. Then() handler triggered only when
+ * all data collected.
+ */
+
 // Generate random values in this methods
 function getTemperature () {
     return Promise(function (resolve, reject) {
@@ -45,7 +51,7 @@ function getHumidity () {
 }
 
 /**
- * Collect metrics from all weather sensors and send it to agent (on server)
+ * Collect metrics from all weather sensors and then send it to agent (on server)
  */
 Promise.all([getTemperature, getBarometer, getHumidity])
 .then(function(metrics) {

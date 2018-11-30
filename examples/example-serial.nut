@@ -24,12 +24,21 @@
 
 #require "Promise.lib.nut:4.0.0"
 
+/**
+ * This example emulates software update process on some device
+ * Serial execution of multiple promises used. CheckUpdates, Download and Install methods are executed one by one, 
+ * if the previous step was completed successfully. Install function returns version of the installed
+ * software update (for example 0.57), so, when all steps are passed, then() is triggered and prints out 
+ * the version.
+ */
+
 const URL = "https://product-details.mozilla.org/1.0/firefox_versions.json";
 const key = "LATEST_FIREFOX_VERSION";
 
 local cur_version = "51.1";
 local version = "";
 
+// Just for example, we'll check for new version from Mozilla API by HTTP request
 function checkUpdates () {
     return Promise(function (resolve, reject) {
         local request = http.get(URL);
@@ -51,6 +60,7 @@ function checkUpdates () {
     });
 }
 
+// Emulation of downloading process...
 function download () {
     return Promise(function(resolve, reject) {
         server.log("Downloading now...");
@@ -58,6 +68,7 @@ function download () {
     });
 }
 
+// Emulate installation, also update value of current version:
 function install () {
     server.log("Installation in progress...");
     cur_version = version;
