@@ -269,13 +269,13 @@ This method executes promises in parallel and resolves them all when the first p
 
  So using functions returning promises to pass into *serial()* makes instantiation sequential, ie. a promise is created and the action is triggered only when the previous promise in the series was resolved or rejected.
 
-**NOTE:** To be sure all Promises are created and started at same time after race() called, need to use promise-returning functions. Otherwise a promise’s execution is triggered at the moment when the promise is created (before race() actually called).
-
 #### Parameters ####
 
 | Parameter | Type | Required? | Description |
 | --- | --- | --- | --- |
 | *series* | Array of promises and/<br />or functions that return promises | Yes | The promises to be executed together |
+
+**Note** Execution of the promises are started immediately at the moment of declaration but executions of the functions that return promises are started at the moment of the *race()* method call. It is not recommended to mix promises and functions in one *race()* call.
 
 #### Return Value ####
 
