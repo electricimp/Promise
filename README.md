@@ -267,11 +267,15 @@ promises.then(function(values) {
 
 This method executes promises in parallel and resolves them all when the first promise is resolved.
 
+ So using functions returning promises to pass into *serial()* makes instantiation sequential, ie. a promise is created and the action is triggered only when the previous promise in the series was resolved or rejected.
+
 #### Parameters ####
 
 | Parameter | Type | Required? | Description |
 | --- | --- | --- | --- |
 | *series* | Array of promises and/<br />or functions that return promises | Yes | The promises to be executed together |
+
+**Note** Execution of the promises are started immediately at the moment of declaration but executions of the functions that return promises are started at the moment of the *race()* method call. It is not recommended to mix promises and functions in one *race()* call.
 
 #### Return Value ####
 
@@ -357,11 +361,11 @@ This method returns a promise that resolves when all of the promises in the chai
 
 #### Return Value ####
 
-Promise &mdash; A promise that resolves with the first resolved promise’s value, or is rejected with the first rejected promise’s reason.
+Promise &mdash; A promise that resolves with the last resolved promise’s value, or is rejected with the first rejected promise’s reason.
 
 #### Examples ####
 
-In the following code, *p* resolves with value `"3"` in 2.5 seconds. The second function’s argument is executed only when the first promise resolves and the second one is instantiated:
+In the following code, *p* resolves with value `3` in 2.5 seconds. The second function’s argument is executed only when the first promise resolves and the second one is instantiated:
 
 ```squirrel
 local series = [
@@ -381,7 +385,7 @@ local series = [
 local p = Promise.serial(series);
 ```
 
-While in the following code *p* resolves in 1.5 seconds with value `"3"` as all the promises are instantiated at the same time:
+While in the following code *p* resolves in 1.5 seconds with value `3` as all the promises are instantiated at the same time:
 
 ```squirrel
 local series = [
@@ -399,18 +403,215 @@ local series = [
 local p = Promise.serial(series);
 ```
 
+## Recommended Use ##
+
+Execution of multiple promises is possible in two modes: **synchronous** (one by one) execution and **asynchronous** (parallel) execution. The library supports the both modes.
+
+### Synchronous (One By One) Execution ###
+
+There are three methods to execute multiple promises sequentially:
+
+* [`then()`](#thenonfulfilled-onrejected)  
+   Chain of [`then`](#thenonfulfilled-onrejected) handlers is a classic way to organize serial execution. Each action passes result of execution to the next one. If the current promise in the chain has been rejected, the execution stops and [`fail`](#failonrejected) handler is triggered.  
+
+   It is useful when you need to pass data from one step to the next one.
+   
+   For example, a smart weather station needs to read temperature data from sensor and send it to agent. The code may look like this:
+
+   ```squirrel
+    const MAX = 100;
+
+    function initSensor() {
+        return Promise(function(resolve, reject) {
+            local deviceId = math.rand() % MAX;
+            resolve(deviceId);
+        });
+    }
+
+    // generating some random float value as temperature 
+    function readData(sensor) {
+        local temp = math.rand() % MAX + 0.1;
+        return temp;
+    }
+
+    initSensor()
+    .then(function(sensorId) {
+        return readData(sensorId);
+    })
+    .then(function(temp) {
+        agent.send("temp", temp);
+    })
+    .fail(function(err) {
+        server.log("Unexpected error: " + err);
+    });
+   ```
+
+   Full example: [example-then](./examples/example-then.nut)
+
+* [`serial(series)`](#serialseries)  
+   Executes actions in the exactly listed order, but without passing result from one step to another. Returns Promise, so when the whole chain of actions has been executed, the result of the last action is passed to [`then`](#thenonfulfilled-onrejected) handler. If any of the actions has been failed, [`fail`](#failonrejected) handler is triggered. 
+
+   For example, if you need to check for updates of new firmware, the code may look like below. Check, download and install functions are executed one after another, if the previous one is completed successfully. Install function returns version of the installed software update (for example 0.57), so, when all steps are passed, [`then`](#thenonfulfilled-onrejected) is triggered and prints out the version.
+
+    ```squirrel
+    function checkUpdates () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(true);
+        });
+    }
+
+    function download () {
+        // some operations here, return promise
+        return Promise.resolve(true);
+    }
+
+    function install () {
+        // some operations here, return promise
+        return Promise.resolve(version);
+    }
+
+    local series = [
+        checkUpdates,
+        download,
+        install
+    ];
+
+    Promise.serial(series)
+    .then(function(ver) {
+        server.log("Installed version: " + ver); // Installed version: 0.57
+    })
+    .fail(function(err) {
+        server.log("Error: " + err);
+    });
+    ```
+
+    Full example: [example-serial](./examples/example-serial.nut)
+
+* [`loop(counterFunction, callback)`](#loopcontinuefunction-nextfunction)  
+   This method executes the *callback*, which returns Promise, in a loop, while the *counterFunction* returns `true`. When the loop ends, it returns the result of last executed Promise.
+
+   For example, you can use `loop` to check doors sensors in the building to be sure all doors are closed, by pinging them one by one. `checkDoorById()` method checks the sensor by id and returns Promise. If a promise is rejected, the loop ends and [`fail`](#failonrejected) handler is triggered.
+
+    ```squirrel
+    function checkDoorById (id) {
+        return Promise(function (resolve, reject) {
+            // some asynchronous operations here ...
+            resolve(true);
+        });
+    }
+
+    local i = 1;
+    Promise.loop(
+        @() i++ < 6,
+        function () {
+            return checkDoorById(i);
+        }
+    )
+    .then(function(x) {
+        server.log("All doors are closed");
+    })
+    .fail(function(err) {
+        server.log("Unlocked door detected!");
+    });
+    ```
+
+    Full example: [example-loop](./examples/example-loop.nut)
+
+### Asynchronous (Parallel) Execution ###
+
+There are two methods to execute multiple promises in parallel:
+
+* [`all(series)`](#allseries)  
+   This method executes promises in parallel and resolves them when they are all done. It returns a promise that resolves to an array of the resolved promise values, or rejects with first rejected promise’s value.
+   
+   For example, if in the smart weather station application, mentioned early, you have multiple sensors and want to read and send metrics from all of them, the code may look like below. [`all`](#allseries) method returns promise and it is resolved only when all metrics are collected.
+
+    ```squirrel
+    function getTemperature () {
+        return Promise(function (resolve, reject) {
+            // some operations here ...
+            resolve(/***/);
+        });
+    }
+
+    function getBarometer () {
+        return Promise(function (resolve, reject) {
+            // some operations here ...
+            resolve(/***/);
+        });
+    }
+
+    function getHumidity () {
+        return Promise(function (resolve, reject) {
+            // some operations here ...
+            resolve(/***/);
+        });
+    }
+
+    Promise.all([getTemperature, getBarometer, getHumidity])
+    .then(function(metrics) {
+        agent.send("weather metrics", metrics);
+    });
+    ``` 
+
+    Full example: [example-all](./examples/example-all.nut)
+
+* [`race(series)`](#raceseries)  
+   This method executes multiple promises in parallel and resolves when the first is done. Returns a promise that resolves with the first resolved promise’s value, or is rejected with the first rejected promise’s reason.
+
+   For example, you write a parking assistance application and there are three different parkings. Each parking has its own software API with different methods to find a place. You can call three different methods in parallel using [`race`](#raceseries). As soon as any method finds a place, [`then`](#thenonfulfilled-onrejected) handler will be triggered.
+
+    ```squirrel
+    function checkParkingA () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(place);
+        });
+    }
+
+    function checkParkingB () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(place);
+        });
+    }
+
+    function checkParkingC () {
+        return Promise(function (resolve, reject) {
+            // some async operations here ...
+            resolve(place);
+        });
+    }
+
+    Promise.race([checkParkingA, checkParkingB, checkParkingC])
+    .then(function(place) {
+        server.log("Found place: " + place); // Found place: B11
+    });
+    .fail(function(err) {
+        server.log("Sorry, all parkings are busy now");
+    });
+    ```
+
+    Full example: [example-race](./examples/example-race.nut)
+
 ## Testing ##
 
 The library repository contains [impt](https://github.com/electricimp/imp-central-impt) tests. Please refer to the
 [imp test](https://github.com/electricimp/imp-central-impt/blob/master/TestingGuide.md) documentation for more details.
 
-The tests will run on any imp.
+The tests can be run on any imp.
 
 ## Examples ##
 
 - [Example A](./examples/example-a.nut)
 - [Example B](./examples/example-b.nut)
 - [Example C](./examples/example-c.nut)
+- [Example then()](./examples/example-then.nut)
+- [Example serial()](./examples/example-serial.nut)
+- [Example loop()](./examples/example-loop.nut)
+- [Example all()](./examples/example-all.nut)
+- [Example race()](./examples/example-race.nut)
 
 ## License ##
 
