@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright 2017 Electric Imp
+// Copyright 2017-18 Electric Imp
 //
 // SPDX-License-Identifier: MIT
 //
@@ -36,15 +36,27 @@
  * If door is locked, it returns resolved promise with value 'true'.
  * If door is not responding or door is unlocked, returns rejected promise
  */
-function checkDoorById (id) {
+function checkDoorById(id) {
     return Promise(function(resolve, reject) {
-        imp.wakeup(2, function() { resolve(true) });
+        local isClosed = true;
+
+        // Check for the door status...
+        // isClosed = ...;
+
+        // Emulate an async operation with imp.wakeup
+        imp.wakeup(2, function() {
+            if (isClosed) {
+                resolve(); // door is closed
+            } else {
+                reject("Door " + id  + " id open!"); // door ie open
+            }
+        });
     });
 }
 
-local i = 1;
+local i = 0;
 Promise.loop(
-    @() i++ < 6,
+    @() i++ < 5,
     function () {
         return checkDoorById(i);
     }
@@ -52,10 +64,6 @@ Promise.loop(
 .then(function(x) { // called in 10 seconds
     server.log("All doors are closed");
 })
-.fail(function(err){
-    server.log("Unlocked door detected!");
+.fail(function(err) {
+    server.log("Unlocked door detected: " + err);
 });
-
-// Result:
-// (delay 10 seconds)
-// All sensors are alive
