@@ -34,38 +34,38 @@
 // max value for random generator
 const MAX = 20;
 
-// for each method we make random delay
-function checkParkingA () {
-    return Promise(function (resolve, reject) {
-        local delay = math.rand() % MAX + 2;
-        local place = "A" + (math.rand() % MAX);
-        imp.wakeup(delay, function() { resolve(place) });
+// For each method we make random delay
+function checkSlot(prefix, found) {
+    // When a place is found, call `found(placeId)`
+    // with the found slot id as the first argument
+
+    local delay = math.rand() % MAX + 2;
+    local place = prefix + (math.rand() % MAX);
+    imp.wakeup(delay, function() {
+        found(place)
     });
 }
 
-function checkParkingB () {
+function checkParkingA() {
     return Promise(function (resolve, reject) {
-        local delay = math.rand() % MAX + 2;
-        local place = "B" + (math.rand() % MAX);
-        imp.wakeup(delay, function() { resolve(place) });
+        checkSlot("A", resolve);
     });
 }
 
-function checkParkingC () {
+function checkParkingB() {
     return Promise(function (resolve, reject) {
-        local delay = math.rand() % MAX + 2;
-        local place = "C" + (math.rand() % MAX);
-        imp.wakeup(delay, function() { resolve(place) });
+        checkSlot("B", resolve);
     });
 }
 
-server.log("looking for place on parking...");
+function checkParkingC() {
+    return Promise(function (resolve, reject) {
+        checkSlot("C", resolve);
+    });
+}
+
+server.log("Дooking for a place available...");
 Promise.race([checkParkingA, checkParkingB, checkParkingC])
 .then(function(place) {
     server.log("Found place: " + place);
 })
-.fail(function(err) {
-    server.log("Sorry, all parkings are busy now");
-});
-
-
