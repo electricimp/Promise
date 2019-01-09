@@ -486,7 +486,7 @@ There are three methods to execute multiple promises sequentially:
     });
     ```
 
-    Full example: [example-serial](./examples/example-serial.nut)
+    Full example: [example-serial](./examples/example-serial.agent.nut)
 
 * [`loop(counterFunction, callback)`](#loopcontinuefunction-nextfunction)  
    This method executes the *callback*, which returns Promise, in a loop, while the *counterFunction* returns `true`. When the loop ends, it returns the result of last executed Promise.
@@ -608,7 +608,7 @@ The tests can be run on any imp.
 - [Example B](./examples/example-b.nut)
 - [Example C](./examples/example-c.nut)
 - [Example then()](./examples/example-then.nut)
-- [Example serial()](./examples/example-serial.nut)
+- [Example serial()](./examples/example-serial.agent.nut)
 - [Example loop()](./examples/example-loop.nut)
 - [Example all()](./examples/example-all.nut)
 - [Example race()](./examples/example-race.nut)

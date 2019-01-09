@@ -22,19 +22,21 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
+/**
+ * Example of application for security system of the building.
+ * The goal is to check that all doors in building are locked or raise an alert otherwise.
+ * There are 5 door sensors and a method to check the states by a sensor id.
+ * So we call `loop()` which invokes `checkDoorById` method synchronously with ids 1..5.
+ * If we've got a rejected promise on any of iterations,
+ * the loop execution is aborted and `fail()` is triggered.
+ * If all is ok, `then()` is called with the result of the last iteration.
+ */
+
 #require "Promise.lib.nut:4.0.0"
 
 /**
- * Example of application for security system of the building.
- * We need to check that all doors in building are locked. We got 5 sensors and one method to check state of
- * sensor by id. So we call loop() which calls checkDoorById method synchronously with ids 1..5. If got rejected 
- * promise on any of iterations, loop execution aborted and .fail() triggered. If all is ok, .then() called with 
- * result of last iteration 
- */
-
-/**
- * If door is locked, it returns resolved promise with value 'true'.
- * If door is not responding or door is unlocked, returns rejected promise
+ * If the door specified by `id` is locked, it returns a resolved `Promise` with `true`.
+ * If the door is not responding or door is unlocked, returns a rejected `Promise`.
  */
 function checkDoorById(id) {
     return Promise(function(resolve, reject) {
@@ -48,7 +50,7 @@ function checkDoorById(id) {
             if (isClosed) {
                 resolve(); // door is closed
             } else {
-                reject("Door " + id  + " id open!"); // door ie open
+                reject("A door is open!"); // door is open
             }
         });
     });

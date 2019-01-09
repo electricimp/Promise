@@ -22,57 +22,61 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#require "Promise.lib.nut:4.0.0"
-
 /**
- * This example emulates software update process on some device
- * Serial execution of multiple promises used. CheckUpdates, Download and Install methods are executed one by one, 
- * if the previous step was completed successfully. Install function returns version of the installed
- * software update (for example 0.57), so, when all steps are passed, then() is triggered and prints out 
- * the version.
+ * This example emulates a software update process on a device.
+ * It shows a serial execution of multiple promises.
+ * CheckUpdates, Download and Install methods are executed one by one,
+ * if the previous step succeeds. The `install` function returns version
+ * of the installed software update (for example 0.57), which is then
+ * printed upon successfull installation.
+ *
+ * NOTE: this code should be run on agent side only!
  */
+
+#require "Promise.lib.nut:4.0.0"
 
 const URL = "https://product-details.mozilla.org/1.0/firefox_versions.json";
 const key = "LATEST_FIREFOX_VERSION";
 
-local cur_version = "51.1";
-local version = "";
+local curVersion = "51.1";
+local newVersion = "";
 
-// Just for example, we'll check for new version from Mozilla API by HTTP request
-function checkUpdates () {
-    return Promise(function (resolve, reject) {
+// To make the example more realistic, we'll check for
+// a new version from Mozilla API via an HTTP request
+function checkUpdates() {
+    return Promise(function(resolve, reject) {
         local request = http.get(URL);
         local response = request.sendsync();
- 
+
         if (response.statuscode == 200) {
             local data = http.jsondecode(response.body);
-            version = data[key];
-            
-            if (cur_version == version) {
+            newVersion = data[key];
+
+            if (curVersion == newVersion) {
                 reject("Latest version is already installed");
             } else {
                 server.log("New version available");
             }
             resolve(true);
         } else {
-            reject("connection error");
+            reject("Connection error");
         }
     });
 }
 
 // Emulation of downloading process...
-function download () {
+function download() {
     return Promise(function(resolve, reject) {
         server.log("Downloading now...");
-        imp.wakeup(4, function () { resolve(true) });
+        imp.wakeup(4, function() { resolve(true) });
     });
 }
 
-// Emulate installation, also update value of current version:
-function install () {
+// Emulate installation, also update value of current version
+function install() {
     server.log("Installation in progress...");
-    cur_version = version;
-    return Promise.resolve(version);
+    curVersion = newVersion;
+    return Promise.resolve(newVersion);
 }
 
 local series = [
@@ -88,10 +92,3 @@ Promise.serial(series)
 .fail(function(err) {
     server.log("Error: " + err);
 });
-
-// Result:
-// New version available
-// Downloading now...
-// ( delay 5 seconds ) 
-// Installation in progress...
-// Success. Installed version: 63.0.3

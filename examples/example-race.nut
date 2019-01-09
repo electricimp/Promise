@@ -22,14 +22,16 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#require "Promise.lib.nut:4.0.0"
-
 /**
- * Example of parking assistance application
- * There are three different parkings near the shopping center. Each parking has its own software API with
- * different methods to find a place. We call three different methods in parallel using race(). As soon as any
- * method will find a place, then() handler will be triggered.
+ * The example demonstrates a parking assistance application.
+ *
+ * There are three different parkings lots near a shopping center.
+ * Each parking lot has its own software API with different methods to find a place.
+ * We call three different methods in parallel using race().
+ * As soon as any method finds a spot, `then()` handler is triggered.
  */
+
+#require "Promise.lib.nut:4.0.0"
 
 // max value for random generator
 const MAX = 20;
@@ -38,7 +40,6 @@ const MAX = 20;
 function checkSlot(prefix, found) {
     // When a place is found, call `found(placeId)`
     // with the found slot id as the first argument
-
     local delay = math.rand() % MAX + 2;
     local place = prefix + (math.rand() % MAX);
     imp.wakeup(delay, function() {
@@ -64,7 +65,7 @@ function checkParkingC() {
     });
 }
 
-server.log("Дooking for a place available...");
+server.log("Looking for a place available...");
 Promise.race([checkParkingA, checkParkingB, checkParkingC])
 .then(function(place) {
     server.log("Found place: " + place);

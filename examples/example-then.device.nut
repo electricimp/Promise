@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright 2017 Electric Imp
+// Copyright 2019 Electric Imp
 //
 // SPDX-License-Identifier: MIT
 //
@@ -22,14 +22,17 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
+/**
+ * In this example small application for a smart weather station.
+ * It reads temperature data from sensor and send it to agent.
+ * Example of serial execution using chain of then() handlers.
+ *
+ * NOTE: this code should be run on device side only!
+ */
+
 #require "Promise.lib.nut:4.0.0"
 
 const MAX = 100;
-
-/**
- * In this example small application for a smart weather station. It reads temperature data from sensor and send it to agent. 
- * Example of serial execution using chain of then() handlers.
- */
 
 // generating random number as device id, returning as promise
 function initSensor() {
