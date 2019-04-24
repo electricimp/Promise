@@ -18,7 +18,7 @@ The Promise library API extends that of the JavaScript implementation. It also i
 
 **To include this library in your project, add** `#require "Promise.lib.nut:4.0.0"` **to the top of your agent and/or device code.**
 
-[![Build Status](https://travis-ci.org/electricimp/Promise.svg?branch=master)](https://travis-ci.org/electricimp/Promise)
+![Build Status](https://cse-ci.electricimp.com/app/rest/builds/buildType:(id:Promise_BuildAndTest)/statusIcon)
 
 ## Class Usage ##
 
