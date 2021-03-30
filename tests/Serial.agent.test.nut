@@ -121,4 +121,48 @@ class SerialTestCase extends ImpTestCase {
 
         }.bindenv(this));
     }
+
+    function testSerialWithBadPromisesArray() {
+
+        return Promise(function(ok, err) {
+
+            ::Promise.serial(true)
+
+                .fail(function (v) {
+                    try {
+                        // .serial() should reject with value of the rejected promise
+                        assertEqual("Promise.serial() not passed an array", v);
+                        ok();
+                    } catch (e) {
+                        err(e);
+                    }
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
+
+    function testSerialWithArrayCallFix() {
+
+        local executeCommand = Promise(function(resolve, reject) {
+            imp.wakeup(0, function() {
+                resolve("Array function called");
+            });
+        });
+
+        local promises = [ executeCommand ];
+
+        return Promise(function(ok, err) {
+
+            ::Promise.serial(promises)
+                .then(function(v) {
+                    assertEqual("Array function called", v);
+                    ok();
+                }.bindenv(this))
+
+                .fail(function (v) {
+                    err(e);
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
 }
