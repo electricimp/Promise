@@ -254,9 +254,9 @@ class Promise {
 
         local i = 0;
         return loop(
-            // This is a Squirrel lamda --
-            // see https://developer.electricimp.com/squirrel/squirrel-guide/
-            @() i < promises.len(),     functions#lambda-functions
+            // This is a Squirrel lambda --
+            // see https://developer.electricimp.com/squirrel/squirrel-guide/functions#lambda-functions
+            @() i < promises.len(),
 
             // FROM 4.0.1
             // Implement fix for this reported issue (#24):
