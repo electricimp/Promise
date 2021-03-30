@@ -246,18 +246,31 @@ class Promise {
     // @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
     //
     static function serial(promises) {
+        // FROM 4.0.1
+        // Check we at least have an array -- return an auto-reject Promise if not
         if (typeof promises != "array") {
             return Promise.reject("Promise.serial() not passed an array");
         }
 
         local i = 0;
         return loop(
-            @() i < promises.len(),     // This is a Squirrel lamda --
-                                        // see https://developer.electricimp.com/squirrel/squirrel-guide/functions#lambda-functions
+            // This is a Squirrel lamda --
+            // see https://developer.electricimp.com/squirrel/squirrel-guide/
+            @() i < promises.len(),     functions#lambda-functions
+
+            // FROM 4.0.1
+            // Implement fix for this reported issue (#24):
+            // https://forums.electricimp.com/t/my-integer-suddenly-becomes-a-string/6454/7
             function () {
-                local res = promises[i++];
-                if ("function" == typeof res) res = res();
-                return res;
+                local nextFunction = promises[i++];
+                if ("function" == typeof nextFunction) {
+                    // Return function call -- it should return
+                    // a promise
+                    return nextFunction();
+                } else {
+                    // Return a promise
+                    return nextFunction;
+                }
             }
         )
     }
