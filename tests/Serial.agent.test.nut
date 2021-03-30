@@ -143,11 +143,17 @@ class SerialTestCase extends ImpTestCase {
 
     function testSerialWithArrayCallFix() {
 
-        local executeCommand = Promise(function(resolve, reject) {
-            imp.wakeup(0, function() {
-                resolve("Array function called");
+        // TEST FIX TO PROMISE.SERIAL
+        // See https://forums.electricimp.com/t/my-integer-suddenly-becomes-a-string/6454/7
+
+        local executeCommand = function() {
+            // Function returns a promise
+            return Promise(function(resolve, reject) {
+                imp.wakeup(0, function() {
+                    resolve("Array function called");
+                });
             });
-        });
+        }
 
         local promises = [ executeCommand ];
 
