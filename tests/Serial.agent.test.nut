@@ -146,26 +146,59 @@ class SerialTestCase extends ImpTestCase {
         // TEST FIX TO PROMISE.SERIAL
         // See https://forums.electricimp.com/t/my-integer-suddenly-becomes-a-string/6454/7
 
-        local executeCommand = function() {
-            // Function returns a promise
-            return Promise(function(resolve, reject) {
-                imp.wakeup(0, function() {
-                    resolve("Array function called");
-                });
-            });
-        }
-
-        local promises = [ executeCommand ];
-
         return Promise(function(ok, err) {
+
+            ::executeCommand <- function(cmd) {
+                server.log("--> " + cmd);
+                return Promise(function(resolve, reject) {
+                    imp.wakeup(0, function() {
+                        server.log("<-- " + cmd);
+                        resolve("executeCommand() promise resolved");
+                    });
+                });
+            }
+
+            ::currentCommandPromise <- null;
+
+            ::commandWrapper <- function(callback) {
+                if (null == currentCommandPromise) {
+                    currentCommandPromise = callback();
+                } else {
+                    currentCommandPromise = currentCommandPromise.then(
+                        function(value) { // onFulfilled
+                            return callback();
+                        },
+                        function(reason) { // onError
+                            server.error("Failed callback: " + reason);
+                            return callback();
+                        }
+                    );
+                }
+
+                return currentCommandPromise;
+            }
+
+            ::onStartCallback <- function() {
+                local promises = [
+                    function() {
+                        return executeCommand("onStartCallback");
+                    }
+                ];
+
+                return commandWrapper(function() {
+                    return Promise.serial(promises);
+                });
+            }
+
+            local promises = [ function() { return onStartCallback(); } ];
 
             ::Promise.serial(promises)
                 .then(function(v) {
-                    assertEqual("Array function called", v);
+                    assertEqual("executeCommand() promise resolved", v);
                     ok();
                 }.bindenv(this))
 
-                .fail(function (v) {
+                .fail(function (e) {
                     err(e);
                 }.bindenv(this));
 
