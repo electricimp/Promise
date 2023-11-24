@@ -423,7 +423,7 @@ There are three methods that you can use to execute multiple promises sequential
         });
    ```
 
-   Complete example code can be found [here](./examples/example-then.nut)
+   Complete example code can be found [here](./examples/example-then.device.nut)
 
 * [*serial(series)*](#serialseries)
    This approach executes actions in the listed order (is *series*) exactly, but without passing the result from one step to the next. It returns a promise, so when the whole chain of actions has been executed, the result of the last action is passed to any [*then()*](#thenonfulfilled-onrejected)-registered callback. If any of the actions have failed, any [*fail()*](#failonrejected)-registered callback is executed.
@@ -572,7 +572,6 @@ There are two methods to execute multiple promises in parallel:
 
 - [Example A](./examples/example-a.nut)
 - [Example B](./examples/example-b.nut)
-- [Example C](./examples/example-c.nut)
 
 ## Testing ##
 
