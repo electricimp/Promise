@@ -1,4 +1,4 @@
-# Promise 4.0.0 #
+# Promise 4.0.1 #
 
 This library provides an implementation of promises for Electric Imp Squirrel.
 
@@ -16,7 +16,7 @@ The Promise library API extends that of the JavaScript implementation. It also i
 - [*Promise.loop()*](#loopcontinuefunction-nextfunction)
 - [*Promise.serial()*](#serialseries)
 
-**To include this library in your project, add** `#require "Promise.lib.nut:4.0.0"` **to the top of your agent and/or device code.**
+**To include this library in your project, add** `#require "Promise.lib.nut:4.0.1"` **to the top of your agent and/or device code.**
 
 ![Build Status](https://cse-ci.electricimp.com/app/rest/builds/buildType:(id:Promise_BuildAndTest)/statusIcon)
 
@@ -34,7 +34,7 @@ Exactly one of these functions should be executed at the completion of the *acti
 #### Example ####
 
 ```squirrel
-#require "Promise.lib.nut:4.0.0"
+#require "Promise.lib.nut:4.0.1"
 
 myPromise <- Promise(myActionFunction);
 ```
@@ -100,7 +100,7 @@ Promise.resolve(name)
         // Second 'then' in the chain
         .then(
             // THere is now no 'onFulfilled' handler
-            null, 
+            null,
             // Set the 'onRejected' handler
             function(reason) {
                 // I run with reason == "invalid name"
@@ -339,8 +339,8 @@ local done = Promise.loop(
                 // The next promise provider function
                 function() {
                     return Promise(function (resolve, reject) {
-                        imp.wakeup(3, function() { 
-                            resolve("Counter is " + i); 
+                        imp.wakeup(3, function() {
+                            resolve("Counter is " + i);
                         });
                     });
                 });
@@ -410,8 +410,8 @@ The execution of multiple promises is possible in two modes: *synchronous* (one 
 
 There are three methods that you can use to execute multiple promises sequentially:
 
-* [*then()*](#thenonfulfilled-onrejected)  
-   A chain of [*then()*)](#thenonfulfilled-onrejected)-registered callbacks is a classic way to ensure serial execution. Each action passes the result of execution to the next action. If the current promise in the chain has been rejected, execution stops and any [*fail()*](#failonrejected)-registered callback is triggered.  
+* [*then()*](#thenonfulfilled-onrejected)
+   A chain of [*then()*)](#thenonfulfilled-onrejected)-registered callbacks is a classic way to ensure serial execution. Each action passes the result of execution to the next action. If the current promise in the chain has been rejected, execution stops and any [*fail()*](#failonrejected)-registered callback is triggered.
 
    This method is useful when you need to pass data from one step to the next. For example, a smart weather station needs to read temperature data from sensor and send it to the agent:
 
@@ -425,7 +425,7 @@ There are three methods that you can use to execute multiple promises sequential
         });
     }
 
-    // Generate some random float value as temperature 
+    // Generate some random float value as temperature
     function readData(sensor) {
         local temp = math.rand() % MAX + 0.1;
         return temp;
@@ -443,10 +443,10 @@ There are three methods that you can use to execute multiple promises sequential
         });
    ```
 
-   Complete example code can be found [here](./examples/example-then.nut)
+   Complete example code can be found [here](./examples/example-then.device.nut)
 
-* [*serial(series)*](#serialseries)  
-   This approach executes actions in the listed order (is *series*) exactly, but without passing the result from one step to the next. It returns a promise, so when the whole chain of actions has been executed, the result of the last action is passed to any [*then()*](#thenonfulfilled-onrejected)-registered callback. If any of the actions have failed, any [*fail()*](#failonrejected)-registered callback is executed. 
+* [*serial(series)*](#serialseries)
+   This approach executes actions in the listed order (is *series*) exactly, but without passing the result from one step to the next. It returns a promise, so when the whole chain of actions has been executed, the result of the last action is passed to any [*then()*](#thenonfulfilled-onrejected)-registered callback. If any of the actions have failed, any [*fail()*](#failonrejected)-registered callback is executed.
 
    For example, the following code checks for firmware updates. Check, download and install functions are executed one after another, if the previous function completed successfully. The install function returns the version of the installed software update (eg. 0.57) so, hen all steps are complete, the [*then()*](#thenonfulfilled-onrejected) callback is triggered to print out the version.
 
@@ -482,7 +482,7 @@ There are three methods that you can use to execute multiple promises sequential
 
     Complete example code can be found [here](./examples/example-serial.agent.nut)
 
-* [*loop(counterFunction, callback)*](#loopcontinuefunction-nextfunction)  
+* [*loop(counterFunction, callback)*](#loopcontinuefunction-nextfunction)
    This method executes *callback*, which returns Promise, in a loop, while *counterFunction* returns `true`. When the loop ends, it returns the result of last executed Promise.
 
    For example, you can use *loop()* to check a building’s door sensors one by one to be sure that all the doors are closed. The *checkDoorById()* function checks the sensor by ID and returns a promise. If a promise is rejected, the loop ends and the [*fail()*](#failonrejected)-registered callback is triggered.
@@ -515,9 +515,9 @@ There are three methods that you can use to execute multiple promises sequential
 
 There are two methods to execute multiple promises in parallel:
 
-* [*all(series)*](#allseries)  
+* [*all(series)*](#allseries)
    This method executes promises in parallel and resolves them when they are all done. It returns a promise that resolves to an array of the resolved promise values, or rejects with first rejected promise’s value.
-   
+
    For example, a smart weather station application has multiple sensors. The following code reads and sends metrics from all of them. The [*all()*](#allseries) call returns a promise that is resolved only when all the measurements have been collected.
 
     ```squirrel
@@ -546,11 +546,11 @@ There are two methods to execute multiple promises in parallel:
            .then(function(metrics) {
                agent.send("weather metrics", metrics);
             });
-    ``` 
+    ```
 
     Complete example code can be found [here](./examples/example-all.nut)
 
-* [*race(series)*](#raceseries)  
+* [*race(series)*](#raceseries)
    This method executes multiple promises in parallel and resolves when the first one is done. It returns a promise that resolves with the first resolved promise’s value, or is rejected with the first rejected promise’s reason.
 
    For example, you have written a parking assistance application for three different carparks. Each carpark has its own API with different methods to find a free parking bay. You can call three different methods in parallel using [*race()*](#raceseries). As soon as any method finds a place, the [*then()*](#thenonfulfilled-onrejected)-registered callback will be triggered.
@@ -592,7 +592,6 @@ There are two methods to execute multiple promises in parallel:
 
 - [Example A](./examples/example-a.nut)
 - [Example B](./examples/example-b.nut)
-- [Example C](./examples/example-c.nut)
 
 ## Testing ##
 

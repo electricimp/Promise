@@ -1,6 +1,7 @@
 // MIT License
 //
-// Copyright 2016-18 Electric Imp
+// Copyright 2020-23 KOIRE Wireless
+// Copyright 2016-19 Electric Imp
 //
 // SPDX-License-Identifier: MIT
 //
@@ -117,6 +118,89 @@ class SerialTestCase extends ImpTestCase {
                     } catch (e) {
                         err(e);
                     }
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
+
+    function testSerialWithBadPromisesArray() {
+
+        return Promise(function(ok, err) {
+
+            ::Promise.serial(true)
+
+                .fail(function (v) {
+                    try {
+                        // .serial() should reject with value of the rejected promise
+                        assertEqual("Promise.serial() not passed an array", v);
+                        ok();
+                    } catch (e) {
+                        err(e);
+                    }
+                }.bindenv(this));
+
+        }.bindenv(this));
+    }
+
+    function testSerialWithArrayCallFix() {
+
+        // TEST FIX TO PROMISE.SERIAL
+        // See https://forums.electricimp.com/t/my-integer-suddenly-becomes-a-string/6454/7
+
+        return Promise(function(ok, err) {
+
+            ::executeCommand <- function(cmd) {
+                server.log("--> " + cmd);
+                return Promise(function(resolve, reject) {
+                    imp.wakeup(0, function() {
+                        server.log("<-- " + cmd);
+                        resolve("executeCommand() promise resolved");
+                    });
+                });
+            }
+
+            ::currentCommandPromise <- null;
+
+            ::commandWrapper <- function(callback) {
+                if (null == currentCommandPromise) {
+                    currentCommandPromise = callback();
+                } else {
+                    currentCommandPromise = currentCommandPromise.then(
+                        function(value) { // onFulfilled
+                            return callback();
+                        },
+                        function(reason) { // onError
+                            server.error("Failed callback: " + reason);
+                            return callback();
+                        }
+                    );
+                }
+
+                return currentCommandPromise;
+            }
+
+            ::onStartCallback <- function() {
+                local promises = [
+                    function() {
+                        return executeCommand("onStartCallback");
+                    }
+                ];
+
+                return commandWrapper(function() {
+                    return Promise.serial(promises);
+                });
+            }
+
+            local promises = [ function() { return onStartCallback(); } ];
+
+            ::Promise.serial(promises)
+                .then(function(v) {
+                    assertEqual("executeCommand() promise resolved", v);
+                    ok();
+                }.bindenv(this))
+
+                .fail(function (e) {
+                    err(e);
                 }.bindenv(this));
 
         }.bindenv(this));

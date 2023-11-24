@@ -1,6 +1,7 @@
 // MIT License
 //
-// Copyright 2019 Electric Imp
+// Copyright 2020-23 KOIRE Wireless
+// Copyright 2016-19 Electric Imp
 //
 // SPDX-License-Identifier: MIT
 //
@@ -33,7 +34,7 @@
  * NOTE: this code should be run on agent side only!
  */
 
-#require "Promise.lib.nut:4.0.0"
+#require "Promise.lib.nut:4.0.1"
 
 const URL = "https://product-details.mozilla.org/1.0/firefox_versions.json";
 const key = "LATEST_FIREFOX_VERSION";

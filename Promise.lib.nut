@@ -1,6 +1,8 @@
 // MIT License
 //
+// Copyright 2020-23 KOIRE Wireless
 // Copyright 2016-19 Electric Imp
+// Copyright 2015 SMS Diagnostics Pty Ltd
 //
 // SPDX-License-Identifier: MIT
 //
@@ -28,7 +30,7 @@ const PROMISE_ERR_UNHANDLED_REJ  = "Unhandled promise rejection: ";
 
 // Promises for Electric Imp/Squirrel
 class Promise {
-    static VERSION = "4.0.0";
+    static VERSION = "4.0.1";
 
     static STATE_PENDING = 0;
     static STATE_FULFILLED = 1;
@@ -128,17 +130,15 @@ class Promise {
     // @return {boolean}
     //
     function _isPromise(value) {
-        if (
-            // detect that the value is some form of Promise
+        if (// detect that the value is some form of Promise
             // by the fact it has .then() method
-            (typeof value == "instance")
-            && ("then" in value)
-            && (typeof value.then == "function")
-          ) {
-            return true
+            (typeof value == "instance") &&
+            ("then" in value) &&
+            (typeof value.then == "function")){
+                return true;
         }
 
-        return false
+        return false;
     }
 
     //
@@ -160,7 +160,7 @@ class Promise {
                 "onFulfilled": onFulfilled,
                 "reject": reject.bindenv(this),
                 "onRejected": onRejected
-            })
+            });
         });
 
         _callHandlers();
@@ -219,7 +219,7 @@ class Promise {
                     next().then(
                         function (v) {
                             lastResolvedWith = v;
-                            imp.wakeup(0, doLoop)
+                            imp.wakeup(0, doLoop);
                         },
                         reject
                     );
@@ -240,20 +240,42 @@ class Promise {
     // Make every promise in array of promises not last
     // for suppressing Unhadled Exeptions Warnings
     //
+    // FROM 4.0.1 -- Update function to avoid calling 'array[any exp.]()' as
+    //               identified by @gjanvier, and to check for non-array params
+    //
     // @param {{Promise|function}[]} promises - array of Promises/functions that return Promises
     // @return {Promise} Promise that is resolved/rejected with the last value that come from looped promise
     //
     static function serial(promises) {
+        // FROM 4.0.1
+        // Check we at least have an array -- return an auto-reject Promise if not
+        if (typeof promises != "array") {
+            return Promise.reject("Promise.serial() not passed an array");
+        }
+
         local i = 0;
         return loop(
+            // This is a Squirrel lambda --
+            // see https://developer.electricimp.com/squirrel/squirrel-guide/functions#lambda-functions
             @() i < promises.len(),
+
+            // FROM 4.0.1
+            // Implement fix for this reported issue (#24):
+            // https://forums.electricimp.com/t/my-integer-suddenly-becomes-a-string/6454/7
             function () {
-                return "function" == type(promises[i])
-                     ? promises[i++]()
-                     : promises[i++];
+                local nextFunction = promises[i++];
+                if ("function" == typeof nextFunction) {
+                    // Return function call -- it should return
+                    // a promise
+                    return nextFunction();
+                } else {
+                    // Return a promise
+                    return nextFunction;
+                }
             }
         )
     }
+
 
     //
     // Returns Promise that resolves when all promises in the list resolve
@@ -297,7 +319,7 @@ class Promise {
 
             }
 
-        }.bindenv(this))
+        }.bindenv(this));
     }
 
     //
