@@ -132,8 +132,28 @@ It is prudent always to add the following line at the end of your promise chains
 
 This method allows you to register a callback which will be executed the promise is rejected. It is equivalent to calling `then(null, onRejected)`.
 
-#### Parameters #// Copyright 2021 Twilio
-// Copyright 2016-19 Electric Imps you to provide a handler which will be called when the promise is either resolved or rejected, ie. when the promise is *settled*. It is equivalent to `then(onResolvedOrRejected, onResolvedOrRejected)`.
+#### Parameters ####
+
+| Parameter | Type | Required? | Description |
+| --- | --- | --- | --- |
+| *onRejected* | Function | Yes | Called when the promise is rejected. It has one parameter of its own: *reason*, which receives a message indicating the reason for the rejection |
+
+#### Return Value ####
+
+Promise &mdash; A promise object.
+
+#### Example ####
+
+```squirrel
+myPromise.then(successHandler)
+         .fail(function(reason) {
+            server.log("myPromise rejected for reason OR successHandler through exception: " + reason);
+         });
+```
+
+### finally(*onResolvedOrRejected*) ###
+
+This method allows you to provide a handler which will be called when the promise is either resolved or rejected, ie. when the promise is *settled*. It is equivalent to `then(onResolvedOrRejected, onResolvedOrRejected)`.
 
 #### Parameters ####
 
