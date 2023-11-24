@@ -1,6 +1,7 @@
 // MIT License
 //
-// Copyright 2017-19 Electric Imp
+// Copyright 2020-23 KOIRE Wireless
+// Copyright 2016-19 Electric Imp
 //
 // SPDX-License-Identifier: MIT
 //
@@ -22,7 +23,7 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#require "Promise.lib.nut:4.0.0"
+#require "Promise.lib.nut:4.0.1"
 
 // -----------------------------------------------------------------------------
 // This class exposed a single method fire() which waits a second and then randomly fails or succeeds.

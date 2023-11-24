@@ -1,7 +1,8 @@
 // MIT License
 //
-// Copyright 2021 Twilio
+// Copyright 2020-23 KOIRE Wireless
 // Copyright 2016-19 Electric Imp
+// Copyright 2015 SMS Diagnostics Pty Ltd
 //
 // SPDX-License-Identifier: MIT
 //

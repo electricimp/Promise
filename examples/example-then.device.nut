@@ -1,6 +1,7 @@
 // MIT License
 //
-// Copyright 2019 Electric Imp
+// Copyright 2020-23 KOIRE Wireless
+// Copyright 2016-19 Electric Imp
 //
 // SPDX-License-Identifier: MIT
 //
@@ -30,7 +31,7 @@
  * NOTE: this code should be run on device side only!
  */
 
-#require "Promise.lib.nut:4.0.0"
+#require "Promise.lib.nut:4.0.1"
 
 const MAX = 100;
 
@@ -42,7 +43,7 @@ function initSensor() {
     });
 }
 
-// generating some random float value as temperature 
+// generating some random float value as temperature
 function readData(sensor) {
     local temp = math.rand() % MAX + 0.1;
     return temp;

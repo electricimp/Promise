@@ -1,6 +1,7 @@
 // MIT License
 //
-// Copyright 2019 Electric Imp
+// Copyright 2020-23 KOIRE Wireless
+// Copyright 2016-19 Electric Imp
 //
 // SPDX-License-Identifier: MIT
 //
@@ -32,7 +33,7 @@
  * If all is ok, `then()` is called with the result of the last iteration.
  */
 
-#require "Promise.lib.nut:4.0.0"
+#require "Promise.lib.nut:4.0.1"
 
 /**
  * If the door specified by `id` is locked, it returns a resolved `Promise` with `true`.
